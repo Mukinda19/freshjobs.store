@@ -1,0 +1,60 @@
+/* styles/globals.css */
+
+/* Import Tailwind base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom global styles */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f9f9f9;
+  color: #1a202c; /* Gray-800 */
+  margin: 0;
+  padding: 0;
+}
+
+/* Links */
+a {
+  color: #2563eb; /* Blue-600 */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  color: #111827; /* Gray-900 */
+}
+
+/* Paragraphs */
+p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Input and textarea */
+input, textarea {
+  border: 1px solid #d1d5db; /* Gray-300 */
+  border-radius: 0.375rem; /* rounded-md */
+  padding: 0.5rem 0.75rem;
+  outline: none;
+}
+
+input:focus, textarea:focus {
+  border-color: #2563eb; /* Blue-600 */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); /* Focus ring */
+}
