@@ -28,7 +28,7 @@ export default function Home({ jobs }) {
           </div>
         </section>
       </main>
-      <Footer />
+      
     </>
   );
 }

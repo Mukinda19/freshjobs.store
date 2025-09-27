@@ -4,7 +4,7 @@
 export default function About() {
   return (
     <>
-      <Header />
+      
       <main className="max-w-4xl mx-auto px-4 my-8">
         <h1 className="text-3xl font-bold mb-4">About FreshJobs.Store</h1>
         <p className="text-gray-700 mb-2">
@@ -15,7 +15,7 @@ export default function About() {
           Our mission is to make job search easy and accessible for everyone.
         </p>
       </main>
-      <Footer />
+      
     </>
   );
 }
