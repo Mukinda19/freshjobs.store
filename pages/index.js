@@ -1,6 +1,5 @@
 import Head from "next/head";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+
 import CategoryGrid from "../components/CategoryGrid";
 import JobCard from "../components/JobCard";
 import { fetchJobs } from "../utils/apiHelpers";

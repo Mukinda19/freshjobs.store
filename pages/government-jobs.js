@@ -1,5 +1,4 @@
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+
 import { fetchGovtJobs } from "../utils/apiHelpers";
 import JobCard from "../components/JobCard";
 
