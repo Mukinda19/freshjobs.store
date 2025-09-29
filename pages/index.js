@@ -11,7 +11,7 @@ export default function Home({ jobs }) {
         <title>FreshJobs.Store | Find Jobs in India</title>
         <meta name="description" content="Search latest jobs in India across IT, Govt, BPO, Banking and more. Free resume builder and job alerts." />
       </Head>
-      <Header />
+      
       <main className="max-w-6xl mx-auto px-4">
         <section className="my-8">
           <h1 className="text-3xl font-bold mb-4">Search Jobs in India</h1>
