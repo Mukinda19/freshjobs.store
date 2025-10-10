@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -13,206 +13,192 @@ export default function Contact() {
     experience: "",
     languages: "",
     summary: "",
-    honeypot: "", // spam protection
+    honeypot: "",
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showScroll, setShowScroll] = useState(false);
+  const [fadeIn, setFadeIn] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setFadeIn(true), 100);
+    const handleScroll = () => {
+      if (window.scrollY > 300) setShowScroll(true);
+      else setShowScroll(false);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.honeypot) return;
 
-    // 🛡️ Spam protection check
-    if (formData.honeypot !== "") {
-      console.warn("Spam detected!");
-      return;
-    }
-
-    setIsSubmitting(true);
-    setMessage("");
+    setStatus("Submitting...");
 
     try {
-      const res = await fetch(
-        "https://script.google.com/macros/s/AKfycbza0ixTZTC3noAW335yrL70QaAnLqafYzDKEiGt2tOooE-_6JKp8R1cO4bpwmiTcW6Z/exec",
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycbz3jMYwNNSvYv2QNgU-E1rNeTw7AjzKUHy1VCpcDMQbNOBn3watw2Zr1gNrqqOicJKMdA/exec",
         {
           method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: new FormData(e.target),
         }
       );
 
-      setMessage("✅ Your form has been submitted successfully!");
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        dob: "",
-        gender: "",
-        address: "",
-        education: "",
-        skills: "",
-        experience: "",
-        languages: "",
-        summary: "",
-        honeypot: "",
-      });
-
-      // 💫 Success animation (fade-out after 3 seconds)
-      setTimeout(() => setMessage(""), 4000);
+      if (response.ok) {
+        setShowSuccess(true);
+        setStatus("Form submitted successfully!");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          dob: "",
+          gender: "",
+          address: "",
+          education: "",
+          skills: "",
+          experience: "",
+          languages: "",
+          summary: "",
+          honeypot: "",
+        });
+      } else {
+        setStatus("Something went wrong. Please try again.");
+      }
     } catch (error) {
-      setMessage("❌ Something went wrong. Please try again later.");
+      setStatus("Error submitting form.");
     }
+  };
 
-    setIsSubmitting(false);
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
-        <h1 className="text-3xl font-bold text-center text-indigo-600 mb-6">
+    <div
+      className={`min-h-screen bg-gray-900 text-white py-10 px-4 transition-opacity duration-1000 ${
+        fadeIn ? "opacity-100" : "opacity-0"
+      }`}
+    >
+      <div className="max-w-3xl mx-auto bg-gray-800 rounded-2xl shadow-lg p-8">
+        <h1 className="text-3xl font-bold mb-6 text-center text-yellow-400">
           Contact Us
         </h1>
 
-        {message && (
-          <div
-            className={`text-center p-3 mb-4 rounded-md transition-all duration-700 ${
-              message.includes("✅")
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {message}
+        {/* AdSense Top */}
+        <div className="mb-6 text-center bg-gray-700 p-4 rounded-lg">
+          <p className="text-sm text-gray-400">Ad Space - Top (728x90)</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input type="text" name="honeypot" style={{ display: "none" }} />
+
+          {[
+            { name: "name", label: "Full Name" },
+            { name: "email", label: "Email Address", type: "email" },
+            { name: "phone", label: "Phone Number", type: "tel" },
+            { name: "dob", label: "Date of Birth", type: "date" },
+            { name: "gender", label: "Gender" },
+            { name: "address", label: "Address" },
+            { name: "education", label: "Education" },
+            { name: "skills", label: "Skills" },
+            { name: "experience", label: "Experience" },
+            { name: "languages", label: "Languages Known" },
+          ].map((field) => (
+            <div key={field.name}>
+              <label className="block mb-1 text-sm font-semibold">
+                {field.label}
+              </label>
+              <input
+                type={field.type || "text"}
+                name={field.name}
+                value={formData[field.name]}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:border-yellow-400 outline-none"
+              />
+            </div>
+          ))}
+
+          <div>
+            <label className="block mb-1 text-sm font-semibold">Summary</label>
+            <textarea
+              name="summary"
+              value={formData.summary}
+              onChange={handleChange}
+              required
+              rows="4"
+              className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:border-yellow-400 outline-none"
+            ></textarea>
           </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-          {/* hidden honeypot field */}
-          <input
-            type="text"
-            name="honeypot"
-            value={formData.honeypot}
-            onChange={handleChange}
-            className="hidden"
-            tabIndex="-1"
-            autoComplete="off"
-          />
-
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            className="border p-3 rounded-md focus:ring-2 focus:ring-indigo-500"
-          />
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="border p-3 rounded-md focus:ring-2 focus:ring-indigo-500"
-          />
-
-          <input
-            type="tel"
-            name="phone"
-            placeholder="Phone Number"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-            className="border p-3 rounded-md focus:ring-2 focus:ring-indigo-500"
-          />
-
-          <input
-            type="date"
-            name="dob"
-            value={formData.dob}
-            onChange={handleChange}
-            className="border p-3 rounded-md focus:ring-2 focus:ring-indigo-500"
-          />
-
-          <select
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            className="border p-3 rounded-md focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="">Select Gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-
-          <textarea
-            name="address"
-            placeholder="Address"
-            value={formData.address}
-            onChange={handleChange}
-            className="border p-3 rounded-md focus:ring-2 focus:ring-indigo-500"
-          />
-
-          <input
-            type="text"
-            name="education"
-            placeholder="Education"
-            value={formData.education}
-            onChange={handleChange}
-            className="border p-3 rounded-md focus:ring-2 focus:ring-indigo-500"
-          />
-
-          <input
-            type="text"
-            name="skills"
-            placeholder="Skills"
-            value={formData.skills}
-            onChange={handleChange}
-            className="border p-3 rounded-md focus:ring-2 focus:ring-indigo-500"
-          />
-
-          <input
-            type="text"
-            name="experience"
-            placeholder="Experience"
-            value={formData.experience}
-            onChange={handleChange}
-            className="border p-3 rounded-md focus:ring-2 focus:ring-indigo-500"
-          />
-
-          <input
-            type="text"
-            name="languages"
-            placeholder="Languages Known"
-            value={formData.languages}
-            onChange={handleChange}
-            className="border p-3 rounded-md focus:ring-2 focus:ring-indigo-500"
-          />
-
-          <textarea
-            name="summary"
-            placeholder="Short Summary About You"
-            value={formData.summary}
-            onChange={handleChange}
-            className="border p-3 rounded-md focus:ring-2 focus:ring-indigo-500"
-          />
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="bg-indigo-600 text-white font-semibold py-3 rounded-md hover:bg-indigo-700 transition-all disabled:opacity-50"
+            className="w-full py-3 mt-4 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold rounded-lg transition"
           >
-            {isSubmitting ? "Submitting..." : "Submit"}
+            Submit
           </button>
         </form>
+
+        {status && (
+          <p className="mt-4 text-center text-sm text-gray-400">{status}</p>
+        )}
+
+        {/* Success Animation */}
+        {showSuccess && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+            <div className="bg-gray-800 p-8 rounded-2xl text-center shadow-xl animate-fadeIn scale-95">
+              <div className="w-16 h-16 mx-auto mb-4 border-4 border-green-400 rounded-full flex items-center justify-center animate-bounce">
+                ✅
+              </div>
+              <h2 className="text-2xl font-semibold text-green-400 mb-2">
+                Form Submitted Successfully!
+              </h2>
+              <p className="text-gray-300 mb-4">
+                Thank you for reaching out. We'll get back to you soon.
+              </p>
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="px-6 py-2 bg-green-500 hover:bg-green-400 text-black font-bold rounded-lg transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* AdSense Bottom */}
+        <div className="mt-8 text-center bg-gray-700 p-4 rounded-lg">
+          <p className="text-sm text-gray-400">Ad Space - Bottom (728x90)</p>
+        </div>
+
+        {/* WhatsApp Contact */}
+        <div className="fixed bottom-6 right-6">
+          <a
+            href="https://wa.me/919594455328"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-400 transition transform hover:scale-105"
+          >
+            💬
+          </a>
+        </div>
+
+        {/* Scroll to Top Button */}
+        {showScroll && (
+          <button
+            onClick={scrollToTop}
+            className="fixed bottom-20 right-6 bg-yellow-500 text-black p-3 rounded-full shadow-lg hover:bg-yellow-400 transition transform hover:scale-110"
+            title="Back to Top"
+          >
+            ⬆️
+          </button>
+        )}
       </div>
     </div>
   );
