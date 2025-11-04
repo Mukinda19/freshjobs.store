@@ -1,0 +1,18 @@
+[
+  { "source": "FreeJobAlert (Govt)", "url": "https://www.freejobalert.com/feed/" },
+  { "source": "AllJobsForYou (Govt & Private)", "url": "https://www.alljobsforyou.com/feed/" },
+  { "source": "FreeGovtJobs.in (Govt & Private)", "url": "https://freegovtjobs.in/feed/" },
+  { "source": "SarkariResult (Govt)", "url": "https://www.sarkariresult.com/feed/" },
+  { "source": "GovtJobsAlert (Govt)", "url": "https://www.govtjobsalert.in/feed/" },
+
+  { "source": "FreshersLive (Govt & Private)", "url": "https://www.fresherslive.com/rss.xml" },
+  { "source": "FreshersNow (Private)", "url": "https://www.freshersnow.com/feed/" },
+  { "source": "Jobvision (Private)", "url": "https://jobvision.co.in/feed/" },
+  { "source": "TimesJobs (Private)", "url": "https://timesofindia.indiatimes.com/rssfeeds/1221656.cms" },
+  { "source": "CareerJet (India)", "url": "https://www.careerjet.co.in/rss/all_in.html" },
+
+  { "source": "JobRapido (India)", "url": "https://in.jobrapido.com/rss" },
+  { "source": "NaukriNama (Private)", "url": "https://www.naukrinama.com/feed/" },
+  { "source": "PlacementIndia (private)", "url": "https://www.placementindia.com/rssall.xml" },
+  { "source": "AllJobs extra", "url": "https://www.freshworld.com/rss" }
+]
