@@ -1,0 +1,96 @@
+{
+  "runAt": "2025-11-12T06:07:36.087Z",
+  "posted": 68,
+  "details": [
+    {
+      "source": "FreeJobAlert (Govt)",
+      "url": "https://www.freejobalert.com/feed/",
+      "items": 25,
+      "posted": 25
+    },
+    {
+      "source": "Employment News (Govt)",
+      "url": "http://employmentnews.gov.in/RSS.aspx",
+      "ok": false,
+      "reason": "request to https://employmentnews.gov.in/RSS.aspx failed, reason: unable to verify the first certificate"
+    },
+    {
+      "source": "GovtJobsAlert",
+      "url": "https://www.govtjobsalert.in/feed/",
+      "items": 25,
+      "posted": 0
+    },
+    {
+      "source": "SarkariResult",
+      "url": "https://www.sarkariresult.com/feed/",
+      "ok": false,
+      "reason": "request to https://www.sarkariresult.com/feed/ failed, reason: getaddrinfo ENOTFOUND www.sarkariresult.com"
+    },
+    {
+      "source": "FreshersLive",
+      "url": "https://www.fresherslive.com/rss.xml",
+      "ok": false,
+      "reason": "HTTP 404 Not Found - <!DOCTYPE html>\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head profile=\"http://gmpg.org/xfn/11\"><meta http-equiv=\"Content-Type\" content=\"text/htm"
+    },
+    {
+      "source": "FreshersNow",
+      "url": "https://www.freshersnow.com/feed/",
+      "items": 20,
+      "posted": 18
+    },
+    {
+      "source": "TimesJobs (most recent)",
+      "url": "https://www.timesjobs.com/rssfeed/mostrecentjobs.xml",
+      "ok": false,
+      "reason": "HTTP 404 Not Found - \r\n\r\n\r\n\r\n\r\n \r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n<!DOCTYPE html>\r\n<!--[if lt IE 7]>      <html class=\"no-js lt-ie9 lt-ie8 lt-i"
+    },
+    {
+      "source": "PlacementIndia",
+      "url": "https://www.placementindia.com/job-openings.rss",
+      "ok": false,
+      "reason": "HTTP 404 Not Found -  <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">"
+    },
+    {
+      "source": "Naukrinama",
+      "url": "https://www.naukrinama.com/feed/",
+      "items": 25,
+      "posted": 25
+    },
+    {
+      "source": "JobVision",
+      "url": "https://jobvision.co.in/feed/",
+      "ok": false,
+      "reason": "request to https://jobvision.co.in/feed/ failed, reason: getaddrinfo ENOTFOUND jobvision.co.in"
+    },
+    {
+      "source": "CareerJet India",
+      "url": "https://www.careerjet.co.in/rss/all_in.html",
+      "ok": false,
+      "reason": "HTTP 404 Not Found - <!DOCTYPE html>\n<html lang=\"en\" dir=\"ltr\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n  <meta name=\"forma"
+    },
+    {
+      "source": "JobRapido (India)",
+      "url": "https://in.jobrapido.com/rss",
+      "ok": false,
+      "reason": "HTTP 404 Not Found - \n\n<!DOCTYPE html>\n<html>\n<head>\n    <title>Jobrapido - Error 404 Page Not Found</title>\n    <meta http-equiv=\"cache-control\" content=\"max-age=0\" />\n  "
+    },
+    {
+      "source": "AllJobsForYou",
+      "url": "https://www.alljobsforyou.com/feed/",
+      "items": 10,
+      "posted": 0
+    },
+    {
+      "source": "GovtJobsDaily",
+      "url": "https://www.governmentjobsalerts.in/feed/",
+      "ok": false,
+      "reason": "request to https://www.governmentjobsalerts.in/feed/ failed, reason: getaddrinfo ENOTFOUND www.governmentjobsalerts.in"
+    },
+    {
+      "source": "Rapido (example)",
+      "url": "https://rapido.bamboohr.com/jobs/feed.php",
+      "ok": false,
+      "reason": "HTTP 403 Forbidden - <!DOCTYPE html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US"
+    }
+  ]
+}

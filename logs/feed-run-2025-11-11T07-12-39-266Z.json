@@ -1,0 +1,245 @@
+{
+  "generatedAt": "2025-11-11T07:12:39.301Z",
+  "summary": {
+    "postedThisRun": 111
+  },
+  "details": [
+    {
+      "source": "FreeJobAlert (Govt)",
+      "url": "https://www.freejobalert.com/feed/",
+      "itemsFound": 30,
+      "posted": 30
+    },
+    {
+      "source": "Employment News (Govt)",
+      "url": "http://employmentnews.gov.in/RSS.aspx",
+      "status": "FAILED",
+      "reason": "Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "Employment News (Govt)",
+      "url": "https://employmentnews.gov.in/RSS.aspx",
+      "status": "FAILED",
+      "reason": "request to https://employmentnews.gov.in/RSS.aspx failed, reason: unable to verify the first certificate; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "Employment News (Govt)",
+      "status": "SKIP",
+      "url": "http://employmentnews.gov.in/RSS.aspx"
+    },
+    {
+      "source": "GovtJobsAlert (Govt)",
+      "url": "https://www.govtjobsalert.in/feed/",
+      "itemsFound": 30,
+      "posted": 21
+    },
+    {
+      "source": "SarkariResult (Govt)",
+      "url": "https://www.sarkariresult.com/feed/",
+      "status": "FAILED",
+      "reason": "request to https://www.sarkariresult.com/feed/ failed, reason: getaddrinfo ENOTFOUND www.sarkariresult.com; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "SarkariResult (Govt)",
+      "url": "https://sarkariresult.info/feed/",
+      "status": "FAILED",
+      "reason": "HTTP 526 <none> - <!DOCTYPE html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "SarkariResult (Govt)",
+      "status": "SKIP",
+      "url": "https://www.sarkariresult.com/feed/"
+    },
+    {
+      "source": "AllJobsForYou",
+      "url": "https://www.alljobsforyou.com/feed/",
+      "itemsFound": 10,
+      "posted": 10
+    },
+    {
+      "source": "FreshersLive",
+      "url": "https://www.fresherslive.com/rss.xml",
+      "status": "FAILED",
+      "reason": "HTTP 404 Not Found - <!DOCTYPE html>\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head profile=\"http://gmpg.org/xfn/11\"><meta http-equiv=\"Content-Type\" content=\"text/htm; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "FreshersLive",
+      "url": "https://fresherslive.com/rss.xml",
+      "status": "FAILED",
+      "reason": "HTTP 404 Not Found - <!DOCTYPE html>\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head profile=\"http://gmpg.org/xfn/11\"><meta http-equiv=\"Content-Type\" content=\"text/htm; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "FreshersLive",
+      "status": "SKIP",
+      "url": "https://www.fresherslive.com/rss.xml"
+    },
+    {
+      "source": "FreshersNow",
+      "url": "https://www.freshersnow.com/feed/",
+      "itemsFound": 20,
+      "posted": 20
+    },
+    {
+      "source": "NaukriNama",
+      "url": "https://www.naukrinama.com/feed/",
+      "itemsFound": 30,
+      "posted": 30
+    },
+    {
+      "source": "TimesJobs (most recent)",
+      "url": "https://www.timesjobs.com/rssfeed/mostrecentjobs.xml",
+      "status": "FAILED",
+      "reason": "HTTP 404 Not Found - \r\n\r\n\r\n\r\n\r\n \r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n<!DOCTYPE html>\r\n<!--[if lt IE 7]>      <html class=\"no-js lt-ie9 lt-ie8 lt-i; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "TimesJobs (most recent)",
+      "url": "https://www.timesjobs.com/rssfeed.xml",
+      "status": "FAILED",
+      "reason": "HTTP 404 Not Found - \r\n\r\n\r\n\r\n\r\n \r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n<!DOCTYPE html>\r\n<!--[if lt IE 7]>      <html class=\"no-js lt-ie9 lt-ie8 lt-i; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "TimesJobs (most recent)",
+      "status": "SKIP",
+      "url": "https://www.timesjobs.com/rssfeed/mostrecentjobs.xml"
+    },
+    {
+      "source": "PlacementIndia",
+      "url": "https://www.placementindia.com/job-openings.rss",
+      "status": "FAILED",
+      "reason": "HTTP 404 Not Found -  <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "PlacementIndia",
+      "url": "https://www.placementindia.com/jobs.rss",
+      "status": "FAILED",
+      "reason": "HTTP 404 Not Found -  <!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "PlacementIndia",
+      "status": "SKIP",
+      "url": "https://www.placementindia.com/job-openings.rss"
+    },
+    {
+      "source": "Rapido (example)",
+      "url": "https://rapido.bamboohr.com/jobs/feed.php",
+      "status": "FAILED",
+      "reason": "HTTP 403 Forbidden - <!DOCTYPE html>\n<!--[if lt IE 7]> <html class=\"no-js ie6 oldie\" lang=\"en-US\"> <![endif]-->\n<!--[if IE 7]>    <html class=\"no-js ie7 oldie\" lang=\"en-US; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "Rapido (example)",
+      "status": "SKIP",
+      "url": "https://rapido.bamboohr.com/jobs/feed.php"
+    },
+    {
+      "source": "Indeed India (generic)",
+      "url": "https://rss.indeed.com/rss?q=&l=India",
+      "status": "FAILED",
+      "reason": "HTTP 404 Not Found - \n\n\n\n\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"en\" dir=\"ltr\">\n\n<head>\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link rel=\"preconnect\" href=; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "Indeed India (generic)",
+      "url": "https://in.indeed.com/rss?q=&l=India",
+      "status": "FAILED",
+      "reason": "HTTP 429 Too Many Requests - <!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style>:root{color-scheme:light d; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "Indeed India (generic)",
+      "status": "SKIP",
+      "url": "https://rss.indeed.com/rss?q=&l=India"
+    },
+    {
+      "source": "CareerJet India",
+      "url": "https://www.careerjet.co.in/rss/all_in.html",
+      "status": "FAILED",
+      "reason": "HTTP 404 Not Found - <!DOCTYPE html>\n<html lang=\"en\" dir=\"ltr\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n  <meta name=\"forma; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "CareerJet India",
+      "url": "https://www.careerjet.com/rss.xml",
+      "status": "FAILED",
+      "reason": "HTTP 404 Not Found - <!DOCTYPE html>\n<html lang=\"en\" dir=\"ltr\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n  <meta name=\"forma; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "CareerJet India",
+      "status": "SKIP",
+      "url": "https://www.careerjet.co.in/rss/all_in.html"
+    },
+    {
+      "source": "JobRapido India",
+      "url": "https://in.jobrapido.com/rss",
+      "status": "FAILED",
+      "reason": "HTTP 404 Not Found - \n\n<!DOCTYPE html>\n<html>\n<head>\n    <title>Jobrapido - Error 404 Page Not Found</title>\n    <meta http-equiv=\"cache-control\" content=\"max-age=0\" />\n  ; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "JobRapido India",
+      "status": "SKIP",
+      "url": "https://in.jobrapido.com/rss"
+    },
+    {
+      "source": "JobVision",
+      "url": "https://jobvision.co.in/feed/",
+      "status": "FAILED",
+      "reason": "request to https://jobvision.co.in/feed/ failed, reason: getaddrinfo ENOTFOUND jobvision.co.in; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "JobVision",
+      "status": "SKIP",
+      "url": "https://jobvision.co.in/feed/"
+    },
+    {
+      "source": "Glassdoor Jobs",
+      "url": "https://www.glassdoor.com/rss/jobs/rss_feed.xml",
+      "status": "FAILED",
+      "reason": "HTTP 403 Forbidden - <!DOCTYPE html>\n<html>\n  <head>\n    <title>Security | Glassdoor</title>\n    <meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n    <me; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "Glassdoor Jobs",
+      "status": "SKIP",
+      "url": "https://www.glassdoor.com/rss/jobs/rss_feed.xml"
+    },
+    {
+      "source": "Jooble India",
+      "url": "https://in.jooble.org/rss",
+      "status": "FAILED",
+      "reason": "HTTP 403 Forbidden - <!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta http-e; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "Jooble India",
+      "status": "SKIP",
+      "url": "https://in.jooble.org/rss"
+    },
+    {
+      "source": "Monster India",
+      "url": "https://www.monsterindia.com/rss-feed.xml",
+      "status": "FAILED",
+      "reason": "HTTP 403 Forbidden - <HTML><HEAD>\n<TITLE>Access Denied</TITLE>\n</HEAD><BODY>\n<H1>Access Denied</H1>\n \nYou don't have permission to access \"http&#58;&#47;&#47;www&#46;monst; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "Monster India",
+      "status": "SKIP",
+      "url": "https://www.monsterindia.com/rss-feed.xml"
+    },
+    {
+      "source": "JobHai",
+      "url": "https://www.jobhai.co.in/feed/",
+      "status": "FAILED",
+      "reason": "request to https://www.jobhai.co.in/feed/ failed, reason: getaddrinfo EAI_AGAIN www.jobhai.co.in; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "JobHai",
+      "status": "SKIP",
+      "url": "https://www.jobhai.co.in/feed/"
+    },
+    {
+      "source": "GovtJobsDaily",
+      "url": "https://www.governmentjobsalerts.in/feed/",
+      "status": "FAILED",
+      "reason": "request to https://www.governmentjobsalerts.in/feed/ failed, reason: getaddrinfo ENOTFOUND www.governmentjobsalerts.in; http-fallback: Protocol \"http:\" not supported. Expected \"https:\""
+    },
+    {
+      "source": "GovtJobsDaily",
+      "status": "SKIP",
+      "url": "https://www.governmentjobsalerts.in/feed/"
+    }
+  ]
+}
