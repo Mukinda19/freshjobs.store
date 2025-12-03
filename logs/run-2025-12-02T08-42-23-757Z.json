@@ -1,0 +1,30 @@
+{
+  "runAt": "2025-12-02T08:42:23.758Z",
+  "posted": 69,
+  "details": [
+    {
+      "source": "FreeJobAlert",
+      "url": "https://www.freejobalert.com/feed/",
+      "items": 25,
+      "posted": 25
+    },
+    {
+      "source": "GovtJobsAlert",
+      "url": "https://www.govtjobsalert.in/feed/",
+      "items": 25,
+      "posted": 1
+    },
+    {
+      "source": "FreshersNow",
+      "url": "https://www.freshersnow.com/feed/",
+      "items": 20,
+      "posted": 20
+    },
+    {
+      "source": "NaukriNama",
+      "url": "https://www.naukrinama.com/feed/",
+      "items": 25,
+      "posted": 23
+    }
+  ]
+}

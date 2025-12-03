@@ -5,6 +5,6 @@ const nextConfig = {
     domains: ["via.placeholder.com"],
   },
   trailingSlash: true,
-}
+};
 
-module.exports = nextConfig;
+export default nextConfig;
