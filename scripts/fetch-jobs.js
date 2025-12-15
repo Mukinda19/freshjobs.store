@@ -1,20 +1,22 @@
 // scripts/fetch-jobs.js
-// Final robust aggregator — HTTP/HTTPS handling, UA rotation, HTML fallback, dedupe, SEO titles.
-// Node.js v18+ (package.json should have "type":"module")
+// Final robust aggregator — Node.js v18 compatible (FIXED)
 
 import fs from "fs";
 import path from "path";
 import Parser from "rss-parser";
 import * as cheerio from "cheerio";
-import https from "https";
 import crypto from "crypto";
 
 // CONFIG
-const APPSCRIPT_POST_URL = process.env.APPSCRIPT_POST_URL || "https://script.google.com/macros/s/AKfycbxpuquuUqABxTSPpXs9pM2kn9Y14RQoJ26i_i3Z9MjFc-kwDZv9l5JHy5AW5fupBAZy/exec";
+const APPSCRIPT_POST_URL =
+  process.env.APPSCRIPT_POST_URL ||
+  "https://script.google.com/macros/s/AKfycbxpuquuUqABxTSPpXs9pM2kn9Y14RQoJ26i_i3Z9MjFc-kwDZv9l5JHy5AW5fupBAZy/exec";
+
 const RETRY_COUNT = 3;
 const RETRY_DELAY_MS = 900;
 const REQUEST_TIMEOUT_MS = 20000;
 const MAX_ITEMS_PER_FEED = 25;
+
 const DATA_DIR = path.resolve("./data");
 const SEEN_FILE = path.join(DATA_DIR, "seen.json");
 const LOGS_DIR = path.resolve("./logs");
@@ -36,8 +38,6 @@ const USER_AGENTS = [
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115 Safari/537.36"
 ];
 
-const httpsAgent = new https.Agent({ rejectUnauthorized: true });
-
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const hash = s => crypto.createHash("sha256").update(s || "").digest("hex");
 
@@ -49,53 +49,67 @@ function loadSeen() {
     return {};
   }
 }
+
 function saveSeen(obj) {
   fs.writeFileSync(SEEN_FILE, JSON.stringify(obj, null, 2), "utf8");
 }
 
 function seoTitle(title, source) {
   const suffixes = ["Latest Jobs in India", "Apply Now", "Hiring Now", "New Opening"];
-  const s = suffixes[Math.floor(Math.random()*suffixes.length)];
+  const s = suffixes[Math.floor(Math.random() * suffixes.length)];
   const base = (title || "Job Opening").trim();
   let t = `${base} | ${s} | ${source} | India`;
-  if (t.length > 120) t = `${base.slice(0,90)}... | ${s} | India`;
+  if (t.length > 120) t = `${base.slice(0, 90)}... | ${s} | India`;
   return t;
 }
 
 async function fetchTextWithRetry(url, options = {}, tryAlternateUAs = true) {
   let lastErr = null;
-  for (let attempt=1; attempt<=RETRY_COUNT; attempt++) {
+
+  for (let attempt = 1; attempt <= RETRY_COUNT; attempt++) {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-      const agent = url.startsWith("https://") ? httpsAgent : undefined;
-      const res = await fetch(url, { ...options, signal: controller.signal, agent });
+
+      const res = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      });
+
       clearTimeout(timeout);
+
       if (!res.ok) {
-        const body = await res.text().catch(()=>"");
-        throw new Error(`HTTP ${res.status} ${res.statusText} - ${body.slice(0,150)}`);
+        const body = await res.text().catch(() => "");
+        throw new Error(`HTTP ${res.status} - ${body.slice(0, 120)}`);
       }
+
       return await res.text();
     } catch (err) {
       lastErr = err;
-      const is403 = err.message?.includes("HTTP 403");
-      if (is403 && tryAlternateUAs) {
+
+      if (tryAlternateUAs) {
         for (const ua of USER_AGENTS) {
           try {
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-            const headers = { "User-Agent": ua };
-            const agent = url.startsWith("https://") ? httpsAgent : undefined;
-            const r = await fetch(url, { headers, signal: controller.signal, agent });
+
+            const r = await fetch(url, {
+              headers: { "User-Agent": ua },
+              signal: controller.signal
+            });
+
             clearTimeout(timeout);
+
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
             return await r.text();
           } catch {}
         }
       }
+
       await wait(RETRY_DELAY_MS * attempt);
     }
   }
+
   throw lastErr;
 }
 
@@ -105,47 +119,58 @@ async function parseFeedOrHtml(xml) {
   } catch {
     const $ = cheerio.load(xml);
     const items = [];
+
     $("a[href]").each((_, el) => {
       const href = $(el).attr("href");
       const text = $(el).text().trim();
       if (!href) return;
+
       const low = (href + text).toLowerCase();
       if (/(job|career|vacanc|apply|recruit)/.test(low)) {
         let link = href;
-        try { link = new URL(href, "https://example.com").toString(); } catch {}
+        try {
+          link = new URL(href, "https://example.com").toString();
+        } catch {}
         items.push({ title: text || href, link });
       }
     });
+
     if (items.length) return { items };
-    throw new Error("No RSS or HTML jobs found");
+    throw new Error("No jobs found");
   }
 }
 
 async function postToAppsScript(job) {
   const res = await fetch(APPSCRIPT_POST_URL, {
     method: "POST",
-    headers: { "Content-Type":"application/json" },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(job)
   });
   return res.ok;
 }
 
 function normalizeUrl(u) {
-  try { return new URL(u).toString(); }
-  catch {
-    try { return new URL("https://" + u).toString(); }
-    catch { return u || ""; }
+  try {
+    return new URL(u).toString();
+  } catch {
+    try {
+      return new URL("https://" + u).toString();
+    } catch {
+      return u || "";
+    }
   }
 }
 
 async function main() {
   console.log("Aggregator starting...");
+
   const feeds = JSON.parse(fs.readFileSync(FEEDS_PATH, "utf8"));
   const seen = loadSeen();
   let posted = 0;
 
   for (const f of feeds) {
     if (f.enabled === false) continue;
+
     let feed;
     try {
       const xml = await fetchTextWithRetry(f.url);
@@ -172,13 +197,15 @@ async function main() {
         saveSeen(seen);
         posted++;
       }
+
       await wait(300);
     }
   }
+
   console.log("Done. Posted:", posted);
 }
 
-main().catch(e => {
-  console.error(e);
+main().catch(err => {
+  console.error(err);
   process.exit(1);
 });
