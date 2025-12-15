@@ -1,5 +1,6 @@
 // scripts/fetch-jobs.js
-// Final robust aggregator — Node.js v18 compatible (FIXED)
+// Final robust aggregator — HTTP/HTTPS handling, UA rotation, HTML fallback, dedupe, SEO titles.
+// Node.js v18+ (package.json should have "type":"module")
 
 import fs from "fs";
 import path from "path";
@@ -55,7 +56,12 @@ function saveSeen(obj) {
 }
 
 function seoTitle(title, source) {
-  const suffixes = ["Latest Jobs in India", "Apply Now", "Hiring Now", "New Opening"];
+  const suffixes = [
+    "Latest Jobs in India",
+    "Apply Now",
+    "Hiring Now",
+    "New Opening"
+  ];
   const s = suffixes[Math.floor(Math.random() * suffixes.length)];
   const base = (title || "Job Opening").trim();
   let t = `${base} | ${s} | ${source} | India`;
@@ -63,6 +69,11 @@ function seoTitle(title, source) {
   return t;
 }
 
+/**
+ * 🔧 FIXED FOR NODE 18
+ * - removed https.Agent usage
+ * - removed "agent" option from fetch
+ */
 async function fetchTextWithRetry(url, options = {}, tryAlternateUAs = true) {
   let lastErr = null;
 
@@ -80,14 +91,16 @@ async function fetchTextWithRetry(url, options = {}, tryAlternateUAs = true) {
 
       if (!res.ok) {
         const body = await res.text().catch(() => "");
-        throw new Error(`HTTP ${res.status} - ${body.slice(0, 120)}`);
+        throw new Error(`HTTP ${res.status} ${res.statusText} - ${body.slice(0, 150)}`);
       }
 
       return await res.text();
+
     } catch (err) {
       lastErr = err;
+      const is403 = err.message?.includes("403");
 
-      if (tryAlternateUAs) {
+      if (is403 && tryAlternateUAs) {
         for (const ua of USER_AGENTS) {
           try {
             const controller = new AbortController();
@@ -136,7 +149,7 @@ async function parseFeedOrHtml(xml) {
     });
 
     if (items.length) return { items };
-    throw new Error("No jobs found");
+    throw new Error("No RSS or HTML jobs found");
   }
 }
 
@@ -182,6 +195,7 @@ async function main() {
     for (const item of (feed.items || []).slice(0, MAX_ITEMS_PER_FEED)) {
       const link = normalizeUrl(item.link || "");
       const id = hash(link || item.title);
+
       if (seen[id]) continue;
 
       const job = {
