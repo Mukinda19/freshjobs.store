@@ -1,0 +1,32 @@
+name: Fetch Jobs Daily
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # runs every 6 hours
+  workflow_dispatch:        # run manually anytime
+
+# ✅ THIS IS THE FIX
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Fetch Jobs Script
+        env:
+          APPSCRIPT_POST_URL: ${{ secrets.APPSCRIPT_POST_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: node ./scripts/fetch-jobs.js
