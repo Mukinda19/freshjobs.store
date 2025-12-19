@@ -1,11 +1,16 @@
 // scripts/fetch-jobs.js
-// Node.js 18 native fetch compatible (NO node-fetch, NO undici issue)
+// FIXED for Node 18 + undici + node-fetch crash
 
+/* 🔴 CRITICAL POLYFILL — DO NOT REMOVE */
+globalThis.File = class File {};
+
+/* imports MUST come AFTER File polyfill */
 import fs from "fs";
 import path from "path";
 import Parser from "rss-parser";
 import * as cheerio from "cheerio";
 import crypto from "crypto";
+import fetch from "node-fetch";
 
 // ================= CONFIG =================
 
@@ -19,25 +24,22 @@ const MAX_ITEMS_PER_FEED = 25;
 
 const DATA_DIR = path.resolve("./data");
 const SEEN_FILE = path.join(DATA_DIR, "seen.json");
-const LOGS_DIR = path.resolve("./logs");
 const FEEDS_PATH = path.resolve("./scripts/feeds.json");
 
-// ===========================================
+// ==========================================
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
 
 const parser = new Parser({ timeout: REQUEST_TIMEOUT_MS });
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const hash = s => crypto.createHash("sha256").update(s || "").digest("hex");
 
-// ================= HELPERS =================
-
 function loadSeen() {
   try {
-    if (!fs.existsSync(SEEN_FILE)) return {};
-    return JSON.parse(fs.readFileSync(SEEN_FILE, "utf8"));
+    return fs.existsSync(SEEN_FILE)
+      ? JSON.parse(fs.readFileSync(SEEN_FILE, "utf8"))
+      : {};
   } catch {
     return {};
   }
@@ -48,24 +50,16 @@ function saveSeen(obj) {
 }
 
 async function fetchWithRetry(url) {
-  let lastErr;
-
   for (let i = 1; i <= RETRY_COUNT; i++) {
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeout);
-
+      const res = await fetch(url, { timeout: REQUEST_TIMEOUT_MS });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.text();
-    } catch (err) {
-      lastErr = err;
+    } catch {
       await wait(RETRY_DELAY_MS * i);
     }
   }
-  throw lastErr;
+  throw new Error("Fetch failed");
 }
 
 async function parseFeedOrHtml(xml) {
@@ -78,9 +72,7 @@ async function parseFeedOrHtml(xml) {
     $("a[href]").each((_, el) => {
       const href = $(el).attr("href");
       const text = $(el).text().trim();
-      if (!href) return;
-
-      if (/job|career|vacanc|apply/i.test(href + text)) {
+      if (/(job|career|vacanc|apply)/i.test(href + text)) {
         items.push({ title: text || href, link: href });
       }
     });
@@ -101,35 +93,29 @@ async function postToAppsScript(job) {
 // ================= MAIN =================
 
 async function main() {
-  console.log("🚀 Fetch Jobs started");
+  console.log("🚀 Job fetch started");
 
   const feeds = JSON.parse(fs.readFileSync(FEEDS_PATH, "utf8"));
   const seen = loadSeen();
   let posted = 0;
 
   for (const f of feeds) {
-    console.log(`🔎 ${f.source}`);
-
     let feed;
     try {
-      const xml = await fetchWithRetry(f.url);
-      feed = await parseFeedOrHtml(xml);
-    } catch (e) {
-      console.warn(`⚠️ Skip ${f.source}`);
+      feed = await parseFeedOrHtml(await fetchWithRetry(f.url));
+    } catch {
       continue;
     }
 
-    for (const item of (feed.items || []).slice(0, MAX_ITEMS_PER_FEED)) {
-      const link = item.link || "";
-      const id = hash(link || item.title);
-
-      if (!link || seen[id]) continue;
+    for (const item of feed.items.slice(0, MAX_ITEMS_PER_FEED)) {
+      const id = hash(item.link || item.title);
+      if (seen[id]) continue;
 
       const job = {
-        title: item.title || "Job Opening",
+        title: item.title,
         source: f.source,
-        link,
-        datePosted: item.pubDate || new Date().toISOString()
+        link: item.link,
+        datePosted: new Date().toISOString()
       };
 
       if (await postToAppsScript(job)) {
@@ -137,8 +123,6 @@ async function main() {
         saveSeen(seen);
         posted++;
       }
-
-      await wait(300);
     }
   }
 
