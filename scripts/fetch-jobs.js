@@ -1,14 +1,11 @@
 // scripts/fetch-jobs.js
-// Node 18+ SAFE RSS → Google Apps Script Fetcher
+// Node.js 18 native fetch compatible (NO node-fetch, NO undici issue)
 
 import fs from "fs";
 import path from "path";
 import Parser from "rss-parser";
 import * as cheerio from "cheerio";
 import crypto from "crypto";
-
-// ✅ Native fetch (NO node-fetch, NO undici crash)
-const fetch = global.fetch;
 
 // ================= CONFIG =================
 
@@ -22,16 +19,13 @@ const MAX_ITEMS_PER_FEED = 25;
 
 const DATA_DIR = path.resolve("./data");
 const SEEN_FILE = path.join(DATA_DIR, "seen.json");
+const LOGS_DIR = path.resolve("./logs");
 const FEEDS_PATH = path.resolve("./scripts/feeds.json");
 
-// =========================================
-
-if (!APPSCRIPT_POST_URL.startsWith("https://")) {
-  console.error("Invalid Apps Script URL");
-  process.exit(1);
-}
+// ===========================================
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
 
 const parser = new Parser({ timeout: REQUEST_TIMEOUT_MS });
 
@@ -55,17 +49,15 @@ function saveSeen(obj) {
 
 async function fetchWithRetry(url) {
   let lastErr;
+
   for (let i = 1; i <= RETRY_COUNT; i++) {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-      const res = await fetch(url, {
-        headers: { "User-Agent": "Mozilla/5.0" },
-        signal: controller.signal
-      });
-
+      const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timeout);
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.text();
     } catch (err) {
@@ -82,13 +74,17 @@ async function parseFeedOrHtml(xml) {
   } catch {
     const $ = cheerio.load(xml);
     const items = [];
+
     $("a[href]").each((_, el) => {
       const href = $(el).attr("href");
       const text = $(el).text().trim();
-      if (href && /(job|career|vacanc|apply)/i.test(href + text)) {
+      if (!href) return;
+
+      if (/job|career|vacanc|apply/i.test(href + text)) {
         items.push({ title: text || href, link: href });
       }
     });
+
     return { items };
   }
 }
@@ -105,43 +101,51 @@ async function postToAppsScript(job) {
 // ================= MAIN =================
 
 async function main() {
-  console.log("Fetch Jobs started");
+  console.log("🚀 Fetch Jobs started");
 
   const feeds = JSON.parse(fs.readFileSync(FEEDS_PATH, "utf8"));
   const seen = loadSeen();
+  let posted = 0;
 
   for (const f of feeds) {
+    console.log(`🔎 ${f.source}`);
+
     let feed;
     try {
       const xml = await fetchWithRetry(f.url);
       feed = await parseFeedOrHtml(xml);
-    } catch {
+    } catch (e) {
+      console.warn(`⚠️ Skip ${f.source}`);
       continue;
     }
 
     for (const item of (feed.items || []).slice(0, MAX_ITEMS_PER_FEED)) {
       const link = item.link || "";
       const id = hash(link || item.title);
+
       if (!link || seen[id]) continue;
 
       const job = {
-        title: item.title,
+        title: item.title || "Job Opening",
         source: f.source,
         link,
-        datePosted: new Date().toISOString()
+        datePosted: item.pubDate || new Date().toISOString()
       };
 
       if (await postToAppsScript(job)) {
         seen[id] = true;
         saveSeen(seen);
+        posted++;
       }
+
+      await wait(300);
     }
   }
 
-  console.log("Fetch Jobs completed");
+  console.log(`✅ Jobs posted: ${posted}`);
 }
 
 main().catch(err => {
-  console.error(err);
+  console.error("❌ Fatal:", err);
   process.exit(1);
 });
