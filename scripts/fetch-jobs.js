@@ -1,20 +1,22 @@
 // scripts/fetch-jobs.js
-// Final robust aggregator — HTTP/HTTPS handling, UA rotation, HTML fallback, dedupe, SEO titles.
-// Node.js v18+ (package.json should have "type":"module")
+// Robust RSS → Google Apps Script job fetcher
+// Node.js 18 + GitHub Actions compatible
 
 import fs from "fs";
 import path from "path";
 import Parser from "rss-parser";
 import * as cheerio from "cheerio";
 import crypto from "crypto";
+import fetch from "node-fetch"; // ✅ REQUIRED (important fix)
 
-// CONFIG
+// ================= CONFIG =================
+
+// ✅ YOUR FINAL DEPLOYED WEB APP URL (CONFIRMED)
 const APPSCRIPT_POST_URL =
-  process.env.APPSCRIPT_POST_URL ||
-  "https://script.google.com/macros/s/AKfycbxpuquuUqABxTSPpXs9pM2kn9Y14RQoJ26i_i3Z9MjFc-kwDZv9l5JHy5AW5fupBAZy/exec";
+  "https://script.google.com/macros/s/AKfycbxAEvno-qjnPs8rrEH2DITQ0pqA90LsbcQlaGuBKEtrZVvuVaeno5OYULqNRfi_mR6T/exec";
 
 const RETRY_COUNT = 3;
-const RETRY_DELAY_MS = 900;
+const RETRY_DELAY_MS = 1000;
 const REQUEST_TIMEOUT_MS = 20000;
 const MAX_ITEMS_PER_FEED = 25;
 
@@ -23,8 +25,10 @@ const SEEN_FILE = path.join(DATA_DIR, "seen.json");
 const LOGS_DIR = path.resolve("./logs");
 const FEEDS_PATH = path.resolve("./scripts/feeds.json");
 
-if (!APPSCRIPT_POST_URL || !APPSCRIPT_POST_URL.startsWith("https://")) {
-  console.error("APPSCRIPT_POST_URL missing or invalid.");
+// ===========================================
+
+if (!APPSCRIPT_POST_URL.startsWith("https://")) {
+  console.error("❌ Invalid Apps Script Web App URL");
   process.exit(1);
 }
 
@@ -34,13 +38,15 @@ if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
 const parser = new Parser({ timeout: REQUEST_TIMEOUT_MS });
 
 const USER_AGENTS = [
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16 Safari/605.1.15",
-  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115 Safari/537.36"
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15",
+  "Mozilla/5.0 (X11; Linux x86_64) Chrome/115"
 ];
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const hash = s => crypto.createHash("sha256").update(s || "").digest("hex");
+
+// ================= HELPERS =================
 
 function loadSeen() {
   try {
@@ -56,73 +62,35 @@ function saveSeen(obj) {
 }
 
 function seoTitle(title, source) {
-  const suffixes = [
-    "Latest Jobs in India",
-    "Apply Now",
-    "Hiring Now",
-    "New Opening"
-  ];
+  const suffixes = ["Latest Jobs in India", "Apply Now", "Hiring Now"];
   const s = suffixes[Math.floor(Math.random() * suffixes.length)];
   const base = (title || "Job Opening").trim();
-  let t = `${base} | ${s} | ${source} | India`;
-  if (t.length > 120) t = `${base.slice(0, 90)}... | ${s} | India`;
-  return t;
+  return `${base} | ${s} | ${source}`;
 }
 
-/**
- * 🔧 FIXED FOR NODE 18
- * - removed https.Agent usage
- * - removed "agent" option from fetch
- */
-async function fetchTextWithRetry(url, options = {}, tryAlternateUAs = true) {
-  let lastErr = null;
+async function fetchWithRetry(url) {
+  let lastErr;
 
-  for (let attempt = 1; attempt <= RETRY_COUNT; attempt++) {
+  for (let i = 1; i <= RETRY_COUNT; i++) {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
       const res = await fetch(url, {
-        ...options,
+        headers: { "User-Agent": USER_AGENTS[0] },
         signal: controller.signal
       });
 
       clearTimeout(timeout);
 
-      if (!res.ok) {
-        const body = await res.text().catch(() => "");
-        throw new Error(`HTTP ${res.status} ${res.statusText} - ${body.slice(0, 150)}`);
-      }
-
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.text();
 
     } catch (err) {
       lastErr = err;
-      const is403 = err.message?.includes("403");
-
-      if (is403 && tryAlternateUAs) {
-        for (const ua of USER_AGENTS) {
-          try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-            const r = await fetch(url, {
-              headers: { "User-Agent": ua },
-              signal: controller.signal
-            });
-
-            clearTimeout(timeout);
-
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
-            return await r.text();
-          } catch {}
-        }
-      }
-
-      await wait(RETRY_DELAY_MS * attempt);
+      await wait(RETRY_DELAY_MS * i);
     }
   }
-
   throw lastErr;
 }
 
@@ -140,16 +108,12 @@ async function parseFeedOrHtml(xml) {
 
       const low = (href + text).toLowerCase();
       if (/(job|career|vacanc|apply|recruit)/.test(low)) {
-        let link = href;
-        try {
-          link = new URL(href, "https://example.com").toString();
-        } catch {}
-        items.push({ title: text || href, link });
+        items.push({ title: text || href, link: href });
       }
     });
 
     if (items.length) return { items };
-    throw new Error("No RSS or HTML jobs found");
+    throw new Error("No jobs found");
   }
 }
 
@@ -162,45 +126,36 @@ async function postToAppsScript(job) {
   return res.ok;
 }
 
-function normalizeUrl(u) {
-  try {
-    return new URL(u).toString();
-  } catch {
-    try {
-      return new URL("https://" + u).toString();
-    } catch {
-      return u || "";
-    }
-  }
-}
+// ================= MAIN =================
 
 async function main() {
-  console.log("Aggregator starting...");
+  console.log("🚀 Fetch Jobs started");
 
   const feeds = JSON.parse(fs.readFileSync(FEEDS_PATH, "utf8"));
   const seen = loadSeen();
   let posted = 0;
 
   for (const f of feeds) {
-    if (f.enabled === false) continue;
+    console.log(`🔎 Fetching: ${f.source}`);
 
     let feed;
     try {
-      const xml = await fetchTextWithRetry(f.url);
+      const xml = await fetchWithRetry(f.url);
       feed = await parseFeedOrHtml(xml);
-    } catch {
+    } catch (err) {
+      console.warn(`⚠️ Failed: ${f.source}`, err.message);
       continue;
     }
 
     for (const item of (feed.items || []).slice(0, MAX_ITEMS_PER_FEED)) {
-      const link = normalizeUrl(item.link || "");
+      const link = item.link || "";
       const id = hash(link || item.title);
 
-      if (seen[id]) continue;
+      if (!link || seen[id]) continue;
 
       const job = {
         title: seoTitle(item.title, f.source),
-        rawTitle: item.title,
+        rawTitle: item.title || "",
         source: f.source,
         link,
         datePosted: item.pubDate || new Date().toISOString()
@@ -212,14 +167,14 @@ async function main() {
         posted++;
       }
 
-      await wait(300);
+      await wait(400);
     }
   }
 
-  console.log("Done. Posted:", posted);
+  console.log(`✅ Done. Jobs posted: ${posted}`);
 }
 
 main().catch(err => {
-  console.error(err);
+  console.error("❌ Fatal error:", err);
   process.exit(1);
 });

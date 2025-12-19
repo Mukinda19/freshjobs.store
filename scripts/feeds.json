@@ -1,18 +1,22 @@
 [
   {
     "source": "FreeJobAlert",
-    "url": "https://www.freejobalert.com/feed/"
+    "url": "https://www.freejobalert.com/feed/",
+    "category": "govt"
   },
   {
     "source": "GovtJobsAlert",
-    "url": "https://www.govtjobsalert.in/feed/"
+    "url": "https://www.govtjobsalert.in/feed/",
+    "category": "govt"
   },
   {
     "source": "FreshersNow",
-    "url": "https://www.freshersnow.com/feed/"
+    "url": "https://www.freshersnow.com/feed/",
+    "category": "general"
   },
   {
     "source": "NaukriNama",
-    "url": "https://www.naukrinama.com/feed/"
+    "url": "https://www.naukrinama.com/feed/",
+    "category": "general"
   }
 ]
