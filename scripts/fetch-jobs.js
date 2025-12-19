@@ -1,17 +1,16 @@
 // scripts/fetch-jobs.js
 // Robust RSS → Google Apps Script job fetcher
-// Node.js 18 + GitHub Actions compatible
+// Node.js 18 + GitHub Actions compatible (NO node-fetch)
 
 import fs from "fs";
 import path from "path";
 import Parser from "rss-parser";
 import * as cheerio from "cheerio";
 import crypto from "crypto";
-import fetch from "node-fetch"; // ✅ REQUIRED (important fix)
 
 // ================= CONFIG =================
 
-// ✅ YOUR FINAL DEPLOYED WEB APP URL (CONFIRMED)
+// ✅ YOUR FINAL DEPLOYED WEB APP URL
 const APPSCRIPT_POST_URL =
   "https://script.google.com/macros/s/AKfycbxAEvno-qjnPs8rrEH2DITQ0pqA90LsbcQlaGuBKEtrZVvuVaeno5OYULqNRfi_mR6T/exec";
 
