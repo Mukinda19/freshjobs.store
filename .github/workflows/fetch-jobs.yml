@@ -5,9 +5,9 @@ on:
     - cron: "0 */6 * * *"   # runs every 6 hours
   workflow_dispatch:        # run manually anytime
 
-# ✅ THIS IS THE FIX
+# ✅ REQUIRED: write permission to save seen.json
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   fetch:
@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20"
 
       - name: Install Dependencies
         run: npm install
