@@ -1,26 +1,19 @@
 // scripts/fetch-jobs.js
-// FIXED for Node 18 + undici + node-fetch crash
+// FINAL FIX — Node 18 native fetch (NO node-fetch)
 
-/* 🔴 CRITICAL POLYFILL — DO NOT REMOVE */
-globalThis.File = class File {};
-
-/* imports MUST come AFTER File polyfill */
 import fs from "fs";
 import path from "path";
 import Parser from "rss-parser";
 import * as cheerio from "cheerio";
 import crypto from "crypto";
-import fetch from "node-fetch";
 
 // ================= CONFIG =================
 
 const APPSCRIPT_POST_URL =
   "https://script.google.com/macros/s/AKfycbxAEvno-qjnPs8rrEH2DITQ0pqA90LsbcQlaGuBKEtrZVvuVaeno5OYULqNRfi_mR6T/exec";
 
-const RETRY_COUNT = 3;
-const RETRY_DELAY_MS = 1000;
-const REQUEST_TIMEOUT_MS = 20000;
 const MAX_ITEMS_PER_FEED = 25;
+const REQUEST_TIMEOUT_MS = 20000;
 
 const DATA_DIR = path.resolve("./data");
 const SEEN_FILE = path.join(DATA_DIR, "seen.json");
@@ -31,7 +24,6 @@ const FEEDS_PATH = path.resolve("./scripts/feeds.json");
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 const parser = new Parser({ timeout: REQUEST_TIMEOUT_MS });
-
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const hash = s => crypto.createHash("sha256").update(s || "").digest("hex");
 
@@ -49,17 +41,17 @@ function saveSeen(obj) {
   fs.writeFileSync(SEEN_FILE, JSON.stringify(obj, null, 2), "utf8");
 }
 
-async function fetchWithRetry(url) {
-  for (let i = 1; i <= RETRY_COUNT; i++) {
-    try {
-      const res = await fetch(url, { timeout: REQUEST_TIMEOUT_MS });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.text();
-    } catch {
-      await wait(RETRY_DELAY_MS * i);
-    }
-  }
-  throw new Error("Fetch failed");
+async function fetchText(url) {
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  const res = await fetch(url, {
+    headers: { "User-Agent": "Mozilla/5.0" },
+    signal: controller.signal
+  });
+
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.text();
 }
 
 async function parseFeedOrHtml(xml) {
@@ -93,7 +85,7 @@ async function postToAppsScript(job) {
 // ================= MAIN =================
 
 async function main() {
-  console.log("🚀 Job fetch started");
+  console.log("🚀 Fetch jobs started");
 
   const feeds = JSON.parse(fs.readFileSync(FEEDS_PATH, "utf8"));
   const seen = loadSeen();
@@ -102,14 +94,16 @@ async function main() {
   for (const f of feeds) {
     let feed;
     try {
-      feed = await parseFeedOrHtml(await fetchWithRetry(f.url));
-    } catch {
+      const xml = await fetchText(f.url);
+      feed = await parseFeedOrHtml(xml);
+    } catch (e) {
+      console.log("❌ Feed failed:", f.source);
       continue;
     }
 
     for (const item of feed.items.slice(0, MAX_ITEMS_PER_FEED)) {
       const id = hash(item.link || item.title);
-      if (seen[id]) continue;
+      if (!item.link || seen[id]) continue;
 
       const job = {
         title: item.title,
@@ -123,6 +117,8 @@ async function main() {
         saveSeen(seen);
         posted++;
       }
+
+      await wait(300);
     }
   }
 
@@ -130,6 +126,6 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error("❌ Fatal:", err);
+  console.error("❌ Fatal error:", err);
   process.exit(1);
 });
