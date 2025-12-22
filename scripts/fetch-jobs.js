@@ -1,10 +1,13 @@
+// scripts/fetch-jobs.js
 import fs from "fs";
 import path from "path";
 import Parser from "rss-parser";
 import crypto from "crypto";
+import fetch from "node-fetch"; // ✅ Ensure node-fetch import
 
+// ✅ Naya Apps Script Web App URL
 const APPSCRIPT_POST_URL =
-  "https://script.google.com/macros/s/AKfycbxAEvno-qjnPs8rrEH2DITQ0pqA90LsbcQlaGuBKEtrZVvuVaeno5OYULqNRfi_mR6T/exec";
+  "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec";
 
 const FEEDS_PATH = path.resolve("./scripts/feeds.json");
 const DATA_DIR = path.resolve("./data");
@@ -29,7 +32,7 @@ function saveSeen(data) {
 }
 
 async function main() {
-  console.log("Fetch started");
+  console.log("🚀 Fetch started");
 
   const feeds = JSON.parse(fs.readFileSync(FEEDS_PATH, "utf8"));
   const seen = loadSeen();
@@ -67,14 +70,14 @@ async function main() {
         await wait(300);
       }
     } catch (err) {
-      console.log("Feed error:", f.source);
+      console.log("⚠️ Feed error:", f.source, err.message);
     }
   }
 
-  console.log("Fetch completed");
+  console.log("✅ Fetch completed");
 }
 
 main().catch(err => {
-  console.error(err);
+  console.error("❌ Fatal error:", err);
   process.exit(1);
 });
