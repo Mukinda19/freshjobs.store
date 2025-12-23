@@ -1,8 +1,4 @@
-import { useRouter } from "next/router";
-
 export default function CategoryGrid() {
-  const router = useRouter();
-
   const categories = [
     { name: "IT", slug: "it" },
     { name: "Banking", slug: "banking" },
@@ -12,23 +8,20 @@ export default function CategoryGrid() {
     { name: "Engineering", slug: "engineering" }
   ];
 
-  const handleClick = (e, slug) => {
-    e.preventDefault();
-    e.stopPropagation();
-    router.replace(`/jobs/${slug}/india`);
+  const goToPage = (slug) => {
+    window.location.href = `/jobs/${slug}/india`;
   };
 
   return (
     <div className="grid md:grid-cols-3 gap-4">
       {categories.map(cat => (
-        <button
+        <div
           key={cat.slug}
-          type="button"
-          onClick={(e) => handleClick(e, cat.slug)}
-          className="border p-4 rounded text-center hover:shadow-lg hover:bg-gray-50"
+          onClick={() => goToPage(cat.slug)}
+          className="border p-4 rounded text-center hover:shadow-lg cursor-pointer"
         >
           {cat.name}
-        </button>
+        </div>
       ))}
     </div>
   );
