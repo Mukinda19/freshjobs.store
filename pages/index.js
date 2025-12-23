@@ -14,44 +14,41 @@ export default function Home({ jobs }) {
         />
       </Head>
 
-      <main className="max-w-6xl mx-auto px-4">
-        <section className="my-8">
-          <h1 className="text-3xl font-bold mb-4">
-            Search Jobs in India
-          </h1>
-          {/* Search Form later */}
-        </section>
+      {/* ❌ NO <main> HERE */}
+      <section className="my-8">
+        <h1 className="text-3xl font-bold mb-4">
+          Search Jobs in India
+        </h1>
+      </section>
 
-        <section className="my-12">
-          <h2 className="text-2xl font-semibold mb-6">
-            Popular Categories
-          </h2>
-          <CategoryGrid />
-        </section>
+      <section className="my-12">
+        <h2 className="text-2xl font-semibold mb-6">
+          Popular Categories
+        </h2>
+        <CategoryGrid />
+      </section>
 
-        <section className="my-12">
-          <h2 className="text-2xl font-semibold mb-6">
-            Featured Jobs
-          </h2>
+      <section className="my-12">
+        <h2 className="text-2xl font-semibold mb-6">
+          Featured Jobs
+        </h2>
 
-          {jobs.length === 0 ? (
-            <p className="text-gray-600">No jobs available right now.</p>
-          ) : (
-            <div className="grid md:grid-cols-2 gap-4">
-              {jobs.map((job, index) => (
-                <JobCard key={job.id || index} job={job} />
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
+        {jobs.length === 0 ? (
+          <p className="text-gray-600">No jobs available right now.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-4">
+            {jobs.map((job, index) => (
+              <JobCard key={job.id || index} job={job} />
+            ))}
+          </div>
+        )}
+      </section>
     </>
   );
 }
 
 export async function getServerSideProps() {
   try {
-    // 👇 IMPORTANT: empty string hata diya
     const jobs = await fetchJobs();
 
     return {
