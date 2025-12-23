@@ -12,20 +12,23 @@ export default function CategoryGrid() {
     { name: "Engineering", slug: "engineering" }
   ];
 
-  const handleClick = (slug) => {
-    router.push(`/jobs/${slug}/india`);
+  const handleClick = (e, slug) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.replace(`/jobs/${slug}/india`);
   };
 
   return (
     <div className="grid md:grid-cols-3 gap-4">
       {categories.map(cat => (
-        <div
+        <button
           key={cat.slug}
-          onClick={() => handleClick(cat.slug)}
-          className="border p-4 text-center rounded hover:shadow-lg hover:bg-gray-50 cursor-pointer"
+          type="button"
+          onClick={(e) => handleClick(e, cat.slug)}
+          className="border p-4 rounded text-center hover:shadow-lg hover:bg-gray-50"
         >
           {cat.name}
-        </div>
+        </button>
       ))}
     </div>
   );
