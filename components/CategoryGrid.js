@@ -13,13 +13,10 @@ export default function CategoryGrid() {
   return (
     <div className="grid md:grid-cols-3 gap-4">
       {categories.map(cat => (
-        <Link
-          key={cat.slug}
-          href={`/jobs/${cat.slug}/india`}
-        >
-          <div className="border p-4 text-center rounded hover:shadow-lg cursor-pointer hover:bg-gray-50">
+        <Link key={cat.slug} href={`/jobs/${cat.slug}/india`}>
+          <a className="border p-4 text-center rounded hover:shadow-lg hover:bg-gray-50 block">
             {cat.name}
-          </div>
+          </a>
         </Link>
       ))}
     </div>
