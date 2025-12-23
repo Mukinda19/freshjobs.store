@@ -10,16 +10,28 @@ export default async function handler(req, res) {
 
     const { category, location } = req.query;
 
-    // Category filter
+    // ✅ CATEGORY FILTER (Govt handled properly)
     if (category) {
-      jobs = jobs.filter(
-        (job) =>
-          job.category &&
-          job.category.toLowerCase().includes(category.toLowerCase())
-      );
+      const cat = category.toLowerCase();
+
+      jobs = jobs.filter((job) => {
+        if (!job.category) return false;
+
+        const jobCat = job.category.toLowerCase();
+
+        // Government jobs special case
+        if (cat.includes("gov")) {
+          return (
+            jobCat.includes("gov") ||
+            jobCat.includes("government")
+          );
+        }
+
+        return jobCat.includes(cat);
+      });
     }
 
-    // Location filter (IGNORE if location = india)
+    // ✅ LOCATION FILTER (ignore india)
     if (location && location.toLowerCase() !== "india") {
       jobs = jobs.filter(
         (job) =>
