@@ -3,46 +3,44 @@ export default async function handler(req, res) {
     const SHEET_URL =
       "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec";
 
-    const response = await fetch(`${SHEET_URL}?limit=500`);
+    const response = await fetch(`${SHEET_URL}?limit=1000`);
     const data = await response.json();
 
     let jobs = Array.isArray(data.jobs) ? data.jobs : [];
 
-    const { category, location } = req.query;
+    const { category, location, page = 1, limit = 10 } = req.query;
 
-    // ✅ CATEGORY FILTER (Govt handled properly)
+    // Category filter
     if (category) {
-      const cat = category.toLowerCase();
-
-      jobs = jobs.filter((job) => {
-        if (!job.category) return false;
-
-        const jobCat = job.category.toLowerCase();
-
-        // Government jobs special case
-        if (cat.includes("gov")) {
-          return (
-            jobCat.includes("gov") ||
-            jobCat.includes("government")
-          );
-        }
-
-        return jobCat.includes(cat);
-      });
+      jobs = jobs.filter(
+        job =>
+          job.category &&
+          job.category.toLowerCase().includes(category.toLowerCase())
+      );
     }
 
-    // ✅ LOCATION FILTER (ignore india)
+    // Location filter (india = all)
     if (location && location.toLowerCase() !== "india") {
       jobs = jobs.filter(
-        (job) =>
+        job =>
           job.location &&
           job.location.toLowerCase().includes(location.toLowerCase())
       );
     }
 
-    return res.status(200).json(jobs);
+    const pageNum = parseInt(page);
+    const pageLimit = parseInt(limit);
+    const start = (pageNum - 1) * pageLimit;
+    const end = start + pageLimit;
+
+    return res.status(200).json({
+      jobs: jobs.slice(start, end),
+      total: jobs.length,
+      page: pageNum,
+      totalPages: Math.ceil(jobs.length / pageLimit)
+    });
   } catch (err) {
     console.error("API error:", err);
-    return res.status(500).json([]);
+    return res.status(500).json({ jobs: [], total: 0 });
   }
 }
