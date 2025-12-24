@@ -17,8 +17,8 @@ export default function JobCard({ job }) {
   return (
     <div className="border p-4 rounded-lg bg-white hover:shadow-lg transition flex flex-col justify-between">
       <div>
-        {/* 🔹 Job Title (NO internal link now) */}
-        <h3 className="text-lg font-semibold leading-snug text-gray-900">
+        {/* 🔹 Job Title (Blue + Bold for visibility) */}
+        <h3 className="text-lg font-bold leading-snug text-blue-700">
           {job.title || "Job Title"}
         </h3>
 
@@ -54,7 +54,7 @@ export default function JobCard({ job }) {
             rel="noopener noreferrer nofollow"
             className="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700"
           >
-            Apply on Company Site
+            Apply
           </a>
         ) : (
           <span className="text-xs text-red-500">
