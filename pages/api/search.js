@@ -1,46 +1,31 @@
 // pages/api/search.js
 
 const CATEGORY_KEYWORDS = {
-  government: ["government", "govt", "sarkari", "public sector", "psu"],
-  banking: ["bank", "banking", "finance", "account", "accounts"],
-  it: [
-    "it",
-    "information technology",
-    "software",
-    "developer",
-    "programmer",
-    "engineer",
-    "computer",
-    "web",
-    "frontend",
-    "backend",
-    "full stack",
-    "data",
-    "cloud",
-    "network",
-    "cyber",
-    "ai",
-    "ml",
-  ],
-  bpo: ["bpo", "call center", "customer support", "voice", "non voice"],
-  sales: ["sales", "marketing", "business development"],
+  government: ["government", "govt", "sarkari", "psu", "railway", "ssc"],
+  banking: ["bank", "banking", "finance", "loan"],
+  it: ["it", "software", "developer", "programmer", "computer", "web", "app"],
   engineering: ["engineer", "engineering", "mechanical", "civil", "electrical"],
+  sales: ["sales", "marketing", "business development", "field work"],
+  bpo: ["bpo", "call center", "customer support", "telecaller"],
 };
 
-function matchCategory(job, category) {
-  if (!category) return true;
-
-  const keywords = CATEGORY_KEYWORDS[category.toLowerCase()];
-  if (!keywords) return false;
-
+function detectCategories(job) {
   const text = `
     ${job.title || ""}
-    ${job.category || ""}
-    ${job.snippet || ""}
     ${job.company || ""}
+    ${job.snippet || ""}
+    ${job.category || ""}
   `.toLowerCase();
 
-  return keywords.some(keyword => text.includes(keyword));
+  const matched = [];
+
+  for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (keywords.some(word => text.includes(word))) {
+      matched.push(category);
+    }
+  }
+
+  return matched.length ? matched : ["other"];
 }
 
 export default async function handler(req, res) {
@@ -48,19 +33,26 @@ export default async function handler(req, res) {
     const SHEET_URL =
       "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec";
 
-    const { category, location, page = 1, limit = 10 } = req.query;
+    const { category, location, search, page = 1, limit = 10 } = req.query;
 
-    // 🔹 Fetch jobs
-    const response = await fetch(`${SHEET_URL}?limit=1500`);
+    const response = await fetch(`${SHEET_URL}?limit=1000`);
     const data = await response.json();
     let jobs = Array.isArray(data.jobs) ? data.jobs : [];
 
-    // 🔹 Category logic (SMART MATCHING)
-    if (category) {
-      jobs = jobs.filter(job => matchCategory(job, category));
+    // 🔹 Detect multiple categories per job
+    jobs = jobs.map(job => ({
+      ...job,
+      detectedCategories: detectCategories(job),
+    }));
+
+    // 🔹 Category filter (popular categories)
+    if (category && category !== "all") {
+      jobs = jobs.filter(job =>
+        job.detectedCategories.includes(category.toLowerCase())
+      );
     }
 
-    // 🔹 Location logic (india = all)
+    // 🔹 Location filter
     if (location && location.toLowerCase() !== "india") {
       jobs = jobs.filter(
         job =>
@@ -69,19 +61,23 @@ export default async function handler(req, res) {
       );
     }
 
-    // 🔹 Sort latest first
-    jobs.sort(
-      (a, b) => new Date(b.datePosted || 0) - new Date(a.datePosted || 0)
-    );
+    // 🔹 Search keyword
+    if (search) {
+      const q = search.toLowerCase();
+      jobs = jobs.filter(job =>
+        `${job.title} ${job.company} ${job.snippet}`
+          .toLowerCase()
+          .includes(q)
+      );
+    }
 
     // 🔹 Pagination
-    const pageNum = Math.max(parseInt(page), 1);
-    const pageLimit = Math.min(parseInt(limit), 50);
+    const pageNum = parseInt(page);
+    const pageLimit = parseInt(limit);
     const start = (pageNum - 1) * pageLimit;
-    const end = start + pageLimit;
 
     return res.status(200).json({
-      jobs: jobs.slice(start, end),
+      jobs: jobs.slice(start, start + pageLimit),
       total: jobs.length,
       page: pageNum,
       totalPages: Math.ceil(jobs.length / pageLimit),
