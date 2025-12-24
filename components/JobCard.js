@@ -1,6 +1,4 @@
-import Link from "next/link";
-
-// 🔹 Helper: SEO friendly slug generator
+// 🔹 Helper: SEO friendly slug generator (future use safe)
 const generateSlug = (job) => {
   const base =
     job.slug ||
@@ -16,20 +14,12 @@ export default function JobCard({ job }) {
   // 🔹 External apply link (priority safe)
   const applyLink = job.url || job.link || job.applyLink || "";
 
-  // 🔹 Internal job detail page
-  const slug = generateSlug(job);
-
   return (
     <div className="border p-4 rounded-lg bg-white hover:shadow-lg transition flex flex-col justify-between">
       <div>
-        {/* 🔹 Job Title (Internal SEO link) */}
-        <h3 className="text-lg font-semibold leading-snug">
-          <Link
-            href={`/job/${slug}`}
-            className="text-blue-700 hover:underline"
-          >
-            {job.title || "Job Title"}
-          </Link>
+        {/* 🔹 Job Title (NO internal link now) */}
+        <h3 className="text-lg font-semibold leading-snug text-gray-900">
+          {job.title || "Job Title"}
         </h3>
 
         {/* 🔹 Company + Location */}
@@ -56,16 +46,7 @@ export default function JobCard({ job }) {
       </div>
 
       {/* 🔹 Actions */}
-      <div className="mt-4 flex items-center justify-between gap-3">
-        {/* Internal details */}
-        <Link
-          href={`/job/${slug}`}
-          className="text-sm font-medium text-blue-600 hover:underline"
-        >
-          View Details →
-        </Link>
-
-        {/* External apply */}
+      <div className="mt-4 flex items-center justify-end">
         {applyLink ? (
           <a
             href={applyLink}
@@ -73,7 +54,7 @@ export default function JobCard({ job }) {
             rel="noopener noreferrer nofollow"
             className="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700"
           >
-            Apply Now
+            Apply on Company Site
           </a>
         ) : (
           <span className="text-xs text-red-500">
