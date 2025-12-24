@@ -17,14 +17,14 @@ export default function JobCard({ job }) {
   return (
     <div className="border p-4 rounded-lg bg-white hover:shadow-lg transition flex flex-col justify-between">
       <div>
-        {/* 🔹 Job Title (Blue + Bold for visibility) */}
-        <h3 className="text-lg font-bold leading-snug text-blue-700">
+        {/* 🔹 Job Title */}
+        <h3 className="text-lg font-bold leading-snug text-[#1a73e8]">
           {job.title || "Job Title"}
         </h3>
 
         {/* 🔹 Company + Location */}
         {(job.company || job.location) && (
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-[#333333] mt-1">
             {job.company || "Company"}
             {job.location ? ` • ${job.location}` : ""}
           </p>
@@ -32,7 +32,7 @@ export default function JobCard({ job }) {
 
         {/* 🔹 Salary */}
         {job.salary && (
-          <p className="text-sm text-green-600 mt-1">
+          <p className="text-sm text-[#0a7b2e] mt-1">
             {job.salary}
           </p>
         )}
@@ -52,7 +52,7 @@ export default function JobCard({ job }) {
             href={applyLink}
             target="_blank"
             rel="noopener noreferrer nofollow"
-            className="bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-[#0056b3] text-white text-sm px-4 py-2 rounded font-bold hover:bg-blue-700"
           >
             Apply
           </a>
