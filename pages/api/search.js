@@ -1,14 +1,5 @@
 // pages/api/search.js
 
-const CATEGORY_KEYWORDS = {
-  "govt-jobs": ["government", "govt", "sarkari"],
-  banking: ["bank", "banking"],
-  it: ["it", "software", "developer", "engineer"],
-  bpo: ["bpo", "call center", "voice", "process"],
-  sales: ["sales", "marketing", "business development"],
-  engineering: ["engineer", "mechanical", "civil", "electrical"],
-};
-
 export default async function handler(req, res) {
   try {
     const SHEET_URL =
@@ -16,25 +7,36 @@ export default async function handler(req, res) {
 
     const { category, location, page = 1, limit = 10 } = req.query;
 
-    const response = await fetch(`${SHEET_URL}?limit=2000`);
+    const response = await fetch(`${SHEET_URL}?limit=1000`);
     const data = await response.json();
-
     let jobs = Array.isArray(data.jobs) ? data.jobs : [];
 
-    // 🔹 Category keyword based filter
-    if (category && CATEGORY_KEYWORDS[category]) {
-      const keywords = CATEGORY_KEYWORDS[category];
+    // 🔹 CATEGORY KEYWORD MAPPING (MAIN LOGIC)
+    const categoryMap = {
+      "govt-jobs": ["government", "govt", "sarkari", "psu", "ministry"],
+      banking: ["bank", "banking", "ibps", "rbi", "sbi"],
+      it: ["it", "software", "developer", "engineer", "programmer"],
+      bpo: ["bpo", "call center", "customer support", "telecaller"],
+      sales: ["sales", "marketing", "business development"],
+      engineering: ["engineer", "mechanical", "civil", "electrical"],
+    };
 
-      jobs = jobs.filter(job => {
-        const text = `${job.title} ${job.category}`.toLowerCase();
-        return keywords.some(k => text.includes(k));
+    // 🔹 Apply category filter
+    if (category && categoryMap[category]) {
+      const keywords = categoryMap[category];
+
+      jobs = jobs.filter((job) => {
+        const text = `${job.title} ${job.company} ${job.category}`.toLowerCase();
+        return keywords.some((word) => text.includes(word));
       });
     }
 
     // 🔹 Location filter
     if (location && location.toLowerCase() !== "india") {
-      jobs = jobs.filter(job =>
-        job.location?.toLowerCase().includes(location.toLowerCase())
+      jobs = jobs.filter(
+        (job) =>
+          job.location &&
+          job.location.toLowerCase().includes(location.toLowerCase())
       );
     }
 
