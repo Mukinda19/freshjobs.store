@@ -5,7 +5,7 @@ import JobCard from "../../../components/JobCard";
 
 export default function CategoryLocationPage() {
   const router = useRouter();
-  const { category, location, page = 1 } = router.query;
+  const { category, location, page = 1, q = "" } = router.query;
 
   const currentPage = Number(page) || 1;
 
@@ -13,30 +13,40 @@ export default function CategoryLocationPage() {
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
 
-  // 🔹 Fetch jobs
+  // 🔹 Fetch jobs based on category, location & keyword
   useEffect(() => {
     if (!category || !location) return;
 
     setLoading(true);
 
-    fetch(
-      `/api/search?category=${category}&location=${location}&page=${currentPage}&limit=10`
-    )
-      .then((res) => res.json())
-      .then((data) => {
+    const fetchJobs = async () => {
+      const qParam = q ? `&q=${encodeURIComponent(q)}` : "";
+
+      try {
+        const res = await fetch(
+          `/api/search?category=${category}&location=${location}${qParam}&page=${currentPage}&limit=10`
+        );
+        const data = await res.json();
         setJobs(data.jobs || []);
         setTotalPages(data.totalPages || 1);
+      } catch (err) {
+        console.error("Error fetching jobs:", err);
+        setJobs([]);
+        setTotalPages(1);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [category, location, currentPage]);
+      }
+    };
+
+    fetchJobs();
+  }, [category, location, currentPage, q]);
 
   // 🔹 Page change
   const goToPage = (p) => {
-    router.push(`/jobs/${category}/${location}?page=${p}`);
+    const query = q ? `?page=${p}&q=${encodeURIComponent(q)}` : `?page=${p}`;
+    router.push(`/jobs/${category}/${location}${query}`);
   };
 
-  // 🔹 SAFETY GUARD (VERY IMPORTANT)
   if (!category || !location) {
     return <p className="p-4">Loading page...</p>;
   }
@@ -81,7 +91,7 @@ export default function CategoryLocationPage() {
         ))}
       </div>
 
-      {/* 🔹 Pagination (Indeed-style) */}
+      {/* 🔹 Pagination */}
       {!loading && totalPages > 1 && (
         <div className="flex items-center gap-2 mt-8 flex-wrap">
           {currentPage > 1 && (

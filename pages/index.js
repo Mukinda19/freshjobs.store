@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import CategoryGrid from "../components/CategoryGrid";
@@ -16,6 +16,9 @@ export default function Home({ initialJobs, totalPages }) {
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
 
+  // 🔹 Filtered jobs for Featured Jobs section
+  const [filteredJobs, setFilteredJobs] = useState(initialJobs);
+
   // 🔹 Search submit
   const handleSearch = (e) => {
     e.preventDefault();
@@ -28,6 +31,24 @@ export default function Home({ initialJobs, totalPages }) {
     );
   };
 
+  // 🔹 Fetch filtered jobs when search params change
+  useEffect(() => {
+    const fetchFilteredJobs = async () => {
+      const finalCategory = category || "all";
+      const finalLocation = location || "india";
+      const qParam = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
+
+      const res = await fetch(
+        `/api/search?category=${finalCategory}&location=${finalLocation}${qParam}&page=1&limit=10`
+      );
+      const data = await res.json();
+      setFilteredJobs(data.jobs || []);
+      setPage(1);
+    };
+
+    fetchFilteredJobs();
+  }, [category, location, keyword]);
+
   // 🔹 Load more jobs
   const loadMore = async () => {
     if (loading || page >= totalPages) return;
@@ -35,10 +56,16 @@ export default function Home({ initialJobs, totalPages }) {
     setLoading(true);
     const nextPage = page + 1;
 
-    const res = await fetch(`/api/search?page=${nextPage}&limit=10`);
+    const finalCategory = category || "all";
+    const finalLocation = location || "india";
+    const qParam = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
+
+    const res = await fetch(
+      `/api/search?category=${finalCategory}&location=${finalLocation}${qParam}&page=${nextPage}&limit=10`
+    );
     const data = await res.json();
 
-    setJobs((prev) => [...prev, ...data.jobs]);
+    setFilteredJobs((prev) => [...prev, ...data.jobs]);
     setPage(nextPage);
     setLoading(false);
   };
@@ -119,7 +146,7 @@ export default function Home({ initialJobs, totalPages }) {
         <h2 className="text-2xl font-semibold mb-6">Featured Jobs</h2>
 
         <div className="grid md:grid-cols-2 gap-4">
-          {jobs.map((job, index) => (
+          {filteredJobs.map((job, index) => (
             <JobCard key={job.id || index} job={job} />
           ))}
         </div>
