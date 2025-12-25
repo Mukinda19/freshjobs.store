@@ -5,13 +5,20 @@ export default async function handler(req, res) {
     const SHEET_URL =
       "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec";
 
-    const { category, location, page = 1, limit = 10 } = req.query;
+    const {
+      category,
+      location,
+      q,            // 🔹 NEW: search keyword
+      page = 1,
+      limit = 10,
+    } = req.query;
 
     const response = await fetch(`${SHEET_URL}?limit=1000`);
     const data = await response.json();
+
     let jobs = Array.isArray(data.jobs) ? data.jobs : [];
 
-    // 🔹 CATEGORY KEYWORD MAPPING (MAIN LOGIC)
+    // 🔹 CATEGORY KEYWORD MAPPING
     const categoryMap = {
       "govt-jobs": ["government", "govt", "sarkari", "psu", "ministry"],
       banking: ["bank", "banking", "ibps", "rbi", "sbi"],
@@ -38,6 +45,23 @@ export default async function handler(req, res) {
           job.location &&
           job.location.toLowerCase().includes(location.toLowerCase())
       );
+    }
+
+    // 🔹 NEW: SEARCH KEYWORD FILTER (main feature)
+    if (q && q.trim() !== "") {
+      const keyword = q.toLowerCase();
+
+      jobs = jobs.filter((job) => {
+        const text = `
+          ${job.title || ""}
+          ${job.company || ""}
+          ${job.category || ""}
+          ${job.location || ""}
+          ${job.snippet || ""}
+        `.toLowerCase();
+
+        return text.includes(keyword);
+      });
     }
 
     // 🔹 Pagination
