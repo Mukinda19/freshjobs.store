@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Head from "next/head";
+import Link from "next/link";
 import JobCard from "../components/JobCard";
 
 export default function GovtJobs({ initialJobs, totalPages }) {
@@ -24,28 +26,62 @@ export default function GovtJobs({ initialJobs, totalPages }) {
   };
 
   return (
-    <main className="max-w-6xl mx-auto px-4 my-8">
-      <h1 className="text-3xl font-bold mb-6">Government Jobs</h1>
+    <>
+      {/* 🔹 SEO */}
+      <Head>
+        <title>Government Jobs in India | FreshJobs.Store</title>
+        <meta
+          name="description"
+          content="Find latest Government Jobs in India. Apply for Sarkari Naukri, PSU, Banking and Govt vacancies."
+        />
+        <link
+          rel="canonical"
+          href="https://freshjobs.store/government-jobs"
+        />
+      </Head>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        {jobs.map((job, index) => (
-          <JobCard key={job.id || index} job={job} />
-        ))}
-      </div>
+      <main className="max-w-6xl mx-auto px-4 my-8">
+        {/* 🔹 Breadcrumbs */}
+        <nav className="text-sm mb-4 text-gray-600">
+          <ol className="flex items-center space-x-2">
+            <li>
+              <Link href="/" className="hover:underline text-blue-600">
+                Home
+              </Link>
+            </li>
+            <li>/</li>
+            <li className="font-semibold text-gray-900">
+              Government Jobs
+            </li>
+          </ol>
+        </nav>
 
-      {/* 🔹 Load More Button */}
-      {page < totalPages && (
-        <div className="text-center mt-8">
-          <button
-            onClick={loadMore}
-            disabled={loading}
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? "Loading..." : "Load More Jobs"}
-          </button>
+        {/* 🔹 Heading */}
+        <h1 className="text-3xl font-bold mb-6">
+          Government Jobs
+        </h1>
+
+        {/* 🔹 Jobs Grid */}
+        <div className="grid md:grid-cols-2 gap-4">
+          {jobs.map((job, index) => (
+            <JobCard key={job.id || index} job={job} />
+          ))}
         </div>
-      )}
-    </main>
+
+        {/* 🔹 Load More Button */}
+        {page < totalPages && (
+          <div className="text-center mt-8">
+            <button
+              onClick={loadMore}
+              disabled={loading}
+              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Loading..." : "Load More Jobs"}
+            </button>
+          </div>
+        )}
+      </main>
+    </>
   );
 }
 
