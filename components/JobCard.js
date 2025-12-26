@@ -18,50 +18,88 @@ export default function JobCard({ job }) {
     return null;
   }
 
+  // 🔹 JobPosting Schema (Google Jobs)
+  const jobSchema = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    "title": job.title || "Job Opening",
+    "description": job.snippet || job.title || "Job description not available",
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": job.company || "Company",
+      "sameAs": applyLink
+    },
+    "employmentType": "FULL_TIME",
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "IN",
+        "addressLocality": job.location || "India"
+      }
+    },
+    "datePosted": job.date || new Date().toISOString(),
+    "validThrough": new Date(
+      Date.now() + 30 * 24 * 60 * 60 * 1000
+    ).toISOString(),
+    "directApply": true,
+    "url": applyLink
+  };
+
   return (
-    <a
-      href={applyLink}
-      target="_blank"
-      rel="noopener noreferrer nofollow"
-      className="block border p-4 rounded-lg bg-white hover:shadow-lg transition"
-    >
-      <div className="flex flex-col justify-between h-full">
-        <div>
-          {/* 🔹 Job Title */}
-          <h3 className="text-lg font-bold leading-snug text-[#1a73e8]">
-            {job.title || "Job Title"}
-          </h3>
+    <>
+      {/* 🔹 JobPosting Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jobSchema),
+        }}
+      />
 
-          {/* 🔹 Company + Location */}
-          {(job.company || job.location) && (
-            <p className="text-sm text-[#333333] mt-1">
-              {job.company || "Company"}
-              {job.location ? ` • ${job.location}` : ""}
-            </p>
-          )}
+      <a
+        href={applyLink}
+        target="_blank"
+        rel="noopener noreferrer nofollow"
+        className="block border p-4 rounded-lg bg-white hover:shadow-lg transition"
+      >
+        <div className="flex flex-col justify-between h-full">
+          <div>
+            {/* 🔹 Job Title */}
+            <h3 className="text-lg font-bold leading-snug text-[#1a73e8]">
+              {job.title || "Job Title"}
+            </h3>
 
-          {/* 🔹 Salary */}
-          {job.salary && (
-            <p className="text-sm text-[#0a7b2e] mt-1">
-              {job.salary}
-            </p>
-          )}
+            {/* 🔹 Company + Location */}
+            {(job.company || job.location) && (
+              <p className="text-sm text-[#333333] mt-1">
+                {job.company || "Company"}
+                {job.location ? ` • ${job.location}` : ""}
+              </p>
+            )}
 
-          {/* 🔹 Snippet */}
-          {job.snippet && (
-            <p className="text-gray-700 text-sm mt-3 line-clamp-3">
-              {job.snippet}
-            </p>
-          )}
+            {/* 🔹 Salary */}
+            {job.salary && (
+              <p className="text-sm text-[#0a7b2e] mt-1">
+                {job.salary}
+              </p>
+            )}
+
+            {/* 🔹 Snippet */}
+            {job.snippet && (
+              <p className="text-gray-700 text-sm mt-3 line-clamp-3">
+                {job.snippet}
+              </p>
+            )}
+          </div>
+
+          {/* 🔹 Apply CTA */}
+          <div className="mt-4 text-right">
+            <span className="inline-block bg-[#0056b3] text-white text-sm px-4 py-2 rounded font-bold hover:bg-blue-700">
+              Apply Now
+            </span>
+          </div>
         </div>
-
-        {/* 🔹 Apply CTA */}
-        <div className="mt-4 text-right">
-          <span className="inline-block bg-[#0056b3] text-white text-sm px-4 py-2 rounded font-bold hover:bg-blue-700">
-            Apply Now
-          </span>
-        </div>
-      </div>
-    </a>
+      </a>
+    </>
   );
 }
