@@ -7,7 +7,6 @@ import JobCard from "../components/JobCard";
 export default function Home({ initialJobs, totalPages }) {
   const router = useRouter();
 
-  const [jobs, setJobs] = useState(initialJobs);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +15,7 @@ export default function Home({ initialJobs, totalPages }) {
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
 
-  // 🔹 Filtered jobs for Featured Jobs section
+  // 🔹 Filtered jobs
   const [filteredJobs, setFilteredJobs] = useState(initialJobs);
 
   // 🔹 Search submit
@@ -31,7 +30,7 @@ export default function Home({ initialJobs, totalPages }) {
     );
   };
 
-  // 🔹 Fetch filtered jobs when search params change
+  // 🔹 Fetch filtered jobs
   useEffect(() => {
     const fetchFilteredJobs = async () => {
       const finalCategory = category || "all";
@@ -42,6 +41,7 @@ export default function Home({ initialJobs, totalPages }) {
         `/api/search?category=${finalCategory}&location=${finalLocation}${qParam}&page=1&limit=10`
       );
       const data = await res.json();
+
       setFilteredJobs(data.jobs || []);
       setPage(1);
     };
@@ -51,7 +51,7 @@ export default function Home({ initialJobs, totalPages }) {
 
   // 🔹 Load more jobs
   const loadMore = async () => {
-    if (loading || page >= totalPages) return;
+    if (loading) return;
 
     setLoading(true);
     const nextPage = page + 1;
@@ -65,7 +65,7 @@ export default function Home({ initialJobs, totalPages }) {
     );
     const data = await res.json();
 
-    setFilteredJobs((prev) => [...prev, ...data.jobs]);
+    setFilteredJobs((prev) => [...prev, ...(data.jobs || [])]);
     setPage(nextPage);
     setLoading(false);
   };
@@ -86,7 +86,6 @@ export default function Home({ initialJobs, totalPages }) {
           Search Jobs in India
         </h1>
 
-        {/* 🔹 Search Bar */}
         <form
           onSubmit={handleSearch}
           className="grid md:grid-cols-4 gap-3 bg-white p-4 rounded-lg shadow-md"
@@ -96,7 +95,7 @@ export default function Home({ initialJobs, totalPages }) {
             placeholder="Job title, skills or company"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            className="border px-3 py-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="border px-3 py-2 rounded w-full"
           />
 
           <select
@@ -128,7 +127,7 @@ export default function Home({ initialJobs, totalPages }) {
 
           <button
             type="submit"
-            className="bg-blue-500 text-white font-semibold rounded px-4 py-2 hover:bg-blue-600 transition"
+            className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700"
           >
             Search Jobs
           </button>
@@ -141,6 +140,28 @@ export default function Home({ initialJobs, totalPages }) {
         <CategoryGrid />
       </section>
 
+      {/* 🔹 Popular Searches (SEO + RSS SAFE) */}
+      <section className="my-12">
+        <h2 className="text-xl font-semibold mb-4">Popular Searches</h2>
+        <div className="flex flex-wrap gap-3">
+          {[
+            ["IT Jobs in Mumbai", "/jobs/it/mumbai"],
+            ["Govt Jobs in India", "/jobs/govt-jobs/india"],
+            ["Engineering Jobs in Pune", "/jobs/engineering/pune"],
+            ["BPO Jobs in Delhi", "/jobs/bpo/delhi"],
+            ["Banking Jobs in Bangalore", "/jobs/banking/bangalore"],
+          ].map(([label, link]) => (
+            <a
+              key={link}
+              href={link}
+              className="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200 text-sm"
+            >
+              {label}
+            </a>
+          ))}
+        </div>
+      </section>
+
       {/* 🔹 Featured Jobs */}
       <section className="my-12">
         <h2 className="text-2xl font-semibold mb-6">Featured Jobs</h2>
@@ -151,12 +172,12 @@ export default function Home({ initialJobs, totalPages }) {
           ))}
         </div>
 
-        {page < totalPages && (
+        {filteredJobs.length >= 10 && (
           <div className="text-center mt-8">
             <button
               onClick={loadMore}
               disabled={loading}
-              className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
             >
               {loading ? "Loading..." : "Load More Jobs"}
             </button>
