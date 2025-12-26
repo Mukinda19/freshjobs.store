@@ -31,7 +31,6 @@ export default function CategoryLocationPage() {
         setJobs(data.jobs || []);
         setTotalPages(data.totalPages || 1);
       } catch (err) {
-        console.error("Error fetching jobs:", err);
         setJobs([]);
         setTotalPages(1);
       } finally {
@@ -42,7 +41,7 @@ export default function CategoryLocationPage() {
     fetchJobs();
   }, [category, location, currentPage, q]);
 
-  // 🔹 Pagination change
+  // 🔹 Pagination
   const goToPage = (p) => {
     const query = q ? `?page=${p}&q=${encodeURIComponent(q)}` : `?page=${p}`;
     router.push(`/jobs/${category}/${location}${query}`);
@@ -55,30 +54,30 @@ export default function CategoryLocationPage() {
   const readableCategory = category.replace(/-/g, " ");
   const readableLocation = location.replace(/-/g, " ");
 
-  // 🔹 Breadcrumb JSON-LD (SEO)
+  // 🔹 Breadcrumb Schema
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": [
+    itemListElement: [
       {
         "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://freshjobs.store/"
+        position: 1,
+        name: "Home",
+        item: "https://freshjobs.store/",
       },
       {
         "@type": "ListItem",
-        "position": 2,
-        "name": `${readableCategory} Jobs`,
-        "item": `https://freshjobs.store/jobs/${category}/india`
+        position: 2,
+        name: `${readableCategory} Jobs`,
+        item: `https://freshjobs.store/jobs/${category}/india`,
       },
       {
         "@type": "ListItem",
-        "position": 3,
-        "name": `${readableCategory} Jobs in ${readableLocation}`,
-        "item": `https://freshjobs.store/jobs/${category}/${location}`
-      }
-    ]
+        position: 3,
+        name: `${readableCategory} Jobs in ${readableLocation}`,
+        item: `https://freshjobs.store/jobs/${category}/${location}`,
+      },
+    ],
   };
 
   return (
@@ -90,11 +89,11 @@ export default function CategoryLocationPage() {
         </title>
         <meta
           name="description"
-          content={`Apply for latest ${readableCategory} jobs in ${readableLocation}. Page ${currentPage} job listings.`}
+          content={`Latest ${readableCategory} jobs in ${readableLocation}. Apply online for government and private vacancies.`}
         />
         <link
           rel="canonical"
-          href={`https://freshjobs.store/jobs/${category}/${location}?page=${currentPage}`}
+          href={`https://freshjobs.store/jobs/${category}/${location}`}
         />
         <script
           type="application/ld+json"
@@ -120,19 +119,34 @@ export default function CategoryLocationPage() {
       </nav>
 
       {/* 🔹 Heading */}
-      <h1 className="text-2xl font-bold mb-6 capitalize">
+      <h1 className="text-2xl font-bold mb-4 capitalize">
         {readableCategory} Jobs in {readableLocation}
       </h1>
 
-      {/* 🔹 Loading */}
+      {/* 🔹 SEO TEXT BLOCK (IMPORTANT) */}
+      <section className="mb-8 text-gray-700 text-sm leading-relaxed">
+        <p>
+          Looking for the latest <strong>{readableCategory} jobs in {readableLocation}</strong>?
+          FreshJobs.Store helps job seekers find updated government and private
+          job openings across India. Here you can explore verified vacancies,
+          eligibility details, and direct apply links without registration.
+        </p>
+
+        <p className="mt-3">
+          Jobs listed on this page are sourced from trusted portals and official
+          notifications. Whether you are a fresher or experienced candidate,
+          these <strong>{readableCategory} vacancies in {readableLocation}</strong>
+          can help you take the next step in your career.
+        </p>
+      </section>
+
+      {/* 🔹 Jobs */}
       {loading && <p>Loading jobs...</p>}
 
-      {/* 🔹 No jobs */}
       {!loading && jobs.length === 0 && (
         <p>No jobs found for this category and location.</p>
       )}
 
-      {/* 🔹 Jobs Grid */}
       <div className="grid md:grid-cols-2 gap-4">
         {jobs.map((job, index) => (
           <JobCard key={job.id || index} job={job} />
@@ -150,25 +164,6 @@ export default function CategoryLocationPage() {
               Previous
             </button>
           )}
-
-          {Array.from({ length: totalPages })
-            .slice(Math.max(currentPage - 3, 0), currentPage + 2)
-            .map((_, i) => {
-              const pageNumber = Math.max(currentPage - 2, 1) + i;
-              return (
-                <button
-                  key={pageNumber}
-                  onClick={() => goToPage(pageNumber)}
-                  className={`px-3 py-1 border rounded ${
-                    currentPage === pageNumber
-                      ? "bg-black text-white"
-                      : "bg-white"
-                  }`}
-                >
-                  {pageNumber}
-                </button>
-              );
-            })}
 
           {currentPage < totalPages && (
             <button
