@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Head from "next/head";
+import Link from "next/link";
 import JobCard from "../../../components/JobCard";
 
 export default function CategoryLocationPage() {
@@ -13,7 +14,7 @@ export default function CategoryLocationPage() {
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
 
-  // 🔹 Fetch jobs based on category, location & keyword
+  // 🔹 Fetch jobs
   useEffect(() => {
     if (!category || !location) return;
 
@@ -41,7 +42,7 @@ export default function CategoryLocationPage() {
     fetchJobs();
   }, [category, location, currentPage, q]);
 
-  // 🔹 Page change
+  // 🔹 Pagination change
   const goToPage = (p) => {
     const query = q ? `?page=${p}&q=${encodeURIComponent(q)}` : `?page=${p}`;
     router.push(`/jobs/${category}/${location}${query}`);
@@ -53,6 +54,32 @@ export default function CategoryLocationPage() {
 
   const readableCategory = category.replace(/-/g, " ");
   const readableLocation = location.replace(/-/g, " ");
+
+  // 🔹 Breadcrumb JSON-LD (SEO)
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://freshjobs.store/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": `${readableCategory} Jobs`,
+        "item": `https://freshjobs.store/jobs/${category}/india`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": `${readableCategory} Jobs in ${readableLocation}`,
+        "item": `https://freshjobs.store/jobs/${category}/${location}`
+      }
+    ]
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-4">
@@ -69,7 +96,28 @@ export default function CategoryLocationPage() {
           rel="canonical"
           href={`https://freshjobs.store/jobs/${category}/${location}?page=${currentPage}`}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbSchema),
+          }}
+        />
       </Head>
+
+      {/* 🔹 Breadcrumb UI */}
+      <nav className="text-sm text-gray-600 mb-4">
+        <Link href="/" className="hover:underline">
+          Home
+        </Link>
+        <span className="mx-2">›</span>
+        <Link href={`/jobs/${category}/india`} className="hover:underline capitalize">
+          {readableCategory} Jobs
+        </Link>
+        <span className="mx-2">›</span>
+        <span className="text-gray-900 font-medium capitalize">
+          {readableLocation}
+        </span>
+      </nav>
 
       {/* 🔹 Heading */}
       <h1 className="text-2xl font-bold mb-6 capitalize">
