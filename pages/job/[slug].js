@@ -39,6 +39,7 @@ export default function JobDetailPage() {
       .catch(() => setLoading(false));
   }, [slug]);
 
+  /* -------------------- STATES -------------------- */
   if (loading) {
     return <p className="p-4">Loading job details...</p>;
   }
@@ -63,6 +64,7 @@ export default function JobDetailPage() {
     );
   }
 
+  /* -------------------- DATA SAFE -------------------- */
   const title = job.title || "Latest Job Opening";
   const company = job.company || "Company";
   const location = job.location || "India";
@@ -76,6 +78,11 @@ export default function JobDetailPage() {
     normalizeSlug(`${job.title || ""} ${job.company || ""}`);
 
   const applyLink = job.url || job.link || job.applyLink || "";
+
+  // 🔹 Step 6: Internal linking slugs (SEO booster)
+  const categorySlug = job.category || "jobs";
+  const locationSlug =
+    normalizeSlug(location) || "india";
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -94,7 +101,7 @@ export default function JobDetailPage() {
         />
       </Head>
 
-      {/* 🔹 Content */}
+      {/* 🔹 Main Content */}
       <h1 className="text-3xl font-bold mb-2">{title}</h1>
 
       <p className="text-gray-700 mb-3">
@@ -124,6 +131,33 @@ export default function JobDetailPage() {
           Apply on Official Website
         </a>
       )}
+
+      {/* 🔹 Step 6: Internal Links (SEO + AdSense retention) */}
+      <div className="mt-10 border-t pt-6">
+        <h3 className="font-semibold mb-3 text-lg">
+          Explore More Jobs
+        </h3>
+
+        <ul className="list-disc list-inside space-y-2 text-blue-700">
+          <li>
+            <a
+              href={`/jobs/${categorySlug}/india`}
+              className="hover:underline"
+            >
+              More {categorySlug.replace(/-/g, " ")} Jobs in India
+            </a>
+          </li>
+
+          <li>
+            <a
+              href={`/jobs/${categorySlug}/${locationSlug}`}
+              className="hover:underline"
+            >
+              More Jobs in {location}
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   );
 }
