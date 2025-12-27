@@ -10,7 +10,7 @@ export default function Header() {
           href="/"
           className="text-2xl font-bold tracking-wide hover:text-gray-300 transition"
         >
-          FreshJobs Store
+          <span>FreshJobs Store</span>
         </Link>
 
         {/* Navigation Menu */}
@@ -23,10 +23,10 @@ export default function Header() {
             Government Jobs
           </Link>
 
-          {/* 🔹 NEW: Trusted Job Sources */}
+          {/* 🔹 Trusted Job Sources (SEO + Trust) */}
           <Link
             href="/job-sources"
-            className="hover:text-gray-300 transition font-medium"
+            className="hover:text-gray-300 transition font-semibold text-yellow-300"
           >
             Job Sources
           </Link>
