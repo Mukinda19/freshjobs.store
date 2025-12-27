@@ -18,5 +18,30 @@
     "source": "NaukriNama",
     "url": "https://www.naukrinama.com/feed/",
     "category": "general"
+  },
+  {
+    "source": "RemoteOK",
+    "url": "https://remoteok.com/remote-jobs.rss",
+    "category": "wfh"
+  },
+  {
+    "source": "WeWorkRemotely",
+    "url": "https://weworkremotely.com/categories/remote-programming-jobs.rss",
+    "category": "wfh"
+  },
+  {
+    "source": "Remotive",
+    "url": "https://remotive.com/remote-jobs/feed",
+    "category": "wfh"
+  },
+  {
+    "source": "IndeedInternational",
+    "url": "https://www.indeed.com/rss?q=jobs",
+    "category": "international"
+  },
+  {
+    "source": "Jobspresso",
+    "url": "https://jobspresso.co/rss/",
+    "category": "international"
   }
 ]
