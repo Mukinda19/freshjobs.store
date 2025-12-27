@@ -26,22 +26,32 @@
   },
   {
     "source": "WeWorkRemotely",
-    "url": "https://weworkremotely.com/categories/remote-programming-jobs.rss",
+    "url": "https://weworkremotely.com/remote-jobs.rss",
     "category": "wfh"
   },
   {
     "source": "Remotive",
-    "url": "https://remotive.com/remote-jobs/feed",
+    "url": "https://remotive.com/feed",
     "category": "wfh"
   },
   {
-    "source": "IndeedInternational",
-    "url": "https://www.indeed.com/rss?q=jobs",
-    "category": "international"
+    "source": "WorkAnywhere",
+    "url": "https://workanywhere.pro/rss.xml",
+    "category": "wfh"
   },
   {
-    "source": "Jobspresso",
-    "url": "https://jobspresso.co/rss/",
-    "category": "international"
+    "source": "SmartRemoteJobs",
+    "url": "https://www.smartremotejobs.com/feed/all.rss",
+    "category": "wfh"
+  },
+  {
+    "source": "EmplloRemote",
+    "url": "https://empllo.com/feeds/remote-jobs.rss",
+    "category": "wfh"
+  },
+  {
+    "source": "Jobicy",
+    "url": "https://jobicy.com/jobs-rss-feed",
+    "category": "wfh"
   }
 ]
