@@ -1,11 +1,16 @@
+import { useRouter } from "next/router";
+
 export default function CategoryGrid() {
+  const router = useRouter();
+
   const categories = [
     { label: "IT Jobs", slug: "it" },
     { label: "Banking Jobs", slug: "banking" },
     { label: "BPO Jobs", slug: "bpo" },
 
-    // ✅ Work From Home (STATIC PAGE)
+    // ✅ Static SEO Pages
     { label: "Work From Home Jobs", slug: "work-from-home-jobs", type: "static" },
+    { label: "AI Jobs", slug: "ai-jobs", type: "static" },
 
     { label: "Government Jobs", slug: "govt-jobs" },
     { label: "Sales Jobs", slug: "sales" },
@@ -13,14 +18,12 @@ export default function CategoryGrid() {
   ];
 
   const goToCategory = (cat) => {
-    // 🔹 Static SEO pages
     if (cat.type === "static") {
-      window.location.href = `/${cat.slug}`;
+      router.push(`/${cat.slug}`);
       return;
     }
 
-    // 🔹 Dynamic category pages
-    window.location.href = `/jobs/${cat.slug}/india?page=1`;
+    router.push(`/jobs/${cat.slug}/india?page=1`);
   };
 
   return (

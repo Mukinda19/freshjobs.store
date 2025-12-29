@@ -8,7 +8,7 @@ export default function WorkFromHomeJobs({ jobs }) {
         <title>Work From Home Jobs in India | Remote Jobs – FreshJobs.Store</title>
         <meta
           name="description"
-          content="Latest work from home jobs and remote jobs in India. Apply for verified WFH openings updated daily."
+          content="Latest verified work from home jobs and remote jobs in India. Apply online for genuine WFH openings."
         />
         <meta name="robots" content="index, follow" />
         <link
@@ -71,17 +71,30 @@ export default function WorkFromHomeJobs({ jobs }) {
   )
 }
 
-/* ✅ SERVER SIDE FETCH — NO BUILD FAIL EVER */
+/* ✅ SERVER SIDE FETCH — HARD FILTER WFH */
 export async function getServerSideProps() {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?category=wfh&location=india&page=1&limit=30`
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?page=1&limit=50`
     )
     const data = await res.json()
 
+    const wfhJobs = (data.jobs || []).filter((job) => {
+      const title = job?.title?.toLowerCase() || ""
+      const desc = job?.description?.toLowerCase() || ""
+
+      return (
+        title.includes("work from home") ||
+        title.includes("remote") ||
+        title.includes("wfh") ||
+        desc.includes("work from home") ||
+        desc.includes("remote")
+      )
+    })
+
     return {
       props: {
-        jobs: data.jobs || [],
+        jobs: wfhJobs.slice(0, 30),
       },
     }
   } catch (err) {
