@@ -3,6 +3,10 @@ export default function CategoryGrid() {
     { label: "IT Jobs", slug: "it" },
     { label: "Banking Jobs", slug: "banking" },
     { label: "BPO Jobs", slug: "bpo" },
+
+    // 🔹 NEW: Work From Home Jobs
+    { label: "Work From Home Jobs", slug: "work-from-home" },
+
     { label: "Government Jobs", slug: "govt-jobs" },
     { label: "Sales Jobs", slug: "sales" },
     { label: "Engineering Jobs", slug: "engineering" },
@@ -18,7 +22,7 @@ export default function CategoryGrid() {
         <button
           key={cat.slug}
           onClick={() => goToCategory(cat.slug)}
-          className="border p-4 text-center rounded bg-white hover:shadow-lg transition"
+          className="border p-4 text-center rounded bg-white hover:shadow-lg transition font-medium"
         >
           {cat.label}
         </button>
