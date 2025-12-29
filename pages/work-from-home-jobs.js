@@ -1,15 +1,14 @@
 import Head from "next/head"
 import Link from "next/link"
-import jobsData from "../data/seen.json" // ✅ ONLY LINE CHANGED
 
 export default function WorkFromHomeJobs({ jobs }) {
   return (
     <>
       <Head>
-        <title>Work From Home Jobs in India | Remote Jobs – FreshJobs Store</title>
+        <title>Work From Home Jobs in India | Remote Jobs – FreshJobs.Store</title>
         <meta
           name="description"
-          content="Latest work from home jobs and remote jobs in India. Verified WFH job openings updated daily from trusted sources."
+          content="Latest work from home jobs and remote jobs in India. Apply for verified WFH openings updated daily."
         />
         <meta name="robots" content="index, follow" />
         <link
@@ -18,40 +17,39 @@ export default function WorkFromHomeJobs({ jobs }) {
         />
       </Head>
 
-      <main className="container mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-3">
           Work From Home Jobs
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore verified <strong>work from home jobs</strong> and
-          <strong> remote jobs</strong> ideal for freshers and experienced
-          professionals.
+          Explore verified <strong>remote & work from home jobs</strong> from trusted portals.
+          Suitable for freshers and experienced professionals.
         </p>
 
-        <div className="grid gap-6">
-          {jobs.length === 0 && (
-            <p className="text-red-500">
-              No work from home jobs available right now.
-            </p>
-          )}
+        {jobs.length === 0 && (
+          <p className="text-red-500">
+            No work from home jobs available right now.
+          </p>
+        )}
 
+        <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
             <article
               key={index}
-              className="border rounded-lg p-5 bg-white hover:shadow-md transition"
+              className="border rounded-lg p-4 bg-white hover:shadow-md transition"
             >
-              <h2 className="text-lg font-semibold mb-1">
-                {job.title || "WFH Job Opening"}
+              <h2 className="font-semibold mb-1">
+                {job.title || "Work From Home Job"}
               </h2>
 
               <p className="text-sm text-gray-500 mb-2">
-                Source: {job.source || "Verified Portal"}
+                Source: {job.source || "Verified Source"}
               </p>
 
               {job.description && (
                 <p className="text-sm text-gray-700 mb-3">
-                  {job.description.slice(0, 150)}...
+                  {job.description.slice(0, 140)}...
                 </p>
               )}
 
@@ -60,7 +58,7 @@ export default function WorkFromHomeJobs({ jobs }) {
                   href={job.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block text-blue-600 font-medium hover:underline"
+                  className="text-blue-600 font-medium hover:underline"
                 >
                   View Job →
                 </Link>
@@ -73,20 +71,24 @@ export default function WorkFromHomeJobs({ jobs }) {
   )
 }
 
-export async function getStaticProps() {
-  const wfhJobs = Array.isArray(jobsData)
-    ? jobsData.filter(
-        (job) =>
-          job?.category === "wfh" ||
-          job?.tags?.includes("work from home") ||
-          job?.title?.toLowerCase().includes("remote")
-      )
-    : []
+/* ✅ SERVER SIDE FETCH — NO BUILD FAIL EVER */
+export async function getServerSideProps() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?category=wfh&location=india&page=1&limit=30`
+    )
+    const data = await res.json()
 
-  return {
-    props: {
-      jobs: wfhJobs.slice(0, 50),
-    },
-    revalidate: 3600,
+    return {
+      props: {
+        jobs: data.jobs || [],
+      },
+    }
+  } catch (err) {
+    return {
+      props: {
+        jobs: [],
+      },
+    }
   }
 }
