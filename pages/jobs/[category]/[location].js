@@ -80,17 +80,23 @@ export default function CategoryLocationPage() {
     ],
   };
 
+  // 🔹 Special SEO for Work From Home
+  const isWFH = category.toLowerCase() === "work-from-home";
+
+  const pageTitle = isWFH
+    ? `Work From Home Jobs in ${readableLocation} | Page ${currentPage}`
+    : `${readableCategory} Jobs in ${readableLocation} | Page ${currentPage}`;
+
+  const pageDescription = isWFH
+    ? `Explore latest remote and work from home jobs in ${readableLocation}. Apply online for verified remote job openings.`
+    : `Latest ${readableCategory} jobs in ${readableLocation}. Apply online for government and private vacancies.`;
+
   return (
     <div className="max-w-6xl mx-auto p-4">
       {/* 🔹 SEO */}
       <Head>
-        <title>
-          {readableCategory} Jobs in {readableLocation} | Page {currentPage}
-        </title>
-        <meta
-          name="description"
-          content={`Latest ${readableCategory} jobs in ${readableLocation}. Apply online for government and private vacancies.`}
-        />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
         <link
           rel="canonical"
           href={`https://freshjobs.store/jobs/${category}/${location}`}
@@ -109,7 +115,10 @@ export default function CategoryLocationPage() {
           Home
         </Link>
         <span className="mx-2">›</span>
-        <Link href={`/jobs/${category}/india`} className="hover:underline capitalize">
+        <Link
+          href={`/jobs/${category}/india`}
+          className="hover:underline capitalize"
+        >
           {readableCategory} Jobs
         </Link>
         <span className="mx-2">›</span>
@@ -120,24 +129,34 @@ export default function CategoryLocationPage() {
 
       {/* 🔹 Heading */}
       <h1 className="text-2xl font-bold mb-4 capitalize">
-        {readableCategory} Jobs in {readableLocation}
+        {isWFH
+          ? `Work From Home Jobs in ${readableLocation}`
+          : `${readableCategory} Jobs in ${readableLocation}`}
       </h1>
 
-      {/* 🔹 SEO TEXT BLOCK (IMPORTANT) */}
+      {/* 🔹 SEO TEXT BLOCK */}
       <section className="mb-8 text-gray-700 text-sm leading-relaxed">
-        <p>
-          Looking for the latest <strong>{readableCategory} jobs in {readableLocation}</strong>?
-          FreshJobs.Store helps job seekers find updated government and private
-          job openings across India. Here you can explore verified vacancies,
-          eligibility details, and direct apply links without registration.
-        </p>
-
-        <p className="mt-3">
-          Jobs listed on this page are sourced from trusted portals and official
-          notifications. Whether you are a fresher or experienced candidate,
-          these <strong>{readableCategory} vacancies in {readableLocation}</strong>
-          can help you take the next step in your career.
-        </p>
+        {isWFH ? (
+          <p>
+            Find verified <strong>remote and work from home jobs in {readableLocation}</strong>.
+            FreshJobs.Store helps you discover legit WFH opportunities across various industries.
+          </p>
+        ) : (
+          <>
+            <p>
+              Looking for the latest <strong>{readableCategory} jobs in {readableLocation}</strong>?
+              FreshJobs.Store helps job seekers find updated government and private
+              job openings across India. Explore verified vacancies,
+              eligibility details, and direct apply links without registration.
+            </p>
+            <p className="mt-3">
+              Jobs listed on this page are sourced from trusted portals and official
+              notifications. Whether you are a fresher or experienced candidate,
+              these <strong>{readableCategory} vacancies in {readableLocation}</strong>
+              can help you take the next step in your career.
+            </p>
+          </>
+        )}
       </section>
 
       {/* 🔹 Jobs */}
