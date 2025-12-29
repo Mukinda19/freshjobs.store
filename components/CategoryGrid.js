@@ -1,27 +1,26 @@
 export default function CategoryGrid() {
   const categories = [
-    { label: "IT Jobs", slug: "it", type: "category" },
-    { label: "Banking Jobs", slug: "banking", type: "category" },
-    { label: "BPO Jobs", slug: "bpo", type: "category" },
+    { label: "IT Jobs", slug: "it" },
+    { label: "Banking Jobs", slug: "banking" },
+    { label: "BPO Jobs", slug: "bpo" },
 
-    // 🔹 Work From Home = SEO Page (NOT category)
-    {
-      label: "Work From Home Jobs",
-      slug: "work-from-home-jobs",
-      type: "page",
-    },
+    // ✅ Work From Home (STATIC PAGE)
+    { label: "Work From Home Jobs", slug: "work-from-home-jobs", type: "static" },
 
-    { label: "Government Jobs", slug: "govt-jobs", type: "category" },
-    { label: "Sales Jobs", slug: "sales", type: "category" },
-    { label: "Engineering Jobs", slug: "engineering", type: "category" },
+    { label: "Government Jobs", slug: "govt-jobs" },
+    { label: "Sales Jobs", slug: "sales" },
+    { label: "Engineering Jobs", slug: "engineering" },
   ];
 
   const goToCategory = (cat) => {
-    if (cat.type === "page") {
+    // 🔹 Static SEO pages
+    if (cat.type === "static") {
       window.location.href = `/${cat.slug}`;
-    } else {
-      window.location.href = `/jobs/${cat.slug}/india?page=1`;
+      return;
     }
+
+    // 🔹 Dynamic category pages
+    window.location.href = `/jobs/${cat.slug}/india?page=1`;
   };
 
   return (
