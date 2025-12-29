@@ -1,14 +1,23 @@
 import Head from "next/head"
 import Link from "next/link"
 
+const WFH_KEYWORDS = [
+  "remote",
+  "work from home",
+  "work-from-home",
+  "wfh",
+  "home based",
+  "home-based"
+]
+
 export default function WorkFromHomeJobs({ jobs }) {
   return (
     <>
       <Head>
-        <title>Work From Home Jobs in India | Remote Jobs – FreshJobs.Store</title>
+        <title>Work From Home Jobs in India & Abroad | Remote Jobs – FreshJobs.Store</title>
         <meta
           name="description"
-          content="Latest verified work from home jobs and remote jobs in India. Apply online for genuine WFH openings."
+          content="Latest remote and work from home jobs in India and international locations. Verified WFH jobs from trusted portals."
         />
         <meta name="robots" content="index, follow" />
         <link
@@ -19,12 +28,12 @@ export default function WorkFromHomeJobs({ jobs }) {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-3">
-          Work From Home Jobs
+          Work From Home & Remote Jobs
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore verified <strong>remote & work from home jobs</strong> from trusted portals.
-          Suitable for freshers and experienced professionals.
+          Find verified <strong>work from home & remote jobs</strong> from India and
+          international companies. Updated daily.
         </p>
 
         {jobs.length === 0 && (
@@ -40,11 +49,11 @@ export default function WorkFromHomeJobs({ jobs }) {
               className="border rounded-lg p-4 bg-white hover:shadow-md transition"
             >
               <h2 className="font-semibold mb-1">
-                {job.title || "Work From Home Job"}
+                {job.title || "Remote Job"}
               </h2>
 
               <p className="text-sm text-gray-500 mb-2">
-                Source: {job.source || "Verified Source"}
+                Source: {job.source || "Verified Portal"}
               </p>
 
               {job.description && (
@@ -71,25 +80,18 @@ export default function WorkFromHomeJobs({ jobs }) {
   )
 }
 
-/* ✅ SERVER SIDE FETCH — HARD FILTER WFH */
 export async function getServerSideProps() {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?page=1&limit=50`
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?page=1&limit=100`
     )
     const data = await res.json()
 
     const wfhJobs = (data.jobs || []).filter((job) => {
-      const title = job?.title?.toLowerCase() || ""
-      const desc = job?.description?.toLowerCase() || ""
+      const text = `${job.title || ""} ${job.description || ""} ${(job.tags || []).join(" ")}`
+        .toLowerCase()
 
-      return (
-        title.includes("work from home") ||
-        title.includes("remote") ||
-        title.includes("wfh") ||
-        desc.includes("work from home") ||
-        desc.includes("remote")
-      )
+      return WFH_KEYWORDS.some((keyword) => text.includes(keyword))
     })
 
     return {
@@ -97,7 +99,7 @@ export async function getServerSideProps() {
         jobs: wfhJobs.slice(0, 30),
       },
     }
-  } catch (err) {
+  } catch (error) {
     return {
       props: {
         jobs: [],

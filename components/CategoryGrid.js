@@ -1,33 +1,31 @@
-import { useRouter } from "next/router";
-
 export default function CategoryGrid() {
-  const router = useRouter();
-
   const categories = [
     { label: "IT Jobs", slug: "it" },
     { label: "Banking Jobs", slug: "banking" },
     { label: "BPO Jobs", slug: "bpo" },
 
-    // ✅ Static SEO Pages
+    // ✅ Static SEO Page
     { label: "Work From Home Jobs", slug: "work-from-home-jobs", type: "static" },
-    { label: "AI Jobs", slug: "ai-jobs", type: "static" },
 
     { label: "Government Jobs", slug: "govt-jobs" },
     { label: "Sales Jobs", slug: "sales" },
     { label: "Engineering Jobs", slug: "engineering" },
+
+    // 🔜 Future Ready (page baad me banega)
+    { label: "AI Jobs", slug: "ai-jobs", type: "static" },
   ];
 
   const goToCategory = (cat) => {
     if (cat.type === "static") {
-      router.push(`/${cat.slug}`);
+      window.location.href = `/${cat.slug}`;
       return;
     }
 
-    router.push(`/jobs/${cat.slug}/india?page=1`);
+    window.location.href = `/jobs/${cat.slug}/india?page=1`;
   };
 
   return (
-    <div className="grid md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {categories.map((cat) => (
         <button
           key={cat.slug}
