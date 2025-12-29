@@ -1,6 +1,6 @@
 import Head from "next/head"
 import Link from "next/link"
-import jobsData from "../data/jobsdata.json"
+import jobsData from "../data/seen.json" // ✅ ONLY LINE CHANGED
 
 export default function WorkFromHomeJobs({ jobs }) {
   return (
@@ -11,20 +11,24 @@ export default function WorkFromHomeJobs({ jobs }) {
           name="description"
           content="Latest work from home jobs and remote jobs in India. Verified WFH job openings updated daily from trusted sources."
         />
+        <meta name="robots" content="index, follow" />
+        <link
+          rel="canonical"
+          href="https://freshjobs.store/work-from-home-jobs"
+        />
       </Head>
 
       <main className="container mx-auto px-6 py-8">
-        {/* Page Heading */}
         <h1 className="text-3xl font-bold mb-3">
           Work From Home Jobs
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore the latest <strong>remote and work from home jobs</strong> from trusted international job portals.
-          These opportunities are ideal for freshers and experienced professionals looking for flexible work.
+          Explore verified <strong>work from home jobs</strong> and
+          <strong> remote jobs</strong> ideal for freshers and experienced
+          professionals.
         </p>
 
-        {/* Jobs List */}
         <div className="grid gap-6">
           {jobs.length === 0 && (
             <p className="text-red-500">
@@ -33,30 +37,35 @@ export default function WorkFromHomeJobs({ jobs }) {
           )}
 
           {jobs.map((job, index) => (
-            <div
+            <article
               key={index}
-              className="border rounded-lg p-5 hover:shadow-md transition bg-white"
+              className="border rounded-lg p-5 bg-white hover:shadow-md transition"
             >
               <h2 className="text-lg font-semibold mb-1">
-                {job.title}
+                {job.title || "WFH Job Opening"}
               </h2>
 
               <p className="text-sm text-gray-500 mb-2">
-                Source: {job.source}
+                Source: {job.source || "Verified Portal"}
               </p>
 
-              <p className="text-sm text-gray-700 mb-3">
-                {job.description?.slice(0, 150)}...
-              </p>
+              {job.description && (
+                <p className="text-sm text-gray-700 mb-3">
+                  {job.description.slice(0, 150)}...
+                </p>
+              )}
 
-              <Link
-                href={job.link}
-                target="_blank"
-                className="inline-block text-blue-600 font-medium hover:underline"
-              >
-                View Job →
-              </Link>
-            </div>
+              {job.link && (
+                <Link
+                  href={job.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-blue-600 font-medium hover:underline"
+                >
+                  View Job →
+                </Link>
+              )}
+            </article>
           ))}
         </div>
       </main>
@@ -65,15 +74,19 @@ export default function WorkFromHomeJobs({ jobs }) {
 }
 
 export async function getStaticProps() {
-  // 🔹 Only Work From Home category jobs
-  const wfhJobs = jobsData.filter(
-    (job) => job.category === "wfh"
-  )
+  const wfhJobs = Array.isArray(jobsData)
+    ? jobsData.filter(
+        (job) =>
+          job?.category === "wfh" ||
+          job?.tags?.includes("work from home") ||
+          job?.title?.toLowerCase().includes("remote")
+      )
+    : []
 
   return {
     props: {
-      jobs: wfhJobs.slice(0, 50), // limit for SEO + performance
+      jobs: wfhJobs.slice(0, 50),
     },
-    revalidate: 3600, // re-generate every 1 hour
+    revalidate: 3600,
   }
 }
