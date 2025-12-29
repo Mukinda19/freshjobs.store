@@ -104,12 +104,18 @@ export default function Home({ initialJobs, totalPages }) {
             className="border px-3 py-2 rounded w-full"
           >
             <option value="">All Categories</option>
+
             <option value="it">IT Jobs</option>
             <option value="banking">Banking Jobs</option>
             <option value="bpo">BPO Jobs</option>
             <option value="sales">Sales Jobs</option>
             <option value="engineering">Engineering Jobs</option>
             <option value="govt-jobs">Government Jobs</option>
+
+            {/* 🔹 NEW HIGH CPC CATEGORIES */}
+            <option value="work-from-home">Work From Home Jobs</option>
+            <option value="international">International Jobs</option>
+            <option value="ai-jobs">AI Jobs</option>
           </select>
 
           <select
@@ -140,16 +146,16 @@ export default function Home({ initialJobs, totalPages }) {
         <CategoryGrid />
       </section>
 
-      {/* 🔹 Popular Searches (SEO + RSS SAFE) */}
+      {/* 🔹 Popular Searches */}
       <section className="my-12">
         <h2 className="text-xl font-semibold mb-4">Popular Searches</h2>
         <div className="flex flex-wrap gap-3">
           {[
             ["IT Jobs in Mumbai", "/jobs/it/mumbai"],
             ["Govt Jobs in India", "/jobs/govt-jobs/india"],
-            ["Engineering Jobs in Pune", "/jobs/engineering/pune"],
-            ["BPO Jobs in Delhi", "/jobs/bpo/delhi"],
-            ["Banking Jobs in Bangalore", "/jobs/banking/bangalore"],
+            ["Work From Home Jobs", "/jobs/work-from-home/india"],
+            ["International Jobs", "/jobs/international/india"],
+            ["AI Jobs", "/jobs/ai-jobs/india"],
           ].map(([label, link]) => (
             <a
               key={link}
