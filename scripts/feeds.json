@@ -35,21 +35,6 @@
     "category": "wfh"
   },
   {
-    "source": "WorkAnywhere",
-    "url": "https://workanywhere.pro/rss.xml",
-    "category": "wfh"
-  },
-  {
-    "source": "SmartRemoteJobs",
-    "url": "https://www.smartremotejobs.com/feed/all.rss",
-    "category": "wfh"
-  },
-  {
-    "source": "EmplloRemote",
-    "url": "https://empllo.com/feeds/remote-jobs.rss",
-    "category": "wfh"
-  },
-  {
     "source": "Jobicy",
     "url": "https://jobicy.com/jobs-rss-feed",
     "category": "wfh"
