@@ -19,6 +19,14 @@ export default function Header() {
             Home
           </Link>
 
+          {/* 🔹 NEW: Work From Home Jobs (SEO Priority Page) */}
+          <Link
+            href="/work-from-home-jobs"
+            className="hover:text-gray-300 transition font-medium"
+          >
+            Work From Home
+          </Link>
+
           <Link href="/government-jobs" className="hover:text-gray-300 transition">
             Government Jobs
           </Link>

@@ -1,19 +1,27 @@
 export default function CategoryGrid() {
   const categories = [
-    { label: "IT Jobs", slug: "it" },
-    { label: "Banking Jobs", slug: "banking" },
-    { label: "BPO Jobs", slug: "bpo" },
+    { label: "IT Jobs", slug: "it", type: "category" },
+    { label: "Banking Jobs", slug: "banking", type: "category" },
+    { label: "BPO Jobs", slug: "bpo", type: "category" },
 
-    // 🔹 NEW: Work From Home Jobs
-    { label: "Work From Home Jobs", slug: "work-from-home" },
+    // 🔹 Work From Home = SEO Page (NOT category)
+    {
+      label: "Work From Home Jobs",
+      slug: "work-from-home-jobs",
+      type: "page",
+    },
 
-    { label: "Government Jobs", slug: "govt-jobs" },
-    { label: "Sales Jobs", slug: "sales" },
-    { label: "Engineering Jobs", slug: "engineering" },
+    { label: "Government Jobs", slug: "govt-jobs", type: "category" },
+    { label: "Sales Jobs", slug: "sales", type: "category" },
+    { label: "Engineering Jobs", slug: "engineering", type: "category" },
   ];
 
-  const goToCategory = (slug) => {
-    window.location.href = `/jobs/${slug}/india?page=1`;
+  const goToCategory = (cat) => {
+    if (cat.type === "page") {
+      window.location.href = `/${cat.slug}`;
+    } else {
+      window.location.href = `/jobs/${cat.slug}/india?page=1`;
+    }
   };
 
   return (
@@ -21,7 +29,7 @@ export default function CategoryGrid() {
       {categories.map((cat) => (
         <button
           key={cat.slug}
-          onClick={() => goToCategory(cat.slug)}
+          onClick={() => goToCategory(cat)}
           className="border p-4 text-center rounded bg-white hover:shadow-lg transition font-medium"
         >
           {cat.label}
