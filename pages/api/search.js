@@ -5,19 +5,20 @@ export default async function handler(req, res) {
     const SHEET_URL =
       "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec";
 
-    const { category, location, q, page = 1, limit = 10 } = req.query;
+    const { category, q, page = 1, limit = 10 } = req.query;
 
     const response = await fetch(`${SHEET_URL}?limit=1000`);
     const data = await response.json();
 
     let jobs = Array.isArray(data.jobs) ? data.jobs : [];
 
-    /* ---------------- KEYWORDS ---------------- */
+    /* ================= KEYWORDS ================= */
 
     const aiKeywords = [
       "ai",
       "artificial intelligence",
       "machine learning",
+      "ml",
       "deep learning",
       "data scientist",
       "data science",
@@ -33,9 +34,10 @@ export default async function handler(req, res) {
       "wfh",
       "anywhere",
       "worldwide",
+      "work anywhere",
     ];
 
-    const categoryMap = {
+    const normalCategoryMap = {
       "govt-jobs": ["government", "govt", "sarkari", "psu"],
       banking: ["bank", "banking", "ibps", "rbi", "sbi"],
       it: ["software", "developer", "engineer", "programmer"],
@@ -44,32 +46,26 @@ export default async function handler(req, res) {
       engineering: ["mechanical", "civil", "electrical"],
     };
 
-    /* ---------------- CATEGORY FILTER ---------------- */
+    /* ================= CATEGORY FILTER ================= */
 
     if (category) {
       const cat = category.toLowerCase();
 
-      /* ✅ AI JOBS (safe mode) */
+      // ✅ AI JOBS — GLOBAL (NO location, NO category dependency)
       if (cat === "ai" || cat === "ai-jobs") {
-        const aiFiltered = jobs.filter((job) => {
+        jobs = jobs.filter((job) => {
           const text = `
             ${job.title || ""}
             ${job.description || ""}
             ${job.snippet || ""}
-            ${job.category || ""}
             ${job.company || ""}
           `.toLowerCase();
 
           return aiKeywords.some((kw) => text.includes(kw));
         });
-
-        // 🔒 fallback: agar data me keyword nahi mila
-        if (aiFiltered.length > 0) {
-          jobs = aiFiltered;
-        }
       }
 
-      /* ✅ WORK FROM HOME (global, no location cut) */
+      // ✅ WORK FROM HOME — GLOBAL
       else if (cat === "work-from-home" || cat === "wfh") {
         jobs = jobs.filter((job) => {
           const text = `
@@ -83,16 +79,16 @@ export default async function handler(req, res) {
         });
       }
 
-      /* ✅ NORMAL CATEGORIES */
-      else if (categoryMap[cat]) {
-        const keywords = categoryMap[cat];
+      // ✅ NORMAL CATEGORIES ONLY
+      else if (normalCategoryMap[cat]) {
+        const keywords = normalCategoryMap[cat];
 
         jobs = jobs.filter((job) => {
           const text = `
             ${job.title || ""}
-            ${job.company || ""}
-            ${job.category || ""}
             ${job.description || ""}
+            ${job.category || ""}
+            ${job.company || ""}
           `.toLowerCase();
 
           return keywords.some((kw) => text.includes(kw));
@@ -100,43 +96,27 @@ export default async function handler(req, res) {
       }
     }
 
-    /* ---------------- LOCATION FILTER ---------------- */
-    // ❗ AI & WFH ke liye location ignore
-    if (
-      location &&
-      location.toLowerCase() !== "india" &&
-      category !== "ai-jobs" &&
-      category !== "work-from-home"
-    ) {
-      jobs = jobs.filter(
-        (job) =>
-          job.location &&
-          job.location.toLowerCase().includes(location.toLowerCase())
-      );
-    }
-
-    /* ---------------- SEARCH FILTER ---------------- */
+    /* ================= SEARCH KEYWORD ================= */
 
     if (q && q.trim() !== "") {
       const keyword = q.toLowerCase();
+
       jobs = jobs.filter((job) => {
         const text = `
           ${job.title || ""}
-          ${job.company || ""}
-          ${job.category || ""}
-          ${job.location || ""}
-          ${job.description || ""}
+          ${jobdescription || ""}
           ${job.snippet || ""}
+          ${job.company || ""}
         `.toLowerCase();
 
         return text.includes(keyword);
       });
     }
 
-    /* ---------------- PAGINATION ---------------- */
+    /* ================= PAGINATION ================= */
 
-    const pageNum = parseInt(page);
-    const pageLimit = parseInt(limit);
+    const pageNum = Number(page);
+    const pageLimit = Number(limit);
     const start = (pageNum - 1) * pageLimit;
     const end = start + pageLimit;
 
