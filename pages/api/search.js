@@ -49,8 +49,8 @@ export default async function handler(req, res) {
     /* ---------------- CATEGORY FILTER ---------------- */
 
     if (category) {
-      // ✅ AI JOBS
-      if (category === "ai-jobs") {
+      // ✅ AI JOBS (FIXED: ai + ai-jobs)
+      if (category === "ai" || category === "ai-jobs") {
         jobs = jobs.filter((job) => {
           const text = `
             ${job.title || ""}
