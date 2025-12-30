@@ -5,13 +5,7 @@ export default async function handler(req, res) {
     const SHEET_URL =
       "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec";
 
-    const {
-      category,
-      location,
-      q,
-      page = 1,
-      limit = 10,
-    } = req.query;
+    const { category, location, q, page = 1, limit = 10 } = req.query;
 
     const response = await fetch(`${SHEET_URL}?limit=1000`);
     const data = await response.json();
@@ -24,7 +18,6 @@ export default async function handler(req, res) {
       "ai",
       "artificial intelligence",
       "machine learning",
-      "ml",
       "deep learning",
       "data scientist",
       "data science",
@@ -32,7 +25,6 @@ export default async function handler(req, res) {
       "nlp",
       "chatgpt",
       "openai",
-      "python",
     ];
 
     const wfhKeywords = [
@@ -40,8 +32,7 @@ export default async function handler(req, res) {
       "remote",
       "wfh",
       "anywhere",
-      "work anywhere",
-      "remote - worldwide",
+      "worldwide",
     ];
 
     const categoryMap = {
@@ -49,7 +40,7 @@ export default async function handler(req, res) {
       banking: ["bank", "banking", "ibps", "rbi", "sbi"],
       it: ["software", "developer", "engineer", "programmer"],
       bpo: ["bpo", "call center", "customer support"],
-      sales: ["sales", "marketing", "business development"],
+      sales: ["sales", "marketing"],
       engineering: ["mechanical", "civil", "electrical"],
     };
 
@@ -58,9 +49,9 @@ export default async function handler(req, res) {
     if (category) {
       const cat = category.toLowerCase();
 
-      // ✅ AI JOBS (ai / ai-jobs)
+      /* ✅ AI JOBS (safe mode) */
       if (cat === "ai" || cat === "ai-jobs") {
-        jobs = jobs.filter((job) => {
+        const aiFiltered = jobs.filter((job) => {
           const text = `
             ${job.title || ""}
             ${job.description || ""}
@@ -71,16 +62,20 @@ export default async function handler(req, res) {
 
           return aiKeywords.some((kw) => text.includes(kw));
         });
+
+        // 🔒 fallback: agar data me keyword nahi mila
+        if (aiFiltered.length > 0) {
+          jobs = aiFiltered;
+        }
       }
 
-      // ✅ WORK FROM HOME (wfh / work-from-home)
-      else if (cat === "wfh" || cat === "work-from-home") {
+      /* ✅ WORK FROM HOME (global, no location cut) */
+      else if (cat === "work-from-home" || cat === "wfh") {
         jobs = jobs.filter((job) => {
           const text = `
             ${job.title || ""}
             ${job.description || ""}
             ${job.snippet || ""}
-            ${job.category || ""}
             ${job.location || ""}
           `.toLowerCase();
 
@@ -88,7 +83,7 @@ export default async function handler(req, res) {
         });
       }
 
-      // ✅ OTHER CATEGORIES
+      /* ✅ NORMAL CATEGORIES */
       else if (categoryMap[cat]) {
         const keywords = categoryMap[cat];
 
@@ -106,8 +101,13 @@ export default async function handler(req, res) {
     }
 
     /* ---------------- LOCATION FILTER ---------------- */
-
-    if (location && location.toLowerCase() !== "india") {
+    // ❗ AI & WFH ke liye location ignore
+    if (
+      location &&
+      location.toLowerCase() !== "india" &&
+      category !== "ai-jobs" &&
+      category !== "work-from-home"
+    ) {
       jobs = jobs.filter(
         (job) =>
           job.location &&
@@ -119,7 +119,6 @@ export default async function handler(req, res) {
 
     if (q && q.trim() !== "") {
       const keyword = q.toLowerCase();
-
       jobs = jobs.filter((job) => {
         const text = `
           ${job.title || ""}
