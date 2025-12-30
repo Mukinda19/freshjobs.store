@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const {
       category,
       location,
-      q, // search keyword
+      q,
       page = 1,
       limit = 10,
     } = req.query;
@@ -18,16 +18,7 @@ export default async function handler(req, res) {
 
     let jobs = Array.isArray(data.jobs) ? data.jobs : [];
 
-    /* ---------------- CATEGORY KEYWORDS ---------------- */
-
-    const categoryMap = {
-      "govt-jobs": ["government", "govt", "sarkari", "psu", "ministry"],
-      banking: ["bank", "banking", "ibps", "rbi", "sbi"],
-      it: ["it", "software", "developer", "engineer", "programmer"],
-      bpo: ["bpo", "call center", "customer support", "telecaller"],
-      sales: ["sales", "marketing", "business development"],
-      engineering: ["engineer", "mechanical", "civil", "electrical"],
-    };
+    /* ---------------- KEYWORDS ---------------- */
 
     const aiKeywords = [
       "ai",
@@ -44,13 +35,31 @@ export default async function handler(req, res) {
       "python",
     ];
 
-    const wfhKeywords = ["work from home", "remote", "wfh"];
+    const wfhKeywords = [
+      "work from home",
+      "remote",
+      "wfh",
+      "anywhere",
+      "work anywhere",
+      "remote - worldwide",
+    ];
+
+    const categoryMap = {
+      "govt-jobs": ["government", "govt", "sarkari", "psu"],
+      banking: ["bank", "banking", "ibps", "rbi", "sbi"],
+      it: ["software", "developer", "engineer", "programmer"],
+      bpo: ["bpo", "call center", "customer support"],
+      sales: ["sales", "marketing", "business development"],
+      engineering: ["mechanical", "civil", "electrical"],
+    };
 
     /* ---------------- CATEGORY FILTER ---------------- */
 
     if (category) {
-      // ✅ AI JOBS (FIXED: ai + ai-jobs)
-      if (category === "ai" || category === "ai-jobs") {
+      const cat = category.toLowerCase();
+
+      // ✅ AI JOBS (ai / ai-jobs)
+      if (cat === "ai" || cat === "ai-jobs") {
         jobs = jobs.filter((job) => {
           const text = `
             ${job.title || ""}
@@ -64,23 +73,24 @@ export default async function handler(req, res) {
         });
       }
 
-      // ✅ WORK FROM HOME JOBS
-      else if (category === "work-from-home") {
+      // ✅ WORK FROM HOME (wfh / work-from-home)
+      else if (cat === "wfh" || cat === "work-from-home") {
         jobs = jobs.filter((job) => {
           const text = `
             ${job.title || ""}
             ${job.description || ""}
             ${job.snippet || ""}
             ${job.category || ""}
+            ${job.location || ""}
           `.toLowerCase();
 
           return wfhKeywords.some((kw) => text.includes(kw));
         });
       }
 
-      // ✅ OTHER NORMAL CATEGORIES
-      else if (categoryMap[category]) {
-        const keywords = categoryMap[category];
+      // ✅ OTHER CATEGORIES
+      else if (categoryMap[cat]) {
+        const keywords = categoryMap[cat];
 
         jobs = jobs.filter((job) => {
           const text = `
@@ -105,7 +115,7 @@ export default async function handler(req, res) {
       );
     }
 
-    /* ---------------- SEARCH KEYWORD FILTER ---------------- */
+    /* ---------------- SEARCH FILTER ---------------- */
 
     if (q && q.trim() !== "") {
       const keyword = q.toLowerCase();
