@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import CategoryGrid from "../components/CategoryGrid";
 import JobCard from "../components/JobCard";
 
-export default function Home({ initialJobs, totalPages }) {
+export default function Home({ initialJobs }) {
   const router = useRouter();
 
   const [page, setPage] = useState(1);
@@ -15,10 +15,9 @@ export default function Home({ initialJobs, totalPages }) {
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
 
-  // 🔹 Filtered jobs
-  const [filteredJobs, setFilteredJobs] = useState(initialJobs);
+  const [filteredJobs, setFilteredJobs] = useState(initialJobs || []);
 
-  // 🔹 Search submit
+  // 🔹 Search submit (redirect SEO pages)
   const handleSearch = (e) => {
     e.preventDefault();
 
@@ -30,57 +29,67 @@ export default function Home({ initialJobs, totalPages }) {
     );
   };
 
-  // 🔹 Fetch filtered jobs
+  // 🔹 Fetch jobs on filter change
   useEffect(() => {
     const fetchFilteredJobs = async () => {
-      const finalCategory = category || "all";
-      const finalLocation = location || "india";
-      const qParam = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
+      try {
+        const finalCategory = category || "all";
+        const finalLocation = location || "india";
+        const qParam = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
 
-      const res = await fetch(
-        `/api/search?category=${finalCategory}&location=${finalLocation}${qParam}&page=1&limit=10`
-      );
-      const data = await res.json();
+        const res = await fetch(
+          `/api/search?category=${finalCategory}&location=${finalLocation}${qParam}&page=1&limit=10`
+        );
 
-      setFilteredJobs(data.jobs || []);
-      setPage(1);
+        const data = await res.json();
+        setFilteredJobs(data.jobs || []);
+        setPage(1);
+      } catch (error) {
+        console.error("Job fetch error:", error);
+        setFilteredJobs([]);
+      }
     };
 
     fetchFilteredJobs();
   }, [category, location, keyword]);
 
-  // 🔹 Load more jobs
+  // 🔹 Load more
   const loadMore = async () => {
     if (loading) return;
 
     setLoading(true);
     const nextPage = page + 1;
 
-    const finalCategory = category || "all";
-    const finalLocation = location || "india";
-    const qParam = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
+    try {
+      const finalCategory = category || "all";
+      const finalLocation = location || "india";
+      const qParam = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
 
-    const res = await fetch(
-      `/api/search?category=${finalCategory}&location=${finalLocation}${qParam}&page=${nextPage}&limit=10`
-    );
-    const data = await res.json();
+      const res = await fetch(
+        `/api/search?category=${finalCategory}&location=${finalLocation}${qParam}&page=${nextPage}&limit=10`
+      );
 
-    setFilteredJobs((prev) => [...prev, ...(data.jobs || [])]);
-    setPage(nextPage);
-    setLoading(false);
+      const data = await res.json();
+      setFilteredJobs((prev) => [...prev, ...(data.jobs || [])]);
+      setPage(nextPage);
+    } catch (error) {
+      console.error("Load more error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
       <Head>
-        <title>FreshJobs.Store | Find Jobs in India</title>
+        <title>FreshJobs.Store | Latest Jobs in India</title>
         <meta
           name="description"
-          content="Search latest jobs in India across IT, Govt, BPO, Banking and more."
+          content="Find latest IT, Government, Work From Home, AI and International jobs in India."
         />
       </Head>
 
-      {/* 🔹 HERO + SEARCH */}
+      {/* 🔹 HERO SEARCH */}
       <section className="my-10">
         <h1 className="text-3xl font-bold mb-4 text-gray-900">
           Search Jobs in India
@@ -104,7 +113,6 @@ export default function Home({ initialJobs, totalPages }) {
             className="border px-3 py-2 rounded w-full"
           >
             <option value="">All Categories</option>
-
             <option value="it">IT Jobs</option>
             <option value="banking">Banking Jobs</option>
             <option value="bpo">BPO Jobs</option>
@@ -112,10 +120,10 @@ export default function Home({ initialJobs, totalPages }) {
             <option value="engineering">Engineering Jobs</option>
             <option value="govt-jobs">Government Jobs</option>
 
-            {/* 🔹 NEW HIGH CPC CATEGORIES */}
-            <option value="work-from-home">Work From Home Jobs</option>
+            {/* 🔹 High CPC */}
+            <option value="work-from-home">Work From Home</option>
             <option value="international">International Jobs</option>
-            <option value="ai-jobs">AI Jobs</option>
+            <option value="ai">AI Jobs</option>
           </select>
 
           <select
@@ -140,7 +148,7 @@ export default function Home({ initialJobs, totalPages }) {
         </form>
       </section>
 
-      {/* 🔹 Popular Categories */}
+      {/* 🔹 Categories */}
       <section className="my-12">
         <h2 className="text-2xl font-semibold mb-6">Popular Categories</h2>
         <CategoryGrid />
@@ -155,7 +163,7 @@ export default function Home({ initialJobs, totalPages }) {
             ["Govt Jobs in India", "/jobs/govt-jobs/india"],
             ["Work From Home Jobs", "/jobs/work-from-home/india"],
             ["International Jobs", "/jobs/international/india"],
-            ["AI Jobs", "/jobs/ai-jobs/india"],
+            ["AI Jobs", "/jobs/ai/india"],
           ].map(([label, link]) => (
             <a
               key={link}
@@ -170,12 +178,16 @@ export default function Home({ initialJobs, totalPages }) {
 
       {/* 🔹 Featured Jobs */}
       <section className="my-12">
-        <h2 className="text-2xl font-semibold mb-6">Featured Jobs</h2>
+        <h2 className="text-2xl font-semibold mb-6">Latest Jobs</h2>
 
         <div className="grid md:grid-cols-2 gap-4">
-          {filteredJobs.map((job, index) => (
-            <JobCard key={job.id || index} job={job} />
-          ))}
+          {filteredJobs.length > 0 ? (
+            filteredJobs.map((job, index) => (
+              <JobCard key={job.id || index} job={job} />
+            ))
+          ) : (
+            <p className="text-gray-500">No jobs found.</p>
+          )}
         </div>
 
         {filteredJobs.length >= 10 && (
@@ -195,17 +207,15 @@ export default function Home({ initialJobs, totalPages }) {
 }
 
 export async function getServerSideProps() {
-  const res = await fetch(
-    `${
-      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
-    }/api/search?page=1&limit=10`
-  );
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+  const res = await fetch(`${baseUrl}/api/search?page=1&limit=10`);
   const data = await res.json();
 
   return {
     props: {
       initialJobs: data.jobs || [],
-      totalPages: data.totalPages || 1,
     },
   };
 }
