@@ -68,26 +68,36 @@ export default function AIJobs({ jobs }) {
   )
 }
 
-/* ✅ SERVER-SIDE FETCH – SAFE FOR VERCEL */
+/* ✅ STRONG + SAFE AI FILTER (INDIA + INTERNATIONAL + REMOTE) */
 export async function getServerSideProps() {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?page=1&limit=40`
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?page=1&limit=50`
     )
+
     const data = await res.json()
 
-    const aiJobs = (data.jobs || []).filter((job) => {
-      const text = `${job.title || ""} ${job.description || ""}`.toLowerCase()
+    const aiKeywords = [
+      "artificial intelligence",
+      "ai engineer",
+      "machine learning",
+      "ml engineer",
+      "data scientist",
+      "deep learning",
+      "nlp",
+      "computer vision",
+      "generative ai",
+      "gen ai",
+      "llm",
+      "chatgpt"
+    ]
 
-      return (
-        /\bai\b/.test(text) ||
-        text.includes("artificial intelligence") ||
-        text.includes("machine learning") ||
-        text.includes("ml engineer") ||
-        text.includes("data scientist") ||
-        text.includes("deep learning") ||
-        text.includes("genai")
-      )
+    const aiJobs = (data.jobs || []).filter((job) => {
+      const title = job.title?.toLowerCase() || ""
+      const desc = job.description?.toLowerCase() || ""
+      const text = `${title} ${desc}`
+
+      return aiKeywords.some((keyword) => text.includes(keyword))
     })
 
     return {
