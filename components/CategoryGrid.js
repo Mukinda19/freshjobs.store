@@ -1,17 +1,15 @@
 export default function CategoryGrid() {
   const categories = [
+    // 🔹 Dynamic Category Pages
     { label: "IT Jobs", slug: "it" },
     { label: "Banking Jobs", slug: "banking" },
     { label: "BPO Jobs", slug: "bpo" },
-
-    // ✅ Static SEO Page
-    { label: "Work From Home Jobs", slug: "work-from-home-jobs", type: "static" },
-
     { label: "Government Jobs", slug: "govt-jobs" },
     { label: "Sales Jobs", slug: "sales" },
     { label: "Engineering Jobs", slug: "engineering" },
 
-    // 🔜 Future Ready (page baad me banega)
+    // 🔹 Static SEO Pages
+    { label: "Work From Home Jobs", slug: "work-from-home-jobs", type: "static" },
     { label: "AI Jobs", slug: "ai-jobs", type: "static" },
   ];
 
