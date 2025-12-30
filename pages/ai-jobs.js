@@ -8,13 +8,10 @@ export default function AIJobs({ jobs }) {
         <title>AI Jobs & Artificial Intelligence Jobs | FreshJobs.Store</title>
         <meta
           name="description"
-          content="Latest AI jobs, machine learning jobs, data science and artificial intelligence job openings. Remote and India-based AI jobs updated daily."
+          content="Latest AI jobs, machine learning jobs, data science and artificial intelligence job openings. Indian and international AI jobs including remote roles."
         />
         <meta name="robots" content="index, follow" />
-        <link
-          rel="canonical"
-          href="https://freshjobs.store/ai-jobs"
-        />
+        <link rel="canonical" href="https://freshjobs.store/ai-jobs" />
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -23,14 +20,13 @@ export default function AIJobs({ jobs }) {
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Find latest <strong>AI jobs, Machine Learning jobs, Data Science roles</strong> and
-          artificial intelligence career opportunities. Suitable for freshers,
-          experienced professionals, and remote job seekers.
+          Explore latest <strong>AI jobs, Machine Learning roles, Data Science careers</strong> 
+          including Indian and international opportunities. Remote AI jobs are also included.
         </p>
 
         {jobs.length === 0 && (
           <p className="text-red-500">
-            No AI jobs available right now.
+            Currently no AI job openings found. Please check back later.
           </p>
         )}
 
@@ -41,7 +37,18 @@ export default function AIJobs({ jobs }) {
               className="border rounded-lg p-4 bg-white hover:shadow-md transition"
             >
               <h2 className="font-semibold mb-1">
-                {job.title || "AI Job Opening"}
+                {job.link ? (
+                  <Link
+                    href={job.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline text-blue-700"
+                  >
+                    {job.title || "AI Job Opening"}
+                  </Link>
+                ) : (
+                  job.title || "AI Job Opening"
+                )}
               </h2>
 
               <p className="text-sm text-gray-500 mb-2">
@@ -50,19 +57,8 @@ export default function AIJobs({ jobs }) {
 
               {job.description && (
                 <p className="text-sm text-gray-700 mb-3">
-                  {job.description.slice(0, 140)}...
+                  {job.description.slice(0, 150)}...
                 </p>
-              )}
-
-              {job.link && (
-                <Link
-                  href={job.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 font-medium hover:underline"
-                >
-                  View Job →
-                </Link>
               )}
             </article>
           ))}
@@ -72,24 +68,25 @@ export default function AIJobs({ jobs }) {
   )
 }
 
-/* ✅ SAFE SERVER-SIDE FETCH (NO BUILD FAIL) */
+/* ✅ SERVER-SIDE FETCH – SAFE FOR VERCEL */
 export async function getServerSideProps() {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?page=1&limit=30`
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?page=1&limit=40`
     )
     const data = await res.json()
 
-    // 🔍 AI + ML + Data keywords filter
     const aiJobs = (data.jobs || []).filter((job) => {
-      const text = `${job.title} ${job.description}`.toLowerCase()
+      const text = `${job.title || ""} ${job.description || ""}`.toLowerCase()
+
       return (
-        text.includes("ai") ||
+        /\bai\b/.test(text) ||
         text.includes("artificial intelligence") ||
         text.includes("machine learning") ||
-        text.includes("ml") ||
+        text.includes("ml engineer") ||
         text.includes("data scientist") ||
-        text.includes("deep learning")
+        text.includes("deep learning") ||
+        text.includes("genai")
       )
     })
 
@@ -98,7 +95,7 @@ export async function getServerSideProps() {
         jobs: aiJobs,
       },
     }
-  } catch (err) {
+  } catch (error) {
     return {
       props: {
         jobs: [],
