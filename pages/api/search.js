@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const {
       category,
       location,
-      q,            // 🔹 NEW: search keyword
+      q,            // 🔹 Search keyword
       page = 1,
       limit = 10,
     } = req.query;
@@ -28,14 +28,45 @@ export default async function handler(req, res) {
       engineering: ["engineer", "mechanical", "civil", "electrical"],
     };
 
-    // 🔹 Apply category filter
-    if (category && categoryMap[category]) {
-      const keywords = categoryMap[category];
+    // 🔹 AI & WFH keyword lists
+    const aiKeywords = [
+      "ai",
+      "artificial intelligence",
+      "machine learning",
+      "ml",
+      "deep learning",
+      "data scientist",
+      "data science",
+      "chatgpt",
+      "openai",
+      "python",
+      "nlp",
+      "genai"
+    ];
 
-      jobs = jobs.filter((job) => {
-        const text = `${job.title} ${job.company} ${job.category}`.toLowerCase();
-        return keywords.some((word) => text.includes(word));
-      });
+    const wfhKeywords = ["work from home", "remote", "wfh"];
+
+    // 🔹 Apply category filter
+    if (category) {
+      if (category === "ai") {
+        // AI Jobs: keyword-based filter
+        jobs = jobs.filter((job) => {
+          const text = `${job.title || ""} ${job.description || ""}`.toLowerCase();
+          return aiKeywords.some((kw) => text.includes(kw));
+        });
+      } else if (category === "work-from-home") {
+        // Work From Home Jobs: keyword-based filter
+        jobs = jobs.filter((job) => {
+          const text = `${job.title || ""} ${job.description || ""}`.toLowerCase();
+          return wfhKeywords.some((kw) => text.includes(kw));
+        });
+      } else if (categoryMap[category]) {
+        const keywords = categoryMap[category];
+        jobs = jobs.filter((job) => {
+          const text = `${job.title || ""} ${job.company || ""} ${job.category || ""}`.toLowerCase();
+          return keywords.some((word) => text.includes(word));
+        });
+      }
     }
 
     // 🔹 Location filter
@@ -47,7 +78,7 @@ export default async function handler(req, res) {
       );
     }
 
-    // 🔹 NEW: SEARCH KEYWORD FILTER (main feature)
+    // 🔹 Search keyword filter
     if (q && q.trim() !== "") {
       const keyword = q.toLowerCase();
 
@@ -57,6 +88,7 @@ export default async function handler(req, res) {
           ${job.company || ""}
           ${job.category || ""}
           ${job.location || ""}
+          ${job.description || ""}
           ${job.snippet || ""}
         `.toLowerCase();
 
