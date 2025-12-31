@@ -6,9 +6,10 @@ export default function AIJobs({ initialJobs }) {
   const [jobs, setJobs] = useState(initialJobs)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [hasMore, setHasMore] = useState(initialJobs.length === 10)
 
   const loadMore = async () => {
-    if (loading) return
+    if (loading || !hasMore) return
     setLoading(true)
 
     const nextPage = page + 1
@@ -17,10 +18,35 @@ export default function AIJobs({ initialJobs }) {
     )
     const data = await res.json()
 
-    setJobs((prev) => [...prev, ...(data.jobs || [])])
-    setPage(nextPage)
+    if (!data.jobs || data.jobs.length === 0) {
+      setHasMore(false)
+    } else {
+      setJobs((prev) => [...prev, ...data.jobs])
+      setPage(nextPage)
+      if (data.jobs.length < 10) setHasMore(false)
+    }
+
     setLoading(false)
   }
+
+  /* 🔹 JOB POSTING SCHEMA (SEO BOOST) */
+  const jobSchema = jobs.slice(0, 10).map((job) => ({
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title || "AI Job Opening",
+    description: job.description || "AI related job opportunity",
+    hiringOrganization: {
+      "@type": "Organization",
+      name: job.source || "FreshJobs.Store",
+    },
+    employmentType: "FULL_TIME",
+    jobLocationType: "TELECOMMUTE",
+    applicantLocationRequirements: {
+      "@type": "Country",
+      name: "Worldwide",
+    },
+    url: job.link || "https://freshjobs.store/ai-jobs",
+  }))
 
   return (
     <>
@@ -32,6 +58,14 @@ export default function AIJobs({ initialJobs }) {
         />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://freshjobs.store/ai-jobs" />
+
+        {/* ✅ JSON-LD SCHEMA */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jobSchema),
+          }}
+        />
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -53,7 +87,7 @@ export default function AIJobs({ initialJobs }) {
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
             <article
-              key={index}
+              key={job.link || index}
               className="border rounded-lg p-4 bg-white hover:shadow-md transition"
             >
               <h2 className="font-semibold mb-1">
@@ -81,7 +115,7 @@ export default function AIJobs({ initialJobs }) {
                 </p>
               )}
 
-              {/* ✅ APPLY NOW BUTTON */}
+              {/* ✅ APPLY NOW */}
               {job.link && (
                 <Link
                   href={job.link}
@@ -96,8 +130,8 @@ export default function AIJobs({ initialJobs }) {
           ))}
         </div>
 
-        {/* LOAD MORE AFTER 10 JOBS */}
-        {jobs.length >= 10 && (
+        {/* ✅ SMART PAGINATION */}
+        {hasMore && (
           <div className="text-center mt-8">
             <button
               onClick={loadMore}
@@ -113,7 +147,7 @@ export default function AIJobs({ initialJobs }) {
   )
 }
 
-/* SSR – FIRST PAGE (10 JOBS ONLY) */
+/* ✅ SSR – FIRST PAGE */
 export async function getServerSideProps() {
   try {
     const baseUrl =
