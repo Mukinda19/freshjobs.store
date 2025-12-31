@@ -5,11 +5,35 @@ export default function AIJobDetail({ job }) {
   if (!job) {
     return (
       <main className="max-w-4xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold text-red-600">
+        <h1 className="text-2xl font-bold text-red-600 mb-4">
           Job not found
         </h1>
+        <Link href="/ai-jobs" className="text-blue-600 underline">
+          ← Back to AI Jobs
+        </Link>
       </main>
     )
+  }
+
+  /* ✅ JOB POSTING SCHEMA (FUTURE-PROOF) */
+  const jobSchema = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title || "AI Job Opening",
+    description:
+      job.description ||
+      "Latest Artificial Intelligence and Machine Learning job opening.",
+    hiringOrganization: {
+      "@type": "Organization",
+      name: job.source || "FreshJobs.Store",
+    },
+    employmentType: "FULL_TIME",
+    jobLocationType: "TELECOMMUTE",
+    applicantLocationRequirements: {
+      "@type": "Country",
+      name: "Worldwide",
+    },
+    url: job.link || `https://freshjobs.store/ai-jobs/${job.slug}`,
   }
 
   return (
@@ -35,6 +59,14 @@ export default function AIJobDetail({ job }) {
         <link
           rel="canonical"
           href={`https://freshjobs.store/ai-jobs/${job.slug}`}
+        />
+
+        {/* ✅ JSON-LD FOR GOOGLE JOBS */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jobSchema),
+          }}
         />
       </Head>
 
@@ -66,10 +98,7 @@ export default function AIJobDetail({ job }) {
           )}
 
           <div className="mt-8">
-            <Link
-              href="/ai-jobs"
-              className="text-blue-600 hover:underline"
-            >
+            <Link href="/ai-jobs" className="text-blue-600 hover:underline">
               ← Back to AI Jobs
             </Link>
           </div>
@@ -79,14 +108,14 @@ export default function AIJobDetail({ job }) {
   )
 }
 
-/* 🔹 SSR – FETCH SINGLE JOB BY SLUG */
+/* ✅ SSR – FETCH SINGLE JOB BY SLUG (SAFE & STABLE) */
 export async function getServerSideProps({ params }) {
   try {
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
 
     const res = await fetch(
-      `${baseUrl}/api/search?category=ai-jobs&limit=200`
+      `${baseUrl}/api/search?category=ai-jobs&limit=300`
     )
 
     const data = await res.json()
@@ -95,16 +124,16 @@ export async function getServerSideProps({ params }) {
       (j) => j.slug === params.slug
     )
 
+    if (!job) {
+      return { notFound: true }
+    }
+
     return {
       props: {
-        job: job || null,
+        job,
       },
     }
   } catch (error) {
-    return {
-      props: {
-        job: null,
-      },
-    }
+    return { notFound: true }
   }
 }
