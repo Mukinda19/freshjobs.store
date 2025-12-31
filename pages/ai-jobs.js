@@ -2,40 +2,19 @@ import { useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
 
-/* ✅ CLEAN AI KEYWORDS */
+/* 🔹 LIGHT AI KEYWORDS – NO OVER FILTERING */
 const AI_KEYWORDS = [
   "ai",
   "artificial intelligence",
   "machine learning",
-  "ml engineer",
+  "ml",
   "data scientist",
-  "deep learning",
-  "nlp",
-  "computer vision",
-  "generative ai",
-  "gen ai",
-  "llm",
-  "chatgpt",
-]
-
-const NEGATIVE_KEYWORDS = [
-  "sales",
-  "marketing",
-  "hr",
-  "human resource",
-  "telecaller",
-  "customer support",
-  "bpo",
-  "business development",
+  "deep learning"
 ]
 
 function isAIJob(job) {
   const title = (job.title || "").toLowerCase()
-  const desc = (job.description || "").toLowerCase()
-  const text = `${title} ${desc}`
-
-  if (NEGATIVE_KEYWORDS.some(k => text.includes(k))) return false
-  return AI_KEYWORDS.some(k => text.includes(k))
+  return AI_KEYWORDS.some(k => title.includes(k))
 }
 
 export default function AIJobs({ initialJobs }) {
@@ -64,7 +43,7 @@ export default function AIJobs({ initialJobs }) {
         <title>AI Jobs & Artificial Intelligence Jobs | FreshJobs.Store</title>
         <meta
           name="description"
-          content="Latest AI, Machine Learning, Data Science & Artificial Intelligence jobs worldwide."
+          content="Latest AI, Machine Learning and Artificial Intelligence jobs worldwide."
         />
         <link rel="canonical" href="https://freshjobs.store/ai-jobs" />
       </Head>
@@ -75,13 +54,13 @@ export default function AIJobs({ initialJobs }) {
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Verified AI, Machine Learning, Data Science & Artificial Intelligence jobs
+          Browse latest AI, Machine Learning & Artificial Intelligence jobs
           (India + International + Remote).
         </p>
 
         {jobs.length === 0 && (
           <p className="text-red-500">
-            Currently no AI job openings found.
+            No AI jobs found right now.
           </p>
         )}
 
@@ -131,7 +110,7 @@ export default function AIJobs({ initialJobs }) {
   )
 }
 
-/* ✅ SSR – FIRST PAGE */
+/* ✅ SSR – FIRST PAGE ONLY */
 export async function getServerSideProps() {
   try {
     const baseUrl =
