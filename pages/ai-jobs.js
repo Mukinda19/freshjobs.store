@@ -2,6 +2,42 @@ import { useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
 
+/* ✅ CLEAN AI KEYWORDS */
+const AI_KEYWORDS = [
+  "ai",
+  "artificial intelligence",
+  "machine learning",
+  "ml engineer",
+  "data scientist",
+  "deep learning",
+  "nlp",
+  "computer vision",
+  "generative ai",
+  "gen ai",
+  "llm",
+  "chatgpt",
+]
+
+const NEGATIVE_KEYWORDS = [
+  "sales",
+  "marketing",
+  "hr",
+  "human resource",
+  "telecaller",
+  "customer support",
+  "bpo",
+  "business development",
+]
+
+function isAIJob(job) {
+  const title = (job.title || "").toLowerCase()
+  const desc = (job.description || "").toLowerCase()
+  const text = `${title} ${desc}`
+
+  if (NEGATIVE_KEYWORDS.some(k => text.includes(k))) return false
+  return AI_KEYWORDS.some(k => text.includes(k))
+}
+
 export default function AIJobs({ initialJobs }) {
   const [jobs, setJobs] = useState(initialJobs)
   const [page, setPage] = useState(1)
@@ -12,12 +48,12 @@ export default function AIJobs({ initialJobs }) {
     setLoading(true)
 
     const nextPage = page + 1
-    const res = await fetch(
-      `/api/search?category=ai-jobs&page=${nextPage}&limit=50`
-    )
+    const res = await fetch(`/api/search?page=${nextPage}&limit=50`)
     const data = await res.json()
 
-    setJobs((prev) => [...prev, ...(data.jobs || [])])
+    const filtered = (data.jobs || []).filter(isAIJob)
+
+    setJobs(prev => [...prev, ...filtered])
     setPage(nextPage)
     setLoading(false)
   }
@@ -28,9 +64,8 @@ export default function AIJobs({ initialJobs }) {
         <title>AI Jobs & Artificial Intelligence Jobs | FreshJobs.Store</title>
         <meta
           name="description"
-          content="Latest AI jobs, machine learning jobs, data science and artificial intelligence job openings. Indian and international AI jobs including remote roles."
+          content="Latest AI, Machine Learning, Data Science & Artificial Intelligence jobs worldwide."
         />
-        <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://freshjobs.store/ai-jobs" />
       </Head>
 
@@ -40,8 +75,8 @@ export default function AIJobs({ initialJobs }) {
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore latest <strong>AI jobs, Machine Learning roles, Data Science careers</strong>{" "}
-          including Indian and international opportunities. Remote AI jobs are also included.
+          Verified AI, Machine Learning, Data Science & Artificial Intelligence jobs
+          (India + International + Remote).
         </p>
 
         {jobs.length === 0 && (
@@ -57,18 +92,13 @@ export default function AIJobs({ initialJobs }) {
               className="border rounded-lg p-4 bg-white hover:shadow-md transition"
             >
               <h2 className="font-semibold mb-1">
-                {job.link ? (
-                  <Link
-                    href={job.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline text-blue-700"
-                  >
-                    {job.title || "AI Job Opening"}
-                  </Link>
-                ) : (
-                  job.title || "AI Job Opening"
-                )}
+                <Link
+                  href={job.link || "#"}
+                  target="_blank"
+                  className="hover:underline text-blue-700"
+                >
+                  {job.title || "AI Job Opening"}
+                </Link>
               </h2>
 
               <p className="text-sm text-gray-500 mb-2">
@@ -76,7 +106,7 @@ export default function AIJobs({ initialJobs }) {
               </p>
 
               {job.description && (
-                <p className="text-sm text-gray-700 mb-3">
+                <p className="text-sm text-gray-700">
                   {job.description.slice(0, 150)}...
                 </p>
               )}
@@ -85,7 +115,7 @@ export default function AIJobs({ initialJobs }) {
         </div>
 
         {/* LOAD MORE */}
-        {jobs.length >= 50 && (
+        {jobs.length >= 20 && (
           <div className="text-center mt-8">
             <button
               onClick={loadMore}
@@ -101,20 +131,20 @@ export default function AIJobs({ initialJobs }) {
   )
 }
 
-/* SSR – FIRST PAGE ONLY */
+/* ✅ SSR – FIRST PAGE */
 export async function getServerSideProps() {
   try {
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
 
-    const res = await fetch(
-      `${baseUrl}/api/search?category=ai-jobs&page=1&limit=50`
-    )
+    const res = await fetch(`${baseUrl}/api/search?page=1&limit=50`)
     const data = await res.json()
+
+    const filtered = (data.jobs || []).filter(isAIJob)
 
     return {
       props: {
-        initialJobs: data.jobs || [],
+        initialJobs: filtered,
       },
     }
   } catch (error) {
