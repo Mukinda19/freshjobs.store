@@ -20,7 +20,7 @@ export default function AIJobs({ jobs }) {
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore latest <strong>AI jobs, Machine Learning roles, Data Science careers</strong> 
+          Explore latest <strong>AI jobs, Machine Learning roles, Data Science careers</strong>{" "}
           including Indian and international opportunities. Remote AI jobs are also included.
         </p>
 
@@ -68,41 +68,21 @@ export default function AIJobs({ jobs }) {
   )
 }
 
-/* ✅ STRONG + SAFE AI FILTER (INDIA + INTERNATIONAL + REMOTE) */
+/* ✅ FIXED: BACKEND AI FILTER ONLY (NO FRONTEND FILTER) */
 export async function getServerSideProps() {
   try {
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?page=1&limit=50`
+      `${baseUrl}/api/search?category=ai-jobs&page=1&limit=50`
     )
 
     const data = await res.json()
 
-    const aiKeywords = [
-      "artificial intelligence",
-      "ai engineer",
-      "machine learning",
-      "ml engineer",
-      "data scientist",
-      "deep learning",
-      "nlp",
-      "computer vision",
-      "generative ai",
-      "gen ai",
-      "llm",
-      "chatgpt"
-    ]
-
-    const aiJobs = (data.jobs || []).filter((job) => {
-      const title = job.title?.toLowerCase() || ""
-      const desc = job.description?.toLowerCase() || ""
-      const text = `${title} ${desc}`
-
-      return aiKeywords.some((keyword) => text.includes(keyword))
-    })
-
     return {
       props: {
-        jobs: aiJobs,
+        jobs: data.jobs || [],
       },
     }
   } catch (error) {
