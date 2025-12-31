@@ -1,15 +1,6 @@
 import Head from "next/head"
 import Link from "next/link"
 
-const WFH_KEYWORDS = [
-  "remote",
-  "work from home",
-  "work-from-home",
-  "wfh",
-  "home based",
-  "home-based"
-]
-
 export default function WorkFromHomeJobs({ jobs }) {
   return (
     <>
@@ -83,20 +74,13 @@ export default function WorkFromHomeJobs({ jobs }) {
 export async function getServerSideProps() {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?page=1&limit=100`
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?category=work-from-home&limit=50`
     )
     const data = await res.json()
 
-    const wfhJobs = (data.jobs || []).filter((job) => {
-      const text = `${job.title || ""} ${job.description || ""} ${(job.tags || []).join(" ")}`
-        .toLowerCase()
-
-      return WFH_KEYWORDS.some((keyword) => text.includes(keyword))
-    })
-
     return {
       props: {
-        jobs: wfhJobs.slice(0, 30),
+        jobs: data.jobs || [],
       },
     }
   } catch (error) {
