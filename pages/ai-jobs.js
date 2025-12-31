@@ -1,53 +1,25 @@
+import { useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
-import { useRouter } from "next/router"
 
-/* ================= KEYWORDS ================= */
+export default function AIJobs({ initialJobs }) {
+  const [jobs, setJobs] = useState(initialJobs)
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(false)
 
-const AI_TITLE_KEYWORDS = [
-  "ai engineer",
-  "machine learning",
-  "ml engineer",
-  "data scientist",
-  "deep learning",
-  "nlp",
-  "computer vision",
-  "artificial intelligence",
-  "generative ai",
-  "gen ai",
-  "llm",
-  "chatgpt",
-]
+  const loadMore = async () => {
+    if (loading) return
+    setLoading(true)
 
-const AI_DESC_KEYWORDS = [
-  "machine learning",
-  "deep learning",
-  "nlp",
-  "computer vision",
-  "artificial intelligence",
-  "model training",
-  "neural network",
-  "llm",
-  "gen ai",
-]
+    const nextPage = page + 1
+    const res = await fetch(
+      `/api/search?category=ai-jobs&page=${nextPage}&limit=50`
+    )
+    const data = await res.json()
 
-const NEGATIVE_KEYWORDS = [
-  "sales",
-  "marketing",
-  "hr",
-  "human resource",
-  "business development",
-  "telecaller",
-  "customer support",
-  "bpo",
-  "non technical",
-]
-
-export default function AIJobs({ jobs, page, hasMore }) {
-  const router = useRouter()
-
-  const loadMore = () => {
-    router.push(`/ai-jobs?page=${page + 1}`)
+    setJobs((prev) => [...prev, ...(data.jobs || [])])
+    setPage(nextPage)
+    setLoading(false)
   }
 
   return (
@@ -56,18 +28,26 @@ export default function AIJobs({ jobs, page, hasMore }) {
         <title>AI Jobs & Artificial Intelligence Jobs | FreshJobs.Store</title>
         <meta
           name="description"
-          content="Latest verified AI jobs, Machine Learning, Data Science and Artificial Intelligence jobs in India and worldwide."
+          content="Latest AI jobs, machine learning jobs, data science and artificial intelligence job openings. Indian and international AI jobs including remote roles."
         />
+        <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://freshjobs.store/ai-jobs" />
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4">
-          AI Jobs & Artificial Intelligence Careers
+        <h1 className="text-3xl font-bold mb-3">
+          AI Jobs & Artificial Intelligence Jobs
         </h1>
 
+        <p className="text-gray-600 mb-6 max-w-3xl">
+          Explore latest <strong>AI jobs, Machine Learning roles, Data Science careers</strong>{" "}
+          including Indian and international opportunities. Remote AI jobs are also included.
+        </p>
+
         {jobs.length === 0 && (
-          <p className="text-red-500">No AI jobs found right now.</p>
+          <p className="text-red-500">
+            Currently no AI job openings found.
+          </p>
         )}
 
         <div className="grid md:grid-cols-2 gap-4">
@@ -77,13 +57,18 @@ export default function AIJobs({ jobs, page, hasMore }) {
               className="border rounded-lg p-4 bg-white hover:shadow-md transition"
             >
               <h2 className="font-semibold mb-1">
-                <Link
-                  href={job.link || "#"}
-                  target="_blank"
-                  className="text-blue-700 hover:underline"
-                >
-                  {job.title || "AI Job Opening"}
-                </Link>
+                {job.link ? (
+                  <Link
+                    href={job.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline text-blue-700"
+                  >
+                    {job.title || "AI Job Opening"}
+                  </Link>
+                ) : (
+                  job.title || "AI Job Opening"
+                )}
               </h2>
 
               <p className="text-sm text-gray-500 mb-2">
@@ -91,7 +76,7 @@ export default function AIJobs({ jobs, page, hasMore }) {
               </p>
 
               {job.description && (
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-gray-700 mb-3">
                   {job.description.slice(0, 150)}...
                 </p>
               )}
@@ -99,14 +84,15 @@ export default function AIJobs({ jobs, page, hasMore }) {
           ))}
         </div>
 
-        {/* 🔽 PAGINATION */}
-        {hasMore && (
+        {/* LOAD MORE */}
+        {jobs.length >= 50 && (
           <div className="text-center mt-8">
             <button
               onClick={loadMore}
+              disabled={loading}
               className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
             >
-              Load More AI Jobs
+              {loading ? "Loading..." : "Load More AI Jobs"}
             </button>
           </div>
         )}
@@ -115,53 +101,26 @@ export default function AIJobs({ jobs, page, hasMore }) {
   )
 }
 
-/* ================= SERVER SIDE ================= */
-
-export async function getServerSideProps({ query }) {
+/* SSR – FIRST PAGE ONLY */
+export async function getServerSideProps() {
   try {
-    const page = parseInt(query.page || "1")
-    const limit = 20
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/search?limit=200`
+      `${baseUrl}/api/search?category=ai-jobs&page=1&limit=50`
     )
-
     const data = await res.json()
-    const allJobs = data.jobs || []
-
-    /* 🔹 CLEAN AI FILTER */
-    const cleanAIJobs = allJobs.filter((job) => {
-      const title = (job.title || "").toLowerCase()
-      const desc = (job.description || "").toLowerCase()
-      const fullText = `${title} ${desc}`
-
-      if (NEGATIVE_KEYWORDS.some((k) => fullText.includes(k))) {
-        return false
-      }
-
-      if (AI_TITLE_KEYWORDS.some((k) => title.includes(k))) {
-        return true
-      }
-
-      return AI_DESC_KEYWORDS.some((k) => desc.includes(k))
-    })
-
-    const start = (page - 1) * limit
-    const end = start + limit
 
     return {
       props: {
-        jobs: cleanAIJobs.slice(start, end),
-        page,
-        hasMore: end < cleanAIJobs.length,
+        initialJobs: data.jobs || [],
       },
     }
-  } catch (err) {
+  } catch (error) {
     return {
       props: {
-        jobs: [],
-        page: 1,
-        hasMore: false,
+        initialJobs: [],
       },
     }
   }
