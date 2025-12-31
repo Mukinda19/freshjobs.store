@@ -13,7 +13,7 @@ export default function AIJobs({ initialJobs }) {
 
     const nextPage = page + 1
     const res = await fetch(
-      `/api/search?category=ai-jobs&page=${nextPage}&limit=50`
+      `/api/search?category=ai-jobs&page=${nextPage}&limit=10`
     )
     const data = await res.json()
 
@@ -28,7 +28,7 @@ export default function AIJobs({ initialJobs }) {
         <title>AI Jobs & Artificial Intelligence Jobs | FreshJobs.Store</title>
         <meta
           name="description"
-          content="Latest AI jobs, machine learning jobs, data science and artificial intelligence job openings. Indian and international AI jobs including remote roles."
+          content="Latest AI jobs, machine learning jobs, data science and artificial intelligence job openings."
         />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://freshjobs.store/ai-jobs" />
@@ -41,7 +41,7 @@ export default function AIJobs({ initialJobs }) {
 
         <p className="text-gray-600 mb-6 max-w-3xl">
           Explore latest <strong>AI jobs, Machine Learning roles, Data Science careers</strong>{" "}
-          including Indian and international opportunities. Remote AI jobs are also included.
+          including Indian and international opportunities.
         </p>
 
         {jobs.length === 0 && (
@@ -80,12 +80,24 @@ export default function AIJobs({ initialJobs }) {
                   {job.description.slice(0, 150)}...
                 </p>
               )}
+
+              {/* ✅ APPLY NOW BUTTON */}
+              {job.link && (
+                <Link
+                  href={job.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-2 bg-green-600 text-white px-4 py-1.5 rounded hover:bg-green-700 text-sm"
+                >
+                  Apply Now →
+                </Link>
+              )}
             </article>
           ))}
         </div>
 
-        {/* LOAD MORE */}
-        {jobs.length >= 50 && (
+        {/* LOAD MORE AFTER 10 JOBS */}
+        {jobs.length >= 10 && (
           <div className="text-center mt-8">
             <button
               onClick={loadMore}
@@ -101,14 +113,14 @@ export default function AIJobs({ initialJobs }) {
   )
 }
 
-/* SSR – FIRST PAGE ONLY */
+/* SSR – FIRST PAGE (10 JOBS ONLY) */
 export async function getServerSideProps() {
   try {
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
 
     const res = await fetch(
-      `${baseUrl}/api/search?category=ai-jobs&page=1&limit=50`
+      `${baseUrl}/api/search?category=ai-jobs&page=1&limit=10`
     )
     const data = await res.json()
 
