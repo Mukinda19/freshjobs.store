@@ -28,3 +28,9 @@ Thumbs.db
 
 # VS Code settings
 .vscode/
+
+# ================================
+# next-sitemap generated files
+# ================================
+public/sitemap*.xml
+public/robots.txt
