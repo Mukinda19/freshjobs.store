@@ -4,30 +4,38 @@ export default function Header() {
   return (
     <header className="bg-gray-900 text-white shadow-md">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        
-        {/* Logo / Website Name */}
+
+        {/* Logo */}
         <Link
           href="/"
           className="text-2xl font-bold tracking-wide hover:text-gray-300 transition"
         >
-          <span>FreshJobs Store</span>
+          FreshJobs Store
         </Link>
 
-        {/* Navigation Menu */}
-        <nav className="hidden md:flex space-x-6 text-sm">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex space-x-6 text-sm items-center">
           <Link href="/" className="hover:text-gray-300 transition">
             Home
           </Link>
 
-          {/* 🔹 Work From Home Jobs */}
+          {/* 🔹 Work From Home */}
           <Link
-            href="/work-from-home-jobs"
+            href="/work-from-home"
             className="hover:text-gray-300 transition font-medium"
           >
             Work From Home
           </Link>
 
-          {/* 🔹 AI Jobs (NEW SEO PAGE) */}
+          {/* 🔹 High Paying WFH (SEO Landing) */}
+          <Link
+            href="/work-from-home/high-paying"
+            className="hover:text-gray-300 transition font-medium text-green-400"
+          >
+            High Paying WFH
+          </Link>
+
+          {/* 🔹 AI Jobs */}
           <Link
             href="/ai-jobs"
             className="hover:text-gray-300 transition font-medium"
@@ -35,11 +43,13 @@ export default function Header() {
             AI Jobs
           </Link>
 
-          <Link href="/government-jobs" className="hover:text-gray-300 transition">
+          <Link
+            href="/government-jobs"
+            className="hover:text-gray-300 transition"
+          >
             Government Jobs
           </Link>
 
-          {/* 🔹 Trusted Job Sources */}
           <Link
             href="/job-sources"
             className="hover:text-gray-300 transition font-semibold text-yellow-300"
@@ -68,7 +78,7 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Icon (future enhancement) */}
         <div className="md:hidden">
           <button className="focus:outline-none">
             <svg
