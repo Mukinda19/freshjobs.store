@@ -68,12 +68,31 @@ export default async function handler(req, res) {
       "noida",
       "gurgaon",
       "maharashtra",
-      "up",
+      "uttar pradesh",
       "bihar",
-      "mp",
+      "madhya pradesh",
       "rajasthan",
       "tamil nadu",
       "karnataka",
+    ]
+
+    const internationalIncludeKeywords = [
+      "usa",
+      "united states",
+      "uk",
+      "united kingdom",
+      "europe",
+      "germany",
+      "canada",
+      "australia",
+      "singapore",
+      "dubai",
+      "uae",
+      "worldwide",
+      "global",
+      "international",
+      "remote worldwide",
+      "remote - worldwide",
     ]
 
     const normalCategoryMap = {
@@ -118,7 +137,7 @@ export default async function handler(req, res) {
         })
       }
 
-      /* ✅ INTERNATIONAL JOBS — STRONG & FINAL */
+      /* ✅ INTERNATIONAL JOBS (FINAL – NO LEAKAGE) */
       else if (cat === "international" || cat === "international-jobs") {
         jobs = jobs.filter((job) => {
           const text = `
@@ -132,8 +151,11 @@ export default async function handler(req, res) {
 
           const isGovt = govtKeywords.some((kw) => text.includes(kw))
           const isIndia = indiaKeywords.some((kw) => text.includes(kw))
+          const isInternational = internationalIncludeKeywords.some((kw) =>
+            text.includes(kw)
+          )
 
-          return !isGovt && !isIndia
+          return isInternational && !isGovt && !isIndia
         })
       }
 
