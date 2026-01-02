@@ -1,37 +1,181 @@
+import { useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
 
-export default function InternationalJobs() {
+export default function InternationalJobs({ initialJobs }) {
+  const [jobs, setJobs] = useState(initialJobs)
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(false)
+  const [hasMore, setHasMore] = useState(initialJobs.length === 10)
+
+  const loadMore = async () => {
+    if (loading || !hasMore) return
+    setLoading(true)
+
+    const nextPage = page + 1
+    const res = await fetch(
+      `/api/search?category=international&page=${nextPage}&limit=10`
+    )
+    const data = await res.json()
+
+    if (!data.jobs || data.jobs.length === 0) {
+      setHasMore(false)
+    } else {
+      setJobs((prev) => [...prev, ...data.jobs])
+      setPage(nextPage)
+      if (data.jobs.length < 10) setHasMore(false)
+    }
+
+    setLoading(false)
+  }
+
+  /* 🔹 BASIC JOB SCHEMA (SEO SAFE) */
+  const jobSchema = jobs.slice(0, 10).map((job) => ({
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title || "International Job Opening",
+    description:
+      job.description || "International job opportunity outside India",
+    hiringOrganization: {
+      "@type": "Organization",
+      name: job.source || "FreshJobs Store",
+    },
+    employmentType: "FULL_TIME",
+    jobLocationType: job.remote ? "TELECOMMUTE" : "ON_SITE",
+    url: job.link || "https://freshjobs.store/international-jobs",
+  }))
+
   return (
     <>
       <Head>
-        <title>International Jobs | FreshJobs Store</title>
+        <title>
+          International Jobs Outside India | Global Careers – FreshJobs Store
+        </title>
         <meta
           name="description"
-          content="Latest international jobs including onsite and remote opportunities outside India."
+          content="Browse latest international jobs outside India including onsite and remote roles from global companies."
+        />
+        <link
+          rel="canonical"
+          href="https://freshjobs.store/international-jobs"
+        />
+        <meta name="robots" content="index, follow" />
+
+        {/* JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jobSchema),
+          }}
         />
       </Head>
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Breadcrumbs */}
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* ✅ BREADCRUMBS */}
         <nav className="text-sm text-gray-500 mb-4">
-          <Link href="/">Home</Link> / International Jobs
+          <Link href="/" className="hover:text-blue-600">
+            Home
+          </Link>
+          <span className="mx-2">›</span>
+          <span className="text-gray-700 font-medium">
+            International Jobs
+          </span>
         </nav>
 
-        <h1 className="text-2xl font-bold mb-6">
+        <h1 className="text-3xl font-bold mb-3">
           International Jobs (Outside India)
         </h1>
 
-        <p className="text-gray-600 mb-8">
-          This page lists jobs located outside India, including onsite and remote roles.
+        <p className="text-gray-600 mb-6 max-w-3xl">
+          Explore verified <strong>international job opportunities</strong>{" "}
+          including onsite and remote roles from global companies outside India.
         </p>
 
-        <div className="bg-white shadow rounded p-6">
-          <p className="text-gray-700">
-            International jobs feed integration coming next.
+        {jobs.length === 0 && (
+          <p className="text-red-500">
+            Currently no international jobs available.
           </p>
+        )}
+
+        <div className="grid md:grid-cols-2 gap-4">
+          {jobs.map((job, index) => (
+            <article
+              key={job.link || index}
+              className="border rounded-lg p-4 bg-white hover:shadow-md transition"
+            >
+              <h2 className="font-semibold mb-1 text-blue-700">
+                {job.title || "International Job Opening"}
+              </h2>
+
+              <p className="text-sm text-gray-500 mb-2">
+                Source: {job.source || "Verified Portal"}
+              </p>
+
+              {job.location && (
+                <p className="text-sm text-gray-600 mb-2">
+                  Location: {job.location}
+                </p>
+              )}
+
+              {job.description && (
+                <p className="text-sm text-gray-700 mb-3">
+                  {job.description.slice(0, 150)}...
+                </p>
+              )}
+
+              {/* ✅ APPLY NOW ONLY */}
+              {job.link && (
+                <a
+                  href={job.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-2 bg-green-600 text-white px-4 py-1.5 rounded hover:bg-green-700 text-sm"
+                >
+                  Apply Now →
+                </a>
+              )}
+            </article>
+          ))}
         </div>
+
+        {/* ✅ PAGINATION */}
+        {hasMore && (
+          <div className="text-center mt-8">
+            <button
+              onClick={loadMore}
+              disabled={loading}
+              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+            >
+              {loading ? "Loading..." : "Load More Jobs"}
+            </button>
+          </div>
+        )}
       </main>
     </>
   )
+}
+
+/* ✅ SSR – FIRST 10 JOBS */
+export async function getServerSideProps() {
+  try {
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+
+    const res = await fetch(
+      `${baseUrl}/api/search?category=international&page=1&limit=10`
+    )
+    const data = await res.json()
+
+    return {
+      props: {
+        initialJobs: data.jobs || [],
+      },
+    }
+  } catch (error) {
+    return {
+      props: {
+        initialJobs: [],
+      },
+    }
+  }
 }
