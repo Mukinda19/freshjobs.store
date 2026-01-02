@@ -109,8 +109,8 @@ export default async function handler(req, res) {
         })
       }
 
-      /* ✅ INTERNATIONAL JOBS (NEW – IMPORTANT FIX) */
-      else if (cat === "international-jobs") {
+      /* ✅ INTERNATIONAL JOBS (FINAL FIX ✅) */
+      else if (cat === "international" || cat === "international-jobs") {
         jobs = jobs.filter((job) => {
           const text = `
             ${job.title || ""}
