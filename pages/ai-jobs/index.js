@@ -71,12 +71,24 @@ export default function AIJobs({ initialJobs }) {
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* ✅ BREADCRUMBS */}
+        <nav className="text-sm text-gray-500 mb-4">
+          <Link href="/" className="hover:text-blue-600">
+            Home
+          </Link>
+          <span className="mx-2">›</span>
+          <span className="text-gray-700 font-medium">AI Jobs</span>
+        </nav>
+
         <h1 className="text-3xl font-bold mb-3">
           AI Jobs & Artificial Intelligence Jobs
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore latest <strong>AI jobs, Machine Learning roles, Data Science careers</strong>{" "}
+          Explore latest{" "}
+          <strong>
+            AI jobs, Machine Learning roles, Data Science careers
+          </strong>{" "}
           including Indian and international opportunities.
         </p>
 
@@ -90,19 +102,21 @@ export default function AIJobs({ initialJobs }) {
           {jobs.map((job, index) => (
             <article
               key={job.slug || job.link || index}
-              className="border rounded-lg p-4 bg-white hover:shadow-md transition"
+              className="border rounded-lg p-4 bg-white hover:shadow-lg transition"
             >
-              {/* ✅ INTERNAL DETAIL PAGE LINK */}
+              {/* ✅ INTERNAL DETAIL PAGE LINK (COLOR FIXED) */}
               <h2 className="font-semibold mb-1">
                 {job.slug ? (
                   <Link
                     href={`/ai-jobs/${job.slug}`}
-                    className="hover:underline text-blue-700"
+                    className="text-blue-600 hover:text-blue-800 hover:underline"
                   >
                     {job.title || "AI Job Opening"}
                   </Link>
                 ) : (
-                  job.title || "AI Job Opening"
+                  <span className="text-blue-600">
+                    {job.title || "AI Job Opening"}
+                  </span>
                 )}
               </h2>
 
