@@ -76,23 +76,16 @@ export default async function handler(req, res) {
       "karnataka",
     ]
 
-    const internationalIncludeKeywords = [
-      "usa",
-      "united states",
-      "uk",
-      "united kingdom",
-      "europe",
-      "germany",
-      "canada",
-      "australia",
-      "singapore",
-      "dubai",
-      "uae",
-      "worldwide",
-      "global",
-      "international",
-      "remote worldwide",
-      "remote - worldwide",
+    /* ✅ INTERNATIONAL SOURCE DOMAINS (FINAL FIX) */
+    const internationalDomains = [
+      "remoteok",
+      "weworkremotely",
+      "remotive",
+      "jobspresso",
+      "wellfound",
+      "angel.co",
+      "flexjobs",
+      "workingnomads",
     ]
 
     const normalCategoryMap = {
@@ -137,25 +130,30 @@ export default async function handler(req, res) {
         })
       }
 
-      /* ✅ INTERNATIONAL JOBS (FINAL – NO LEAKAGE) */
+      /* ✅ INTERNATIONAL JOBS — FINAL & SAFE */
       else if (cat === "international" || cat === "international-jobs") {
         jobs = jobs.filter((job) => {
           const text = `
             ${job.title || ""}
             ${job.description || ""}
             ${job.snippet || ""}
-            ${job.location || ""}
-            ${job.company || ""}
+          `.toLowerCase()
+
+          const urlText = `
+            ${job.url || ""}
+            ${job.link || ""}
+            ${job.apply_url || ""}
             ${job.source || ""}
           `.toLowerCase()
 
-          const isGovt = govtKeywords.some((kw) => text.includes(kw))
-          const isIndia = indiaKeywords.some((kw) => text.includes(kw))
-          const isInternational = internationalIncludeKeywords.some((kw) =>
-            text.includes(kw)
+          const isInternationalSource = internationalDomains.some((d) =>
+            urlText.includes(d)
           )
 
-          return isInternational && !isGovt && !isIndia
+          const isGovt = govtKeywords.some((kw) => text.includes(kw))
+          const isIndia = indiaKeywords.some((kw) => text.includes(kw))
+
+          return isInternationalSource && !isGovt && !isIndia
         })
       }
 
