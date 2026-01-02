@@ -47,6 +47,8 @@ export default async function handler(req, res) {
       "railway",
       "defence",
       "police",
+      "court",
+      "ministry",
     ]
 
     const indiaKeywords = [
@@ -65,6 +67,13 @@ export default async function handler(req, res) {
       "ahmedabad",
       "noida",
       "gurgaon",
+      "maharashtra",
+      "up",
+      "bihar",
+      "mp",
+      "rajasthan",
+      "tamil nadu",
+      "karnataka",
     ]
 
     const normalCategoryMap = {
@@ -109,7 +118,7 @@ export default async function handler(req, res) {
         })
       }
 
-      /* ✅ INTERNATIONAL JOBS (FINAL FIX ✅) */
+      /* ✅ INTERNATIONAL JOBS — STRONG & FINAL */
       else if (cat === "international" || cat === "international-jobs") {
         jobs = jobs.filter((job) => {
           const text = `
@@ -167,10 +176,9 @@ export default async function handler(req, res) {
     const pageNum = Number(page)
     const pageLimit = Number(limit)
     const start = (pageNum - 1) * pageLimit
-    const end = start + pageLimit
 
     return res.status(200).json({
-      jobs: jobs.slice(start, end),
+      jobs: jobs.slice(start, start + pageLimit),
       total: jobs.length,
       page: pageNum,
       totalPages: Math.ceil(jobs.length / pageLimit),
