@@ -76,16 +76,12 @@ export default async function handler(req, res) {
       "karnataka",
     ]
 
-    /* ✅ INTERNATIONAL SOURCE DOMAINS (FINAL FIX) */
+    /* ✅ INTERNATIONAL SOURCE DOMAINS (ONLY 4 AS PER YOUR RSS) */
     const internationalDomains = [
       "remoteok",
       "weworkremotely",
       "remotive",
-      "jobspresso",
-      "wellfound",
-      "angel.co",
-      "flexjobs",
-      "workingnomads",
+      "jobicy",
     ]
 
     const normalCategoryMap = {
@@ -130,7 +126,7 @@ export default async function handler(req, res) {
         })
       }
 
-      /* ✅ INTERNATIONAL JOBS — FINAL & SAFE */
+      /* ✅ INTERNATIONAL JOBS — FINAL 4 SOURCES ONLY */
       else if (cat === "international" || cat === "international-jobs") {
         jobs = jobs.filter((job) => {
           const text = `
