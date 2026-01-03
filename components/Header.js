@@ -27,7 +27,7 @@ export default function Header() {
             Work From Home
           </Link>
 
-          {/* 🔹 High Paying WFH (SEO Landing) */}
+          {/* 🔹 High Paying WFH */}
           <Link
             href="/work-from-home/high-paying"
             className="hover:text-gray-300 transition font-medium text-green-400"
@@ -41,6 +41,14 @@ export default function Header() {
             className="hover:text-gray-300 transition font-medium"
           >
             AI Jobs
+          </Link>
+
+          {/* 🔹 International Jobs (NEW) */}
+          <Link
+            href="/international-jobs"
+            className="hover:text-gray-300 transition font-medium text-blue-400"
+          >
+            International Jobs
           </Link>
 
           <Link
@@ -78,7 +86,7 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* Mobile Menu Icon (future enhancement) */}
+        {/* Mobile Menu Icon (later enhancement) */}
         <div className="md:hidden">
           <button className="focus:outline-none">
             <svg
