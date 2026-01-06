@@ -79,10 +79,8 @@ export default function JobDetailPage() {
 
   const applyLink = job.url || job.link || job.applyLink || "";
 
-  // 🔹 Step 6: Internal linking slugs (SEO booster)
   const categorySlug = job.category || "jobs";
-  const locationSlug =
-    normalizeSlug(location) || "india";
+  const locationSlug = normalizeSlug(location) || "india";
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -100,6 +98,33 @@ export default function JobDetailPage() {
           href={`https://freshjobs.store/job/${canonicalSlug}`}
         />
       </Head>
+
+      {/* 🔹 BREADCRUMBS (SEO + Mobile Friendly) */}
+      <nav
+        aria-label="Breadcrumb"
+        className="text-sm mb-4 text-gray-600"
+      >
+        <ol className="flex flex-wrap gap-2">
+          <li>
+            <a href="/" className="hover:underline text-blue-600">
+              Home
+            </a>
+            <span> / </span>
+          </li>
+          <li>
+            <a
+              href={`/jobs/${categorySlug}/india`}
+              className="hover:underline text-blue-600"
+            >
+              Jobs
+            </a>
+            <span> / </span>
+          </li>
+          <li className="text-gray-800 font-medium truncate">
+            {title}
+          </li>
+        </ol>
+      </nav>
 
       {/* 🔹 Main Content */}
       <h1 className="text-3xl font-bold mb-2">{title}</h1>
@@ -132,7 +157,7 @@ export default function JobDetailPage() {
         </a>
       )}
 
-      {/* 🔹 Step 6: Internal Links (SEO + AdSense retention) */}
+      {/* 🔹 Internal Links */}
       <div className="mt-10 border-t pt-6">
         <h3 className="font-semibold mb-3 text-lg">
           Explore More Jobs
