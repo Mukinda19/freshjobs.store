@@ -5,14 +5,23 @@ export default function Footer() {
         
         {/* Left side - Copyright */}
         <p className="text-sm">
-          © {new Date().getFullYear()} Mukund Jagtap. All Rights Reserved.
+          © {new Date().getFullYear()} FreshJobs.Store. All Rights Reserved.
         </p>
 
         {/* Center - Important Links */}
-        <div className="flex space-x-6 mt-4 md:mt-0">
-          <a href="/privacy" className="hover:text-white transition">Privacy Policy</a>
-          <a href="/terms" className="hover:text-white transition">Terms & Conditions</a>
-          <a href="/contact" className="hover:text-white transition">Contact</a>
+        <div className="flex flex-wrap justify-center gap-6 mt-4 md:mt-0 text-sm">
+          <a href="/resume-builder" className="hover:text-white transition">
+            Resume Builder
+          </a>
+          <a href="/privacy" className="hover:text-white transition">
+            Privacy Policy
+          </a>
+          <a href="/terms" className="hover:text-white transition">
+            Terms & Conditions
+          </a>
+          <a href="/contact" className="hover:text-white transition">
+            Contact
+          </a>
         </div>
 
         {/* Right side - Tagline */}
