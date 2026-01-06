@@ -1,10 +1,10 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Head from "next/head";
 
-// 🔹 Helper: clean slug generator
+/* ---------------- Helper ---------------- */
 const normalizeSlug = (text = "") =>
-  text
+  String(text)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
@@ -16,6 +16,7 @@ export default function JobDetailPage() {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  /* ---------------- Fetch Job ---------------- */
   useEffect(() => {
     if (!slug) return;
 
@@ -30,7 +31,7 @@ export default function JobDetailPage() {
           const jobSlug =
             j.slug ||
             normalizeSlug(`${j.title || ""} ${j.company || ""}`);
-          return jobSlug === slug || j.id === slug;
+          return jobSlug === slug || String(j.id) === String(slug);
         });
 
         setJob(foundJob || null);
@@ -39,11 +40,12 @@ export default function JobDetailPage() {
       .catch(() => setLoading(false));
   }, [slug]);
 
-  /* -------------------- STATES -------------------- */
+  /* ---------------- Loading ---------------- */
   if (loading) {
     return <p className="p-4">Loading job details...</p>;
   }
 
+  /* ---------------- Not Found ---------------- */
   if (!job) {
     return (
       <div className="max-w-3xl mx-auto p-6">
@@ -64,11 +66,12 @@ export default function JobDetailPage() {
     );
   }
 
-  /* -------------------- DATA SAFE -------------------- */
+  /* ---------------- Safe Data ---------------- */
   const title = job.title || "Latest Job Opening";
   const company = job.company || "Company";
   const location = job.location || "India";
   const salary = job.salary || "";
+
   const description =
     job.snippet ||
     "Check eligibility, job details, and apply using the official link.";
@@ -79,54 +82,95 @@ export default function JobDetailPage() {
 
   const applyLink = job.url || job.link || job.applyLink || "";
 
-  const categorySlug = job.category || "jobs";
+  const categorySlug = normalizeSlug(job.category || "jobs");
+  const readableCategory = useMemo(
+    () => categorySlug.replace(/-/g, " "),
+    [categorySlug]
+  );
+
   const locationSlug = normalizeSlug(location) || "india";
+
+  const canonicalUrl = `https://freshjobs.store/job/${canonicalSlug}`;
+
+  /* ---------------- Breadcrumb Schema ---------------- */
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://freshjobs.store/",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: `${readableCategory} Jobs`,
+        item: `https://freshjobs.store/jobs/${categorySlug}/india`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: title,
+        item: canonicalUrl,
+      },
+    ],
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      {/* 🔹 SEO Head */}
+      {/* ---------------- SEO ---------------- */}
       <Head>
         <title>
           {title} at {company} | Jobs in {location}
         </title>
+
         <meta
           name="description"
           content={`Apply for ${title} job at ${company} in ${location}. Check eligibility, salary, and official apply link.`}
         />
-        <link
-          rel="canonical"
-          href={`https://freshjobs.store/job/${canonicalSlug}`}
+
+        <link rel="canonical" href={canonicalUrl} />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbSchema),
+          }}
         />
       </Head>
 
-      {/* 🔹 BREADCRUMBS (SEO + Mobile Friendly) */}
+      {/* ---------------- Breadcrumb UI ---------------- */}
       <nav
         aria-label="Breadcrumb"
-        className="text-sm mb-4 text-gray-600"
+        className="text-sm mb-4 text-gray-600 overflow-x-auto whitespace-nowrap"
       >
-        <ol className="flex flex-wrap gap-2">
+        <ol className="flex gap-2">
           <li>
             <a href="/" className="hover:underline text-blue-600">
               Home
             </a>
             <span> / </span>
           </li>
+
           <li>
             <a
               href={`/jobs/${categorySlug}/india`}
-              className="hover:underline text-blue-600"
+              className="hover:underline text-blue-600 capitalize"
             >
-              Jobs
+              {readableCategory} Jobs
             </a>
             <span> / </span>
           </li>
-          <li className="text-gray-800 font-medium truncate">
+
+          <li className="text-gray-800 font-medium truncate max-w-[220px]">
             {title}
           </li>
         </ol>
       </nav>
 
-      {/* 🔹 Main Content */}
+      {/* ---------------- Content ---------------- */}
       <h1 className="text-3xl font-bold mb-2">{title}</h1>
 
       <p className="text-gray-700 mb-3">
@@ -157,7 +201,7 @@ export default function JobDetailPage() {
         </a>
       )}
 
-      {/* 🔹 Internal Links */}
+      {/* ---------------- Internal Links ---------------- */}
       <div className="mt-10 border-t pt-6">
         <h3 className="font-semibold mb-3 text-lg">
           Explore More Jobs
@@ -169,7 +213,7 @@ export default function JobDetailPage() {
               href={`/jobs/${categorySlug}/india`}
               className="hover:underline"
             >
-              More {categorySlug.replace(/-/g, " ")} Jobs in India
+              More {readableCategory} Jobs in India
             </a>
           </li>
 
