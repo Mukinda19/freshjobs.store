@@ -1,105 +1,79 @@
-// 🔹 Helper: SEO friendly slug generator (future safe)
-const generateSlug = (job) => {
+import Link from "next/link";
+
+/* ---------------- Helper: SEO safe slug ---------------- */
+const generateSlug = (job = {}) => {
   const base =
     job.slug ||
     `${job.title || "job"} ${job.company || ""}`;
 
-  return base
+  return String(base)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 };
 
 export default function JobCard({ job }) {
-  // 🔹 External apply link (RSS / source priority)
+  if (!job) return null;
+
   const applyLink = job.url || job.link || job.applyLink || "";
+  if (!applyLink) return null;
 
-  if (!applyLink) {
-    return null;
-  }
-
-  // 🔹 JobPosting Schema (Google Jobs)
-  const jobSchema = {
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    "title": job.title || "Job Opening",
-    "description": job.snippet || job.title || "Job description not available",
-    "hiringOrganization": {
-      "@type": "Organization",
-      "name": job.company || "Company",
-      "sameAs": applyLink
-    },
-    "employmentType": "FULL_TIME",
-    "jobLocation": {
-      "@type": "Place",
-      "address": {
-        "@type": "PostalAddress",
-        "addressCountry": "IN",
-        "addressLocality": job.location || "India"
-      }
-    },
-    "datePosted": job.date || new Date().toISOString(),
-    "validThrough": new Date(
-      Date.now() + 30 * 24 * 60 * 60 * 1000
-    ).toISOString(),
-    "directApply": true,
-    "url": applyLink
-  };
+  const slug = generateSlug(job);
 
   return (
-    <>
-      {/* 🔹 JobPosting Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jobSchema),
-        }}
-      />
+    <div className="border p-4 rounded-lg bg-white hover:shadow-lg transition flex flex-col justify-between">
+      <div>
+        {/* 🔹 Job Title (Internal SEO Link) */}
+        <h3 className="text-lg font-bold leading-snug text-[#1a73e8] mb-1">
+          <Link
+            href={`/job/${slug}`}
+            className="hover:underline"
+          >
+            {job.title || "Job Title"}
+          </Link>
+        </h3>
 
-      <a
-        href={applyLink}
-        target="_blank"
-        rel="noopener noreferrer nofollow"
-        className="block border p-4 rounded-lg bg-white hover:shadow-lg transition"
-      >
-        <div className="flex flex-col justify-between h-full">
-          <div>
-            {/* 🔹 Job Title */}
-            <h3 className="text-lg font-bold leading-snug text-[#1a73e8]">
-              {job.title || "Job Title"}
-            </h3>
+        {/* 🔹 Company + Location */}
+        {(job.company || job.location) && (
+          <p className="text-sm text-[#333333]">
+            {job.company || "Company"}
+            {job.location ? ` • ${job.location}` : ""}
+          </p>
+        )}
 
-            {/* 🔹 Company + Location */}
-            {(job.company || job.location) && (
-              <p className="text-sm text-[#333333] mt-1">
-                {job.company || "Company"}
-                {job.location ? ` • ${job.location}` : ""}
-              </p>
-            )}
+        {/* 🔹 Salary */}
+        {job.salary && (
+          <p className="text-sm text-[#0a7b2e] mt-1">
+            {job.salary}
+          </p>
+        )}
 
-            {/* 🔹 Salary */}
-            {job.salary && (
-              <p className="text-sm text-[#0a7b2e] mt-1">
-                {job.salary}
-              </p>
-            )}
+        {/* 🔹 Snippet */}
+        {job.snippet && (
+          <p className="text-gray-700 text-sm mt-3 line-clamp-3">
+            {job.snippet}
+          </p>
+        )}
+      </div>
 
-            {/* 🔹 Snippet */}
-            {job.snippet && (
-              <p className="text-gray-700 text-sm mt-3 line-clamp-3">
-                {job.snippet}
-              </p>
-            )}
-          </div>
+      {/* 🔹 CTA Area */}
+      <div className="mt-4 flex items-center justify-between">
+        <Link
+          href={`/job/${slug}`}
+          className="text-sm text-blue-600 hover:underline font-medium"
+        >
+          View Details →
+        </Link>
 
-          {/* 🔹 Apply CTA */}
-          <div className="mt-4 text-right">
-            <span className="inline-block bg-[#0056b3] text-white text-sm px-4 py-2 rounded font-bold hover:bg-blue-700">
-              Apply Now
-            </span>
-          </div>
-        </div>
-      </a>
-    </>
+        <a
+          href={applyLink}
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+          className="inline-block bg-[#0056b3] text-white text-sm px-4 py-2 rounded font-bold hover:bg-blue-700"
+        >
+          Apply Now
+        </a>
+      </div>
+    </div>
   );
 }
