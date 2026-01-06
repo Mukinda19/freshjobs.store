@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import JobCard from "../../../components/JobCard";
@@ -14,7 +14,7 @@ export default function CategoryLocationPage() {
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
 
-  // 🔹 Fetch jobs
+  /* ---------------- Fetch Jobs ---------------- */
   useEffect(() => {
     if (!category || !location) return;
 
@@ -30,7 +30,7 @@ export default function CategoryLocationPage() {
         const data = await res.json();
         setJobs(data.jobs || []);
         setTotalPages(data.totalPages || 1);
-      } catch (err) {
+      } catch {
         setJobs([]);
         setTotalPages(1);
       } finally {
@@ -41,7 +41,7 @@ export default function CategoryLocationPage() {
     fetchJobs();
   }, [category, location, currentPage, q]);
 
-  // 🔹 Pagination
+  /* ---------------- Pagination ---------------- */
   const goToPage = (p) => {
     const query = q ? `?page=${p}&q=${encodeURIComponent(q)}` : `?page=${p}`;
     router.push(`/jobs/${category}/${location}${query}`);
@@ -51,10 +51,35 @@ export default function CategoryLocationPage() {
     return <p className="p-4">Loading page...</p>;
   }
 
-  const readableCategory = category.replace(/-/g, " ");
-  const readableLocation = location.replace(/-/g, " ");
+  /* ---------------- SEO SAFE VALUES ---------------- */
+  const readableCategory = useMemo(
+    () => String(category).replace(/-/g, " "),
+    [category]
+  );
 
-  // 🔹 Breadcrumb Schema
+  const readableLocation = useMemo(
+    () => String(location).replace(/-/g, " "),
+    [location]
+  );
+
+  const isWFH = String(category).toLowerCase() === "work-from-home";
+
+  const pageTitle =
+    (isWFH
+      ? `Work From Home Jobs in ${readableLocation}`
+      : `${readableCategory} Jobs in ${readableLocation}`) +
+    (currentPage > 1 ? ` | Page ${currentPage}` : "");
+
+  const pageDescription = isWFH
+    ? `Explore latest verified remote and work from home jobs in ${readableLocation}. Apply online for genuine WFH opportunities.`
+    : `Latest ${readableCategory} jobs in ${readableLocation}. Apply online for government and private vacancies with official links.`;
+
+  const canonicalUrl =
+    currentPage > 1
+      ? `https://freshjobs.store/jobs/${category}/${location}?page=${currentPage}`
+      : `https://freshjobs.store/jobs/${category}/${location}`;
+
+  /* ---------------- Breadcrumb Schema ---------------- */
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -75,32 +100,18 @@ export default function CategoryLocationPage() {
         "@type": "ListItem",
         position: 3,
         name: `${readableCategory} Jobs in ${readableLocation}`,
-        item: `https://freshjobs.store/jobs/${category}/${location}`,
+        item: canonicalUrl,
       },
     ],
   };
 
-  // 🔹 Special SEO for Work From Home
-  const isWFH = category.toLowerCase() === "work-from-home";
-
-  const pageTitle = isWFH
-    ? `Work From Home Jobs in ${readableLocation} | Page ${currentPage}`
-    : `${readableCategory} Jobs in ${readableLocation} | Page ${currentPage}`;
-
-  const pageDescription = isWFH
-    ? `Explore latest remote and work from home jobs in ${readableLocation}. Apply online for verified remote job openings.`
-    : `Latest ${readableCategory} jobs in ${readableLocation}. Apply online for government and private vacancies.`;
-
   return (
     <div className="max-w-6xl mx-auto p-4">
-      {/* 🔹 SEO */}
+      {/* ---------------- SEO ---------------- */}
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
-        <link
-          rel="canonical"
-          href={`https://freshjobs.store/jobs/${category}/${location}`}
-        />
+        <link rel="canonical" href={canonicalUrl} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -109,57 +120,56 @@ export default function CategoryLocationPage() {
         />
       </Head>
 
-      {/* 🔹 Breadcrumb UI */}
-      <nav className="text-sm text-gray-600 mb-4">
+      {/* ---------------- Breadcrumb UI ---------------- */}
+      <nav className="text-sm text-gray-600 mb-4 overflow-x-auto whitespace-nowrap">
         <Link href="/" className="hover:underline">
           Home
         </Link>
         <span className="mx-2">›</span>
+
         <Link
           href={`/jobs/${category}/india`}
           className="hover:underline capitalize"
         >
           {readableCategory} Jobs
         </Link>
+
         <span className="mx-2">›</span>
+
         <span className="text-gray-900 font-medium capitalize">
           {readableLocation}
         </span>
       </nav>
 
-      {/* 🔹 Heading */}
+      {/* ---------------- Heading ---------------- */}
       <h1 className="text-2xl font-bold mb-4 capitalize">
         {isWFH
           ? `Work From Home Jobs in ${readableLocation}`
           : `${readableCategory} Jobs in ${readableLocation}`}
       </h1>
 
-      {/* 🔹 SEO TEXT BLOCK */}
+      {/* ---------------- SEO Text ---------------- */}
       <section className="mb-8 text-gray-700 text-sm leading-relaxed">
         {isWFH ? (
           <p>
             Find verified <strong>remote and work from home jobs in {readableLocation}</strong>.
-            FreshJobs.Store helps you discover legit WFH opportunities across various industries.
+            FreshJobs.Store helps you discover legit WFH opportunities across multiple industries.
           </p>
         ) : (
           <>
             <p>
               Looking for the latest <strong>{readableCategory} jobs in {readableLocation}</strong>?
-              FreshJobs.Store helps job seekers find updated government and private
-              job openings across India. Explore verified vacancies,
-              eligibility details, and direct apply links without registration.
+              FreshJobs.Store brings you verified government and private job openings with direct apply links.
             </p>
             <p className="mt-3">
-              Jobs listed on this page are sourced from trusted portals and official
-              notifications. Whether you are a fresher or experienced candidate,
-              these <strong>{readableCategory} vacancies in {readableLocation}</strong>
-              can help you take the next step in your career.
+              These <strong>{readableCategory} vacancies in {readableLocation}</strong> are updated regularly
+              and suitable for freshers as well as experienced candidates.
             </p>
           </>
         )}
       </section>
 
-      {/* 🔹 Jobs */}
+      {/* ---------------- Jobs ---------------- */}
       {loading && <p>Loading jobs...</p>}
 
       {!loading && jobs.length === 0 && (
@@ -172,7 +182,7 @@ export default function CategoryLocationPage() {
         ))}
       </div>
 
-      {/* 🔹 Pagination */}
+      {/* ---------------- Pagination ---------------- */}
       {!loading && totalPages > 1 && (
         <div className="flex items-center gap-2 mt-8 flex-wrap">
           {currentPage > 1 && (
