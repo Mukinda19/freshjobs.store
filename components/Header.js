@@ -18,10 +18,12 @@ export default function Header() {
   }, [])
 
   /* ================= Active Menu ================= */
-  const isActive = (path) =>
-    pathname === path
+  const isActive = (path, exact = true) => {
+    const active = exact ? pathname === path : pathname.startsWith(path)
+    return active
       ? "text-green-400 font-semibold"
       : "hover:text-gray-300"
+  }
 
   /* ================= Breadcrumb SEO ================= */
   const pageNameMap = {
@@ -36,27 +38,29 @@ export default function Header() {
 
   const breadcrumbName = pageNameMap[pathname]
 
-  const breadcrumbSchema = breadcrumbName && {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: "https://freshjobs.store/",
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: breadcrumbName,
-        item: `https://freshjobs.store${pathname}`,
-      },
-    ],
-  }
+  const breadcrumbSchema =
+    breadcrumbName && {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: "https://freshjobs.store/",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: breadcrumbName,
+          item: `https://freshjobs.store${pathname}`,
+        },
+      ],
+    }
 
   return (
     <>
+      {/* SEO Breadcrumb */}
       {breadcrumbSchema && (
         <Head>
           <script
@@ -82,16 +86,51 @@ export default function Header() {
           {/* Desktop Menu */}
           <nav className="hidden md:flex items-center space-x-6 text-sm text-white">
             <Link href="/" className={isActive("/")}>Home</Link>
-            <Link href="/work-from-home" className={isActive("/work-from-home")}>Work From Home</Link>
-            <Link href="/work-from-home/high-paying" className={isActive("/work-from-home/high-paying")}>High Paying WFH</Link>
-            <Link href="/ai-jobs" className={isActive("/ai-jobs")}>AI Jobs</Link>
-            <Link href="/international-jobs" className={isActive("/international-jobs")}>International Jobs</Link>
-            <Link href="/government-jobs" className={isActive("/government-jobs")}>Government Jobs</Link>
-            <Link href="/resume-builder" className={isActive("/resume-builder")}>Resume Builder</Link>
+
+            <Link
+              href="/work-from-home"
+              className={isActive("/work-from-home", false)}
+            >
+              Work From Home
+            </Link>
+
+            <Link
+              href="/work-from-home/high-paying"
+              className={isActive("/work-from-home/high-paying")}
+            >
+              High Paying WFH
+            </Link>
+
+            <Link href="/ai-jobs" className={isActive("/ai-jobs")}>
+              AI Jobs
+            </Link>
+
+            <Link
+              href="/international-jobs"
+              className={isActive("/international-jobs")}
+            >
+              International Jobs
+            </Link>
+
+            <Link
+              href="/government-jobs"
+              className={isActive("/government-jobs")}
+            >
+              Government Jobs
+            </Link>
+
+            <Link
+              href="/resume-builder"
+              className={isActive("/resume-builder")}
+            >
+              Resume Builder
+            </Link>
 
             {/* More Dropdown */}
             <div className="relative group">
-              <button className="hover:text-yellow-300">More ▾</button>
+              <button className="hover:text-yellow-300 focus:outline-none">
+                More ▾
+              </button>
 
               <div className="absolute right-0 mt-2 w-44 bg-white text-gray-800 rounded-lg shadow-lg text-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 {[
@@ -115,8 +154,9 @@ export default function Header() {
 
           {/* Mobile Toggle */}
           <button
-            className="md:hidden text-white text-2xl"
+            className="md:hidden text-white text-2xl focus:outline-none"
             onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
           >
             {mobileOpen ? "✖" : "☰"}
           </button>
@@ -124,36 +164,39 @@ export default function Header() {
 
         {/* Mobile Menu */}
         <div
-          className={`md:hidden bg-gray-800 text-white px-6 py-5 space-y-4 text-sm transition-all ${
-            mobileOpen ? "block" : "hidden"
+          className={`md:hidden bg-gray-800 text-white px-6 overflow-hidden transition-all duration-300 ${
+            mobileOpen ? "max-h-screen py-5 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          {[
-            ["Home", "/"],
-            ["Work From Home", "/work-from-home"],
-            ["High Paying WFH", "/work-from-home/high-paying"],
-            ["AI Jobs", "/ai-jobs"],
-            ["International Jobs", "/international-jobs"],
-            ["Government Jobs", "/government-jobs"],
-            ["Resume Builder", "/resume-builder"],
-            ["Job Sources", "/job-sources"],
-            ["About", "/about"],
-            ["Contact", "/contact"],
-            ["Privacy", "/privacy"],
-            ["Terms", "/terms"],
-          ].map(([label, link]) => (
-            <Link
-              key={link}
-              href={link}
-              onClick={() => setMobileOpen(false)}
-              className="block"
-            >
-              {label}
-            </Link>
-          ))}
+          <div className="space-y-4 text-sm">
+            {[
+              ["Home", "/"],
+              ["Work From Home", "/work-from-home"],
+              ["High Paying WFH", "/work-from-home/high-paying"],
+              ["AI Jobs", "/ai-jobs"],
+              ["International Jobs", "/international-jobs"],
+              ["Government Jobs", "/government-jobs"],
+              ["Resume Builder", "/resume-builder"],
+              ["Job Sources", "/job-sources"],
+              ["About", "/about"],
+              ["Contact", "/contact"],
+              ["Privacy", "/privacy"],
+              ["Terms", "/terms"],
+            ].map(([label, link]) => (
+              <Link
+                key={link}
+                href={link}
+                onClick={() => setMobileOpen(false)}
+                className="block"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
         </div>
       </header>
 
+      {/* Header spacer */}
       <div className="h-[80px]" />
     </>
   )
