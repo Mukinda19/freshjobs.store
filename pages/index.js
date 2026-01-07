@@ -45,7 +45,6 @@ export default function Home({ initialJobs }) {
         setFilteredJobs(data.jobs || []);
         setPage(1);
       } catch (error) {
-        console.error("Job fetch error:", error);
         setFilteredJobs([]);
       }
     };
@@ -72,8 +71,6 @@ export default function Home({ initialJobs }) {
       const data = await res.json();
       setFilteredJobs((prev) => [...prev, ...(data.jobs || [])]);
       setPage(nextPage);
-    } catch (error) {
-      console.error("Load more error:", error);
     } finally {
       setLoading(false);
     }
@@ -82,19 +79,36 @@ export default function Home({ initialJobs }) {
   return (
     <>
       <Head>
-        <title>FreshJobs.Store | Latest Jobs in India</title>
+        <title>Latest Jobs in India | FreshJobs.Store</title>
         <meta
           name="description"
-          content="Find latest IT, Government, Work From Home, AI and International jobs in India."
+          content="Search latest IT, Government, Work From Home, AI and International jobs in India. Apply on official company websites."
         />
+        <link rel="canonical" href="https://freshjobs.store/" />
       </Head>
 
-      {/* 🔹 HERO SEARCH */}
-      <section className="my-10">
-        <h1 className="text-3xl font-bold mb-4 text-gray-900">
-          Search Jobs in India
-        </h1>
+      {/* 🔹 Breadcrumb */}
+      <nav className="text-sm text-gray-600 mb-4">
+        <a href="/" className="text-blue-600 hover:underline">
+          Home
+        </a>
+        <span> / Jobs in India</span>
+      </nav>
 
+      {/* 🔹 SEO INTRO */}
+      <section className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Search Latest Jobs in India
+        </h1>
+        <p className="text-gray-700 max-w-3xl">
+          FreshJobs.Store helps you find verified IT jobs, government vacancies,
+          work from home jobs, AI roles, and international opportunities. Apply
+          directly on official employer websites.
+        </p>
+      </section>
+
+      {/* 🔹 HERO SEARCH */}
+      <section className="my-8">
         <form
           onSubmit={handleSearch}
           className="grid md:grid-cols-4 gap-3 bg-white p-4 rounded-lg shadow-md"
@@ -119,8 +133,6 @@ export default function Home({ initialJobs }) {
             <option value="sales">Sales Jobs</option>
             <option value="engineering">Engineering Jobs</option>
             <option value="govt-jobs">Government Jobs</option>
-
-            {/* 🔹 High CPC */}
             <option value="work-from-home">Work From Home</option>
             <option value="international">International Jobs</option>
             <option value="ai">AI Jobs</option>
@@ -150,35 +162,13 @@ export default function Home({ initialJobs }) {
 
       {/* 🔹 Categories */}
       <section className="my-12">
-        <h2 className="text-2xl font-semibold mb-6">Popular Categories</h2>
+        <h2 className="text-2xl font-semibold mb-6">Popular Job Categories</h2>
         <CategoryGrid />
-      </section>
-
-      {/* 🔹 Popular Searches */}
-      <section className="my-12">
-        <h2 className="text-xl font-semibold mb-4">Popular Searches</h2>
-        <div className="flex flex-wrap gap-3">
-          {[
-            ["IT Jobs in Mumbai", "/jobs/it/mumbai"],
-            ["Govt Jobs in India", "/jobs/govt-jobs/india"],
-            ["Work From Home Jobs", "/jobs/work-from-home/india"],
-            ["International Jobs", "/jobs/international/india"],
-            ["AI Jobs", "/jobs/ai/india"],
-          ].map(([label, link]) => (
-            <a
-              key={link}
-              href={link}
-              className="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200 text-sm"
-            >
-              {label}
-            </a>
-          ))}
-        </div>
       </section>
 
       {/* 🔹 Featured Jobs */}
       <section className="my-12">
-        <h2 className="text-2xl font-semibold mb-6">Latest Jobs</h2>
+        <h2 className="text-2xl font-semibold mb-6">Latest Job Openings</h2>
 
         <div className="grid md:grid-cols-2 gap-4">
           {filteredJobs.length > 0 ? (
