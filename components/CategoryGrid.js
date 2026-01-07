@@ -13,7 +13,8 @@ export default function CategoryGrid() {
     // 🔹 High CPC / Static SEO Pages
     { label: "Work From Home Jobs", slug: "work-from-home", type: "dynamic" },
     { label: "AI Jobs", slug: "ai", type: "dynamic" },
-    { label: "International Jobs", slug: "international", type: "dynamic" },
+
+    // ❌ International Jobs REMOVED (as discussed)
   ];
 
   return (
@@ -28,7 +29,7 @@ export default function CategoryGrid() {
           <Link
             key={cat.slug}
             href={href}
-            className="border p-4 text-center rounded bg-white hover:shadow-lg transition font-medium"
+            className="border p-4 text-center rounded bg-white hover:shadow-lg transition font-bold"
           >
             {cat.label}
           </Link>
