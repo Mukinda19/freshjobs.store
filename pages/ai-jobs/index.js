@@ -1,6 +1,7 @@
 import { useState } from "react"
 import Head from "next/head"
 import Link from "next/link"
+import Breadcrumb from "../../components/Breadcrumb"
 
 export default function AIJobs({ initialJobs }) {
   const [jobs, setJobs] = useState(initialJobs)
@@ -29,7 +30,7 @@ export default function AIJobs({ initialJobs }) {
     setLoading(false)
   }
 
-  /* 🔹 JOB POSTING SCHEMA (SEO BOOST – INTERNAL URL) */
+  /* ✅ JOB POSTING SCHEMA */
   const jobSchema = jobs.slice(0, 10).map((job) => ({
     "@context": "https://schema.org",
     "@type": "JobPosting",
@@ -61,7 +62,6 @@ export default function AIJobs({ initialJobs }) {
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://freshjobs.store/ai-jobs" />
 
-        {/* ✅ JSON-LD SCHEMA */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -71,14 +71,13 @@ export default function AIJobs({ initialJobs }) {
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* ✅ BREADCRUMBS */}
-        <nav className="text-sm text-gray-500 mb-4">
-          <Link href="/" className="hover:text-blue-600">
-            Home
-          </Link>
-          <span className="mx-2">›</span>
-          <span className="text-gray-700 font-medium">AI Jobs</span>
-        </nav>
+        {/* ✅ REUSABLE BREADCRUMB COMPONENT */}
+        <Breadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: "AI Jobs" }
+          ]}
+        />
 
         <h1 className="text-3xl font-bold mb-3">
           AI Jobs & Artificial Intelligence Jobs
@@ -104,7 +103,6 @@ export default function AIJobs({ initialJobs }) {
               key={job.slug || job.link || index}
               className="border rounded-lg p-4 bg-white hover:shadow-lg transition"
             >
-              {/* ✅ INTERNAL DETAIL PAGE LINK (COLOR FIXED) */}
               <h2 className="font-semibold mb-1">
                 {job.slug ? (
                   <Link
@@ -130,7 +128,6 @@ export default function AIJobs({ initialJobs }) {
                 </p>
               )}
 
-              {/* ✅ APPLY NOW → EXTERNAL */}
               {job.link && (
                 <a
                   href={job.link}
@@ -145,7 +142,6 @@ export default function AIJobs({ initialJobs }) {
           ))}
         </div>
 
-        {/* ✅ SMART PAGINATION */}
         {hasMore && (
           <div className="text-center mt-8">
             <button
@@ -162,7 +158,7 @@ export default function AIJobs({ initialJobs }) {
   )
 }
 
-/* ✅ SSR – FIRST PAGE */
+/* ✅ SSR */
 export async function getServerSideProps() {
   try {
     const baseUrl =
@@ -178,7 +174,7 @@ export async function getServerSideProps() {
         initialJobs: data.jobs || [],
       },
     }
-  } catch (error) {
+  } catch {
     return {
       props: {
         initialJobs: [],
