@@ -18,47 +18,45 @@ export default function JobCard({ job }) {
   const applyLink = job.url || job.link || job.applyLink || "";
   if (!applyLink) return null;
 
-  // slug retained for future use, but NOT used now
-  generateSlug(job);
-
   return (
-    <div className="border p-4 rounded-lg bg-white hover:shadow-lg transition flex flex-col justify-between">
+    <div className="border rounded-md bg-white p-3 hover:shadow-md transition flex flex-col justify-between">
+      {/* 🔹 Top Content */}
       <div>
-        {/* 🔹 Job Title (Plain text – no internal link) */}
-        <h3 className="text-lg font-bold leading-snug text-[#1a73e8] mb-1">
+        {/* Job Title */}
+        <h3 className="text-sm font-semibold text-[#1a73e8] leading-snug">
           {job.title || "Job Title"}
         </h3>
 
-        {/* 🔹 Company + Location */}
+        {/* Company + Location */}
         {(job.company || job.location) && (
-          <p className="text-sm text-[#333333]">
+          <p className="text-xs text-gray-600 mt-0.5">
             {job.company || "Company"}
             {job.location ? ` • ${job.location}` : ""}
           </p>
         )}
 
-        {/* 🔹 Salary */}
+        {/* Salary */}
         {job.salary && (
-          <p className="text-sm text-[#0a7b2e] mt-1">
+          <p className="text-xs text-green-700 mt-1">
             {job.salary}
           </p>
         )}
 
-        {/* 🔹 Snippet */}
+        {/* Snippet */}
         {job.snippet && (
-          <p className="text-gray-700 text-sm mt-3 line-clamp-3">
+          <p className="text-xs text-gray-700 mt-2 line-clamp-2">
             {job.snippet}
           </p>
         )}
       </div>
 
-      {/* 🔹 CTA Area (ONLY APPLY NOW) */}
-      <div className="mt-4">
+      {/* 🔹 CTA */}
+      <div className="mt-3">
         <a
           href={applyLink}
           target="_blank"
           rel="noopener noreferrer nofollow"
-          className="inline-block w-full text-center bg-[#0056b3] text-white text-sm px-4 py-2 rounded font-bold hover:bg-blue-700"
+          className="inline-block text-xs px-3 py-1.5 rounded-full bg-green-600 text-white font-medium hover:bg-green-700 transition"
         >
           Apply Now →
         </a>
