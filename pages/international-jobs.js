@@ -1,6 +1,6 @@
 import { useState } from "react"
 import Head from "next/head"
-import Link from "next/link"
+import Breadcrumb from "../../components/Breadcrumb"
 
 export default function InternationalJobs({ initialJobs }) {
   const [jobs, setJobs] = useState(initialJobs)
@@ -29,7 +29,7 @@ export default function InternationalJobs({ initialJobs }) {
     setLoading(false)
   }
 
-  /* 🔹 BASIC JOB SCHEMA (SEO SAFE) */
+  /* ✅ SAFE JOB SCHEMA */
   const jobSchema = jobs.slice(0, 10).map((job) => ({
     "@context": "https://schema.org",
     "@type": "JobPosting",
@@ -38,7 +38,7 @@ export default function InternationalJobs({ initialJobs }) {
       job.description || "International job opportunity outside India",
     hiringOrganization: {
       "@type": "Organization",
-      name: job.source || "FreshJobs Store",
+      name: job.source || "FreshJobs.Store",
     },
     employmentType: "FULL_TIME",
     jobLocationType: job.remote ? "TELECOMMUTE" : "ON_SITE",
@@ -49,19 +49,20 @@ export default function InternationalJobs({ initialJobs }) {
     <>
       <Head>
         <title>
-          International Jobs Outside India | Global Careers – FreshJobs Store
+          International Jobs Outside India | Global Careers – FreshJobs.Store
         </title>
+
         <meta
           name="description"
-          content="Browse latest international jobs outside India including onsite and remote roles from global companies."
+          content="Browse verified international jobs outside India including onsite and remote roles from global companies."
         />
+
+        <meta name="robots" content="index, follow" />
         <link
           rel="canonical"
           href="https://freshjobs.store/international-jobs"
         />
-        <meta name="robots" content="index, follow" />
 
-        {/* JSON-LD */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -71,24 +72,22 @@ export default function InternationalJobs({ initialJobs }) {
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* ✅ BREADCRUMBS */}
-        <nav className="text-sm text-gray-500 mb-4">
-          <Link href="/" className="hover:text-blue-600">
-            Home
-          </Link>
-          <span className="mx-2">›</span>
-          <span className="text-gray-700 font-medium">
-            International Jobs
-          </span>
-        </nav>
+        {/* ✅ REUSABLE BREADCRUMB */}
+        <Breadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: "International Jobs" },
+          ]}
+        />
 
         <h1 className="text-3xl font-bold mb-3">
           International Jobs (Outside India)
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore verified <strong>international job opportunities</strong>{" "}
-          including onsite and remote roles from global companies outside India.
+          Explore verified{" "}
+          <strong>international job opportunities</strong> including onsite and
+          remote roles from trusted global companies.
         </p>
 
         {jobs.length === 0 && (
@@ -123,7 +122,6 @@ export default function InternationalJobs({ initialJobs }) {
                 </p>
               )}
 
-              {/* ✅ APPLY NOW ONLY */}
               {job.link && (
                 <a
                   href={job.link}
@@ -138,7 +136,6 @@ export default function InternationalJobs({ initialJobs }) {
           ))}
         </div>
 
-        {/* ✅ PAGINATION */}
         {hasMore && (
           <div className="text-center mt-8">
             <button
@@ -155,7 +152,7 @@ export default function InternationalJobs({ initialJobs }) {
   )
 }
 
-/* ✅ SSR – FIRST 10 JOBS */
+/* ✅ SSR */
 export async function getServerSideProps() {
   try {
     const baseUrl =
@@ -171,7 +168,7 @@ export async function getServerSideProps() {
         initialJobs: data.jobs || [],
       },
     }
-  } catch (error) {
+  } catch {
     return {
       props: {
         initialJobs: [],
