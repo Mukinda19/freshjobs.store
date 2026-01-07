@@ -1,6 +1,6 @@
 import { useState } from "react"
 import Head from "next/head"
-import Link from "next/link"
+import Breadcrumbs from "../../components/Breadcrumbs"
 
 export default function WorkFromHomeJobs({ initialJobs }) {
   const [jobs, setJobs] = useState(initialJobs)
@@ -68,7 +68,6 @@ export default function WorkFromHomeJobs({ initialJobs }) {
           href="https://freshjobs.store/work-from-home"
         />
 
-        {/* ✅ JSON-LD SCHEMA */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -78,16 +77,13 @@ export default function WorkFromHomeJobs({ initialJobs }) {
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* ✅ BREADCRUMBS */}
-        <nav className="text-sm text-gray-500 mb-4">
-          <Link href="/" className="hover:text-blue-600">
-            Home
-          </Link>
-          <span className="mx-2">›</span>
-          <span className="text-gray-700 font-medium">
-            Work From Home Jobs
-          </span>
-        </nav>
+        {/* ✅ BREADCRUMBS (REUSABLE COMPONENT) */}
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Work From Home Jobs" },
+          ]}
+        />
 
         <h1 className="text-3xl font-bold mb-3">
           Work From Home & Remote Jobs
@@ -125,7 +121,6 @@ export default function WorkFromHomeJobs({ initialJobs }) {
                 </p>
               )}
 
-              {/* ✅ APPLY NOW ONLY */}
               {job.link && (
                 <a
                   href={job.link}
@@ -140,7 +135,6 @@ export default function WorkFromHomeJobs({ initialJobs }) {
           ))}
         </div>
 
-        {/* ✅ PAGINATION */}
         {hasMore && (
           <div className="text-center mt-8">
             <button
@@ -173,7 +167,7 @@ export async function getServerSideProps() {
         initialJobs: data.jobs || [],
       },
     }
-  } catch (error) {
+  } catch {
     return {
       props: {
         initialJobs: [],
