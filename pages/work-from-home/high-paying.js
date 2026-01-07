@@ -1,6 +1,6 @@
 import { useState } from "react"
 import Head from "next/head"
-import Link from "next/link"
+import Breadcrumbs from "../../components/Breadcrumbs"
 
 export default function HighPayingWFHJobs({ initialJobs }) {
   const [jobs, setJobs] = useState(initialJobs)
@@ -56,11 +56,14 @@ export default function HighPayingWFHJobs({ initialJobs }) {
         <title>
           High Paying Work From Home Jobs | Remote Jobs – FreshJobs.Store
         </title>
+
         <meta
           name="description"
           content="Find high paying work from home jobs and remote jobs with good salary packages. Verified WFH opportunities from India and abroad."
         />
+
         <meta name="robots" content="index, follow" />
+
         <link
           rel="canonical"
           href="https://freshjobs.store/work-from-home/high-paying"
@@ -75,20 +78,14 @@ export default function HighPayingWFHJobs({ initialJobs }) {
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* ✅ BREADCRUMBS */}
-        <nav className="text-sm text-gray-500 mb-4">
-          <Link href="/" className="hover:text-blue-600">
-            Home
-          </Link>
-          <span className="mx-2">›</span>
-          <Link href="/work-from-home" className="hover:text-blue-600">
-            Work From Home
-          </Link>
-          <span className="mx-2">›</span>
-          <span className="text-gray-700 font-medium">
-            High Paying Jobs
-          </span>
-        </nav>
+        {/* ✅ BREADCRUMBS (REUSABLE) */}
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Work From Home", href: "/work-from-home" },
+            { label: "High Paying Jobs" },
+          ]}
+        />
 
         <h1 className="text-3xl font-bold mb-3">
           High Paying Work From Home Jobs
@@ -125,7 +122,6 @@ export default function HighPayingWFHJobs({ initialJobs }) {
                 </p>
               )}
 
-              {/* ✅ APPLY NOW ONLY */}
               {job.link && (
                 <a
                   href={job.link}
@@ -140,7 +136,6 @@ export default function HighPayingWFHJobs({ initialJobs }) {
           ))}
         </div>
 
-        {/* ✅ PAGINATION */}
         {hasMore && (
           <div className="text-center mt-8">
             <button
@@ -173,7 +168,7 @@ export async function getServerSideProps() {
         initialJobs: data.jobs || [],
       },
     }
-  } catch (error) {
+  } catch {
     return {
       props: {
         initialJobs: [],
