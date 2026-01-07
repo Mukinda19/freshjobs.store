@@ -1,6 +1,6 @@
 import { useState } from "react"
 import Head from "next/head"
-import Breadcrumb from "../../components/Breadcrumb"
+import Breadcrumb from "../components/Breadcrumb"
 
 export default function InternationalJobs({ initialJobs }) {
   const [jobs, setJobs] = useState(initialJobs)
@@ -29,7 +29,7 @@ export default function InternationalJobs({ initialJobs }) {
     setLoading(false)
   }
 
-  /* ✅ SAFE JOB SCHEMA */
+  /* ✅ SEO SAFE JOB SCHEMA */
   const jobSchema = jobs.slice(0, 10).map((job) => ({
     "@context": "https://schema.org",
     "@type": "JobPosting",
@@ -54,7 +54,7 @@ export default function InternationalJobs({ initialJobs }) {
 
         <meta
           name="description"
-          content="Browse verified international jobs outside India including onsite and remote roles from global companies."
+          content="Browse latest international jobs outside India including onsite and remote roles from global companies."
         />
 
         <meta name="robots" content="index, follow" />
@@ -72,7 +72,7 @@ export default function InternationalJobs({ initialJobs }) {
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* ✅ REUSABLE BREADCRUMB */}
+        {/* ✅ REUSABLE BREADCRUMB (FINAL) */}
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
@@ -85,9 +85,8 @@ export default function InternationalJobs({ initialJobs }) {
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore verified{" "}
-          <strong>international job opportunities</strong> including onsite and
-          remote roles from trusted global companies.
+          Explore verified <strong>international job opportunities</strong>{" "}
+          including onsite and remote roles from global companies.
         </p>
 
         {jobs.length === 0 && (
