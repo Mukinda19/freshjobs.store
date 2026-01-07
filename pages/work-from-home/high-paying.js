@@ -1,6 +1,6 @@
 import { useState } from "react"
 import Head from "next/head"
-import Breadcrumbs from "../../components/Breadcrumbs"
+import Breadcrumb from "../../components/Breadcrumb"
 
 export default function HighPayingWFHJobs({ initialJobs }) {
   const [jobs, setJobs] = useState(initialJobs)
@@ -79,7 +79,7 @@ export default function HighPayingWFHJobs({ initialJobs }) {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* ✅ BREADCRUMBS (REUSABLE) */}
-        <Breadcrumbs
+        <Breadcrumb
           items={[
             { label: "Home", href: "/" },
             { label: "Work From Home", href: "/work-from-home" },
