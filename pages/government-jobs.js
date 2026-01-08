@@ -25,18 +25,56 @@ export default function GovtJobs({ initialJobs, totalPages }) {
     setLoading(false);
   };
 
+  /* ✅ BASIC JOB POSTING SCHEMA (SAFE) */
+  const jobSchema = jobs.slice(0, 10).map((job) => ({
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title || "Government Job Vacancy",
+    description:
+      job.description ||
+      "Latest government job vacancy. Check eligibility and apply online.",
+    hiringOrganization: {
+      "@type": "Organization",
+      name: job.source || "Government of India",
+    },
+    employmentType: "FULL_TIME",
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "IN",
+      },
+    },
+    url: job.slug
+      ? `https://freshjobs.store/job/${job.slug}`
+      : "https://freshjobs.store/government-jobs",
+  }));
+
   return (
     <>
       {/* 🔹 SEO */}
       <Head>
-        <title>Government Jobs in India | FreshJobs.Store</title>
+        <title>
+          Government Jobs in India | Sarkari Naukri – FreshJobs.Store
+        </title>
+
         <meta
           name="description"
-          content="Find latest Government Jobs in India. Apply for Sarkari Naukri, PSU, Banking and Govt vacancies."
+          content="Latest Government Jobs in India. Find Sarkari Naukri, PSU, Banking, Railway, Defence and State Government vacancies."
         />
+
+        <meta name="robots" content="index, follow" />
+
         <link
           rel="canonical"
           href="https://freshjobs.store/government-jobs"
+        />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jobSchema),
+          }}
         />
       </Head>
 
@@ -57,9 +95,15 @@ export default function GovtJobs({ initialJobs, totalPages }) {
         </nav>
 
         {/* 🔹 Heading */}
-        <h1 className="text-3xl font-bold mb-6">
-          Government Jobs
+        <h1 className="text-3xl font-bold mb-4">
+          Government Jobs in India
         </h1>
+
+        <p className="text-gray-600 mb-6 max-w-3xl">
+          Explore latest <strong>Sarkari Naukri</strong>, PSU, Banking,
+          Railway, Defence and State Government job vacancies.
+          Updated daily with official links.
+        </p>
 
         {/* 🔹 Jobs Grid */}
         <div className="grid md:grid-cols-2 gap-4">
