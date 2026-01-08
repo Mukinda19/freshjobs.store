@@ -29,19 +29,24 @@ export default function InternationalJobs({ initialJobs }) {
     setLoading(false)
   }
 
-  /* ✅ SEO SAFE JOB SCHEMA */
+  /* ✅ SEO SAFE JOB POSTING SCHEMA */
   const jobSchema = jobs.slice(0, 10).map((job) => ({
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title || "International Job Opening",
     description:
-      job.description || "International job opportunity outside India",
+      job.description ||
+      "International job opportunity outside India. Apply online.",
     hiringOrganization: {
       "@type": "Organization",
-      name: job.source || "FreshJobs.Store",
+      name: job.source || "International Employer",
     },
     employmentType: "FULL_TIME",
     jobLocationType: job.remote ? "TELECOMMUTE" : "ON_SITE",
+    applicantLocationRequirements: {
+      "@type": "Country",
+      name: "Worldwide",
+    },
     url: job.link || "https://freshjobs.store/international-jobs",
   }))
 
@@ -54,10 +59,11 @@ export default function InternationalJobs({ initialJobs }) {
 
         <meta
           name="description"
-          content="Browse latest international jobs outside India including onsite and remote roles from global companies."
+          content="Browse latest international jobs outside India including onsite and remote roles from global companies. Apply for overseas careers."
         />
 
         <meta name="robots" content="index, follow" />
+
         <link
           rel="canonical"
           href="https://freshjobs.store/international-jobs"
@@ -72,7 +78,7 @@ export default function InternationalJobs({ initialJobs }) {
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* ✅ REUSABLE BREADCRUMB (FINAL) */}
+        {/* ✅ Breadcrumb */}
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
@@ -85,8 +91,10 @@ export default function InternationalJobs({ initialJobs }) {
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore verified <strong>international job opportunities</strong>{" "}
-          including onsite and remote roles from global companies.
+          Explore verified{" "}
+          <strong>international job opportunities</strong> including
+          onsite and remote roles from global companies across multiple
+          countries.
         </p>
 
         {jobs.length === 0 && (
