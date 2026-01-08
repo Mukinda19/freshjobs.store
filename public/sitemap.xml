@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- 🔹 Core Pages -->
+  <url>
+    <loc>https://freshjobs.store/</loc>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://freshjobs.store/work-from-home</loc>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://freshjobs.store/ai</loc>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 🔹 Category Pages (India Level) -->
+  <url>
+    <loc>https://freshjobs.store/jobs/it/india</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://freshjobs.store/jobs/banking/india</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://freshjobs.store/jobs/bpo/india</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://freshjobs.store/jobs/sales/india</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://freshjobs.store/jobs/engineering/india</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://freshjobs.store/jobs/govt-jobs/india</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 🔹 Utility Pages -->
+  <url>
+    <loc>https://freshjobs.store/about</loc>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://freshjobs.store/contact</loc>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://freshjobs.store/privacy</loc>
+    <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://freshjobs.store/terms</loc>
+    <priority>0.3</priority>
+  </url>
+
+</urlset>

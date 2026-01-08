@@ -30,7 +30,8 @@ Thumbs.db
 .vscode/
 
 # ================================
-# next-sitemap generated files
+# Public folder (SEO safe)
 # ================================
-public/sitemap*.xml
-public/robots.txt
+public/*
+!/public/sitemap.xml
+!/public/robots.txt
