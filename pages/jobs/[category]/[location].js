@@ -79,7 +79,7 @@ export default function CategoryLocationPage() {
       ? `https://freshjobs.store/jobs/${category}/${location}?page=${currentPage}`
       : `https://freshjobs.store/jobs/${category}/${location}`;
 
-  /* ---------------- Breadcrumb Schema ---------------- */
+  /* ---------------- Breadcrumb Schema (FIXED) ---------------- */
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -94,7 +94,7 @@ export default function CategoryLocationPage() {
         "@type": "ListItem",
         position: 2,
         name: `${readableCategory} Jobs`,
-        item: `https://freshjobs.store/jobs/${category}/india`,
+        item: `https://freshjobs.store/jobs/${category}`,
       },
       {
         "@type": "ListItem",
@@ -120,7 +120,7 @@ export default function CategoryLocationPage() {
         />
       </Head>
 
-      {/* ---------------- Breadcrumb UI ---------------- */}
+      {/* ---------------- Breadcrumb UI (FIXED) ---------------- */}
       <nav className="text-sm text-gray-600 mb-4 overflow-x-auto whitespace-nowrap">
         <Link href="/" className="hover:underline">
           Home
@@ -128,7 +128,7 @@ export default function CategoryLocationPage() {
         <span className="mx-2">›</span>
 
         <Link
-          href={`/jobs/${category}/india`}
+          href={`/jobs/${category}`}
           className="hover:underline capitalize"
         >
           {readableCategory} Jobs
@@ -152,18 +152,24 @@ export default function CategoryLocationPage() {
       <section className="mb-8 text-gray-700 text-sm leading-relaxed">
         {isWFH ? (
           <p>
-            Find verified <strong>remote and work from home jobs in {readableLocation}</strong>.
-            FreshJobs.Store helps you discover legit WFH opportunities across multiple industries.
+            Find verified{" "}
+            <strong>remote and work from home jobs in {readableLocation}</strong>.
+            FreshJobs.Store helps you discover legit WFH opportunities across
+            multiple industries.
           </p>
         ) : (
           <>
             <p>
-              Looking for the latest <strong>{readableCategory} jobs in {readableLocation}</strong>?
-              FreshJobs.Store brings you verified government and private job openings with direct apply links.
+              Looking for the latest{" "}
+              <strong>{readableCategory} jobs in {readableLocation}</strong>?
+              FreshJobs.Store brings you verified government and private job
+              openings with direct apply links.
             </p>
             <p className="mt-3">
-              These <strong>{readableCategory} vacancies in {readableLocation}</strong> are updated regularly
-              and suitable for freshers as well as experienced candidates.
+              These{" "}
+              <strong>{readableCategory} vacancies in {readableLocation}</strong>{" "}
+              are updated regularly and suitable for freshers as well as
+              experienced candidates.
             </p>
           </>
         )}
