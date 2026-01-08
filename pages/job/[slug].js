@@ -40,12 +40,10 @@ export default function JobDetailPage() {
       .catch(() => setLoading(false));
   }, [slug]);
 
-  /* ---------------- Loading ---------------- */
   if (loading) {
     return <p className="p-4">Loading job details...</p>;
   }
 
-  /* ---------------- Not Found ---------------- */
   if (!job) {
     return (
       <div className="max-w-3xl mx-auto p-6">
@@ -71,7 +69,6 @@ export default function JobDetailPage() {
   const company = job.company || "Company";
   const location = job.location || "India";
   const salary = job.salary || "";
-
   const description =
     job.snippet ||
     "Check eligibility, job details, and apply using the official link.";
@@ -80,7 +77,7 @@ export default function JobDetailPage() {
     job.slug ||
     normalizeSlug(`${job.title || ""} ${job.company || ""}`);
 
-  const applyLink = job.url || job.link || job.applyLink || "";
+  const canonicalUrl = `https://freshjobs.store/job/${canonicalSlug}`;
 
   const categorySlug = normalizeSlug(job.category || "jobs");
   const readableCategory = useMemo(
@@ -89,8 +86,7 @@ export default function JobDetailPage() {
   );
 
   const locationSlug = normalizeSlug(location) || "india";
-
-  const canonicalUrl = `https://freshjobs.store/job/${canonicalSlug}`;
+  const applyLink = job.url || job.link || job.applyLink || "";
 
   /* ---------------- Breadcrumb Schema ---------------- */
   const breadcrumbSchema = {
@@ -118,6 +114,37 @@ export default function JobDetailPage() {
     ],
   };
 
+  /* ---------------- JobPosting Schema (NEW) ---------------- */
+  const jobPostingSchema = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: title,
+    description: description,
+    hiringOrganization: {
+      "@type": "Organization",
+      name: company,
+      sameAs: "https://freshjobs.store",
+    },
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: location,
+        addressCountry: "IN",
+      },
+    },
+    employmentType: "FULL_TIME",
+    datePosted: new Date().toISOString(),
+    validThrough: new Date(
+      Date.now() + 30 * 24 * 60 * 60 * 1000
+    ).toISOString(),
+    applicantLocationRequirements: {
+      "@type": "Country",
+      name: "India",
+    },
+    applyUrl: applyLink || canonicalUrl,
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-4">
       {/* ---------------- SEO ---------------- */}
@@ -139,40 +166,32 @@ export default function JobDetailPage() {
             __html: JSON.stringify(breadcrumbSchema),
           }}
         />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jobPostingSchema),
+          }}
+        />
       </Head>
 
       {/* ---------------- Breadcrumb UI ---------------- */}
-      <nav
-        aria-label="Breadcrumb"
-        className="text-sm mb-4 text-gray-600 overflow-x-auto whitespace-nowrap"
-      >
-        <ol className="flex gap-2">
-          <li>
-            <a href="/" className="hover:underline text-blue-600">
-              Home
-            </a>
-            <span> / </span>
-          </li>
-
-          <li>
-            <a
-              href={`/jobs/${categorySlug}/india`}
-              className="hover:underline text-blue-600 capitalize"
-            >
-              {readableCategory} Jobs
-            </a>
-            <span> / </span>
-          </li>
-
-          <li className="text-gray-800 font-medium truncate max-w-[220px]">
-            {title}
-          </li>
-        </ol>
+      <nav className="text-sm mb-4 text-gray-600 overflow-x-auto whitespace-nowrap">
+        <a href="/" className="hover:underline text-blue-600">
+          Home
+        </a>{" "}
+        /{" "}
+        <a
+          href={`/jobs/${categorySlug}/india`}
+          className="hover:underline text-blue-600 capitalize"
+        >
+          {readableCategory} Jobs
+        </a>{" "}
+        / <span className="text-gray-800 font-medium">{title}</span>
       </nav>
 
       {/* ---------------- Content ---------------- */}
       <h1 className="text-3xl font-bold mb-2">{title}</h1>
-
       <p className="text-gray-700 mb-3">
         {company} • {location}
       </p>
