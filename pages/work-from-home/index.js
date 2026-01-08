@@ -1,6 +1,14 @@
 import { useState } from "react"
 import Head from "next/head"
+import Link from "next/link"
 import Breadcrumb from "../../components/Breadcrumb"
+
+/* 🔹 SLUG NORMALIZER */
+const normalizeSlug = (text = "") =>
+  String(text)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
 
 export default function WorkFromHomeJobs({ initialJobs }) {
   const [jobs, setJobs] = useState(initialJobs)
@@ -29,25 +37,32 @@ export default function WorkFromHomeJobs({ initialJobs }) {
     setLoading(false)
   }
 
-  /* 🔹 BASIC JOB SCHEMA (SAFE SEO) */
-  const jobSchema = jobs.slice(0, 10).map((job) => ({
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: job.title || "Work From Home Job",
-    description:
-      job.description || "Remote and work from home job opportunity",
-    hiringOrganization: {
-      "@type": "Organization",
-      name: job.source || "FreshJobs.Store",
-    },
-    employmentType: "FULL_TIME",
-    jobLocationType: "TELECOMMUTE",
-    applicantLocationRequirements: {
-      "@type": "Country",
-      name: "Worldwide",
-    },
-    url: job.link || "https://freshjobs.store/work-from-home",
-  }))
+  /* ✅ JOB POSTING SCHEMA (TOP 10 ONLY) */
+  const jobSchema = jobs.slice(0, 10).map((job) => {
+    const slug =
+      job.slug ||
+      normalizeSlug(`${job.title || ""} ${job.company || ""}`)
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      title: job.title || "Work From Home Job",
+      description:
+        job.description ||
+        "Remote and work from home job opportunity. Apply using official link.",
+      hiringOrganization: {
+        "@type": "Organization",
+        name: job.source || "FreshJobs.Store",
+      },
+      employmentType: "FULL_TIME",
+      jobLocationType: "TELECOMMUTE",
+      applicantLocationRequirements: {
+        "@type": "Country",
+        name: "Worldwide",
+      },
+      url: `https://freshjobs.store/job/${slug}`,
+    }
+  })
 
   return (
     <>
@@ -77,7 +92,7 @@ export default function WorkFromHomeJobs({ initialJobs }) {
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* ✅ BREADCRUMBS (REUSABLE) */}
+        {/* ✅ BREADCRUMB */}
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
@@ -102,37 +117,48 @@ export default function WorkFromHomeJobs({ initialJobs }) {
         )}
 
         <div className="grid md:grid-cols-2 gap-4">
-          {jobs.map((job, index) => (
-            <article
-              key={job.link || index}
-              className="border rounded-lg p-4 bg-white hover:shadow-md transition"
-            >
-              <h2 className="font-semibold mb-1 text-blue-700">
-                {job.title || "Work From Home Job"}
-              </h2>
+          {jobs.map((job, index) => {
+            const slug =
+              job.slug ||
+              normalizeSlug(`${job.title || ""} ${job.company || ""}`)
 
-              <p className="text-sm text-gray-500 mb-2">
-                Source: {job.source || "Verified Portal"}
-              </p>
+            return (
+              <article
+                key={job.link || slug || index}
+                className="border rounded-lg p-4 bg-white hover:shadow-md transition"
+              >
+                <h2 className="font-semibold mb-1">
+                  <Link
+                    href={`/job/${slug}`}
+                    className="text-blue-700 hover:underline"
+                  >
+                    {job.title || "Work From Home Job"}
+                  </Link>
+                </h2>
 
-              {job.description && (
-                <p className="text-sm text-gray-700 mb-3">
-                  {job.description.slice(0, 150)}...
+                <p className="text-sm text-gray-500 mb-2">
+                  Source: {job.source || "Verified Portal"}
                 </p>
-              )}
 
-              {job.link && (
-                <a
-                  href={job.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-2 bg-green-600 text-white px-4 py-1.5 rounded hover:bg-green-700 text-sm"
-                >
-                  Apply Now →
-                </a>
-              )}
-            </article>
-          ))}
+                {job.description && (
+                  <p className="text-sm text-gray-700 mb-3">
+                    {job.description.slice(0, 150)}...
+                  </p>
+                )}
+
+                {job.link && (
+                  <a
+                    href={job.link}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                    className="inline-block mt-2 bg-green-600 text-white px-4 py-1.5 rounded hover:bg-green-700 text-sm"
+                  >
+                    Apply on Official Site →
+                  </a>
+                )}
+              </article>
+            )
+          })}
         </div>
 
         {hasMore && (
@@ -151,7 +177,7 @@ export default function WorkFromHomeJobs({ initialJobs }) {
   )
 }
 
-/* ✅ SSR – FIRST 10 JOBS */
+/* ✅ SSR */
 export async function getServerSideProps() {
   try {
     const baseUrl =
