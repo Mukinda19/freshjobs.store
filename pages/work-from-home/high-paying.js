@@ -29,14 +29,14 @@ export default function HighPayingWFHJobs({ initialJobs }) {
     setLoading(false)
   }
 
-  /* ✅ BASIC JOB SCHEMA (SAFE SEO) */
+  /* ✅ SAFE JOB POSTING SCHEMA */
   const jobSchema = jobs.slice(0, 10).map((job) => ({
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title || "High Paying Work From Home Job",
     description:
       job.description ||
-      "High salary remote and work from home job opportunity.",
+      "High paying remote and work from home job opportunity.",
     hiringOrganization: {
       "@type": "Organization",
       name: job.source || "FreshJobs.Store",
@@ -78,7 +78,7 @@ export default function HighPayingWFHJobs({ initialJobs }) {
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* ✅ BREADCRUMBS (REUSABLE) */}
+        {/* ✅ BREADCRUMBS */}
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
@@ -92,7 +92,10 @@ export default function HighPayingWFHJobs({ initialJobs }) {
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore <strong>high salary remote & work from home jobs</strong>{" "}
+          Explore{" "}
+          <strong>
+            high salary remote & work from home jobs
+          </strong>{" "}
           offering better pay, international exposure and flexible work options.
         </p>
 
@@ -126,7 +129,7 @@ export default function HighPayingWFHJobs({ initialJobs }) {
                 <a
                   href={job.link}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener noreferrer nofollow"
                   className="inline-block mt-2 bg-green-600 text-white px-4 py-1.5 rounded text-sm hover:bg-green-700"
                 >
                   Apply Now →
