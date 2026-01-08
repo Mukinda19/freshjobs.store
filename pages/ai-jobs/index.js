@@ -30,12 +30,43 @@ export default function AIJobs({ initialJobs }) {
     setLoading(false)
   }
 
-  /* ✅ JOB POSTING SCHEMA */
-  const jobSchema = jobs.slice(0, 10).map((job) => ({
+  /* ---------------- SEO SCHEMAS ---------------- */
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://freshjobs.store/",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "AI Jobs",
+        item: "https://freshjobs.store/ai-jobs",
+      },
+    ],
+  }
+
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "AI Jobs & Artificial Intelligence Jobs",
+    description:
+      "Latest AI jobs, machine learning jobs, and artificial intelligence job openings.",
+    url: "https://freshjobs.store/ai-jobs",
+  }
+
+  const jobSchema = jobs.slice(0, 5).map((job) => ({
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title || "AI Job Opening",
-    description: job.description || "AI related job opportunity",
+    description:
+      job.description ||
+      "AI and Machine Learning related job opportunity.",
     hiringOrganization: {
       "@type": "Organization",
       name: job.source || "FreshJobs.Store",
@@ -55,12 +86,28 @@ export default function AIJobs({ initialJobs }) {
     <>
       <Head>
         <title>AI Jobs & Artificial Intelligence Jobs | FreshJobs.Store</title>
+
         <meta
           name="description"
-          content="Latest AI jobs, machine learning jobs, data science and artificial intelligence job openings."
+          content="Find latest AI jobs, Machine Learning roles, Data Science and Artificial Intelligence job openings. Apply from verified sources."
         />
+
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://freshjobs.store/ai-jobs" />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbSchema),
+          }}
+        />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(collectionSchema),
+          }}
+        />
 
         <script
           type="application/ld+json"
@@ -71,11 +118,10 @@ export default function AIJobs({ initialJobs }) {
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* ✅ REUSABLE BREADCRUMB COMPONENT */}
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
-            { label: "AI Jobs" }
+            { label: "AI Jobs" },
           ]}
         />
 
@@ -132,7 +178,7 @@ export default function AIJobs({ initialJobs }) {
                 <a
                   href={job.link}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener noreferrer nofollow"
                   className="inline-block mt-2 bg-green-600 text-white px-4 py-1.5 rounded hover:bg-green-700 text-sm"
                 >
                   Apply Now →
@@ -158,7 +204,7 @@ export default function AIJobs({ initialJobs }) {
   )
 }
 
-/* ✅ SSR */
+/* ---------------- SSR ---------------- */
 export async function getServerSideProps() {
   try {
     const baseUrl =
