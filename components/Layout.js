@@ -1,19 +1,29 @@
+import Head from "next/head"
 import Header from "./Header"
 import Footer from "./Footer"
 
 export default function Layout({ children }) {
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Header */}
-      <Header />
+    <>
+      <Head>
+        <link
+          rel="canonical"
+          href="https://www.freshjobs.store/"
+        />
+      </Head>
 
-      {/* Page Content */}
-      <main className="flex-grow container mx-auto px-6 py-8">
-        {children}
-      </main>
+      <div className="flex flex-col min-h-screen">
+        {/* Header */}
+        <Header />
 
-      {/* Footer */}
-      <Footer />
-    </div>
+        {/* Page Content */}
+        <main className="flex-grow container mx-auto px-6 py-8">
+          {children}
+        </main>
+
+        {/* Footer */}
+        <Footer />
+      </div>
+    </>
   )
 }
