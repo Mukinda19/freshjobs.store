@@ -76,10 +76,10 @@ export default function CategoryLocationPage() {
 
   const canonicalUrl =
     currentPage > 1
-      ? `https://freshjobs.store/jobs/${category}/${location}?page=${currentPage}`
-      : `https://freshjobs.store/jobs/${category}/${location}`;
+      ? `https://www.freshjobs.store/jobs/${category}/${location}?page=${currentPage}`
+      : `https://www.freshjobs.store/jobs/${category}/${location}`;
 
-  /* ---------------- Breadcrumb Schema (FIXED) ---------------- */
+  /* ---------------- Breadcrumb Schema ---------------- */
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -88,13 +88,13 @@ export default function CategoryLocationPage() {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://freshjobs.store/",
+        item: "https://www.freshjobs.store/",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: `${readableCategory} Jobs`,
-        item: `https://freshjobs.store/jobs/${category}`,
+        item: `https://www.freshjobs.store/jobs/${category}`,
       },
       {
         "@type": "ListItem",
@@ -120,7 +120,7 @@ export default function CategoryLocationPage() {
         />
       </Head>
 
-      {/* ---------------- Breadcrumb UI (FIXED) ---------------- */}
+      {/* ---------------- Breadcrumb UI ---------------- */}
       <nav className="text-sm text-gray-600 mb-4 overflow-x-auto whitespace-nowrap">
         <Link href="/" className="hover:underline">
           Home
@@ -168,8 +168,7 @@ export default function CategoryLocationPage() {
             <p className="mt-3">
               These{" "}
               <strong>{readableCategory} vacancies in {readableLocation}</strong>{" "}
-              are updated regularly and suitable for freshers as well as
-              experienced candidates.
+              are updated regularly for freshers and experienced candidates.
             </p>
           </>
         )}
@@ -210,6 +209,57 @@ export default function CategoryLocationPage() {
           )}
         </div>
       )}
+
+      {/* ================= STEP 7 – INTERNAL LINKING ================= */}
+      <section className="mt-12 border-t pt-6">
+        <h2 className="text-xl font-semibold mb-4">
+          Explore More Job Opportunities
+        </h2>
+
+        <ul className="list-disc list-inside space-y-2 text-blue-600">
+          <li>
+            <Link href="/" className="hover:underline">
+              Latest Jobs in India
+            </Link>
+          </li>
+
+          <li>
+            <Link href={`/jobs/${category}`} className="hover:underline capitalize">
+              {readableCategory} Jobs in India
+            </Link>
+          </li>
+
+          <li>
+            <Link href="/work-from-home/" className="hover:underline">
+              Work From Home Jobs
+            </Link>
+          </li>
+
+          <li>
+            <Link href="/international-jobs/" className="hover:underline">
+              International Jobs
+            </Link>
+          </li>
+
+          <li>
+            <Link href="/govt-jobs/" className="hover:underline">
+              Government Jobs
+            </Link>
+          </li>
+
+          <li>
+            <Link href="/ai-jobs/" className="hover:underline">
+              AI Jobs
+            </Link>
+          </li>
+
+          <li>
+            <Link href="/high-paying-jobs/" className="hover:underline">
+              High Paying Jobs
+            </Link>
+          </li>
+        </ul>
+      </section>
     </div>
   );
 }
