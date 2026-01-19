@@ -17,7 +17,7 @@ export default function Home({ initialJobs }) {
 
   const [filteredJobs, setFilteredJobs] = useState(initialJobs || []);
 
-  // 🔹 Search submit (redirect SEO pages)
+  // 🔹 Search submit
   const handleSearch = (e) => {
     e.preventDefault();
 
@@ -102,8 +102,7 @@ export default function Home({ initialJobs }) {
         </h1>
         <p className="text-gray-700 max-w-3xl">
           FreshJobs.Store helps you find verified IT jobs, government vacancies,
-          work from home jobs, AI roles, and international opportunities. Apply
-          directly on official employer websites.
+          work from home jobs, AI roles, and international opportunities.
         </p>
       </section>
 
@@ -127,11 +126,11 @@ export default function Home({ initialJobs }) {
             className="border px-3 py-2 rounded w-full"
           >
             <option value="">All Categories</option>
-            <option value="it">IT Jobs</option>
-            <option value="banking">Banking Jobs</option>
-            <option value="bpo">BPO Jobs</option>
-            <option value="sales">Sales Jobs</option>
-            <option value="engineering">Engineering Jobs</option>
+            <option value="it-jobs">IT Jobs</option>
+            <option value="banking-jobs">Banking Jobs</option>
+            <option value="bpo-jobs">BPO Jobs</option>
+            <option value="sales-jobs">Sales Jobs</option>
+            <option value="engineering-jobs">Engineering Jobs</option>
             <option value="govt-jobs">Government Jobs</option>
             <option value="work-from-home">Work From Home</option>
             <option value="international">International Jobs</option>
@@ -197,38 +196,21 @@ export default function Home({ initialJobs }) {
         )}
       </section>
 
-      {/* ✅ STEP 6 – HOMEPAGE INTERNAL LINKS (SEO BOOST) */}
+      {/* ✅ STEP 6 – HOMEPAGE INTERNAL LINKS (FINAL) */}
       <section className="mt-16">
         <h2 className="text-2xl font-bold mb-4">
-          Popular Job Pages
+          Popular Job Pages in India
         </h2>
 
         <ul className="grid md:grid-cols-2 gap-3 text-blue-700">
-          <li>
-            <a href="/resume-builder/" className="hover:underline">
-              Free Resume Builder
-            </a>
-          </li>
-          <li>
-            <a href="/work-from-home/" className="hover:underline">
-              Work From Home Jobs
-            </a>
-          </li>
-          <li>
-            <a href="/work-from-home/high-paying/" className="hover:underline">
-              High Paying Jobs
-            </a>
-          </li>
-          <li>
-            <a href="/international-jobs/" className="hover:underline">
-              International Jobs
-            </a>
-          </li>
-          <li>
-            <a href="/government-jobs/" className="hover:underline">
-              Government Jobs in India
-            </a>
-          </li>
+          <li><a href="/jobs/it-jobs" className="hover:underline">IT Jobs in India</a></li>
+          <li><a href="/jobs/banking-jobs" className="hover:underline">Banking Jobs in India</a></li>
+          <li><a href="/jobs/bpo-jobs" className="hover:underline">BPO Jobs in India</a></li>
+          <li><a href="/jobs/sales-jobs" className="hover:underline">Sales Jobs in India</a></li>
+          <li><a href="/jobs/engineering-jobs" className="hover:underline">Engineering Jobs in India</a></li>
+          <li><a href="/work-from-home/" className="hover:underline">Work From Home Jobs</a></li>
+          <li><a href="/international-jobs/" className="hover:underline">International Jobs</a></li>
+          <li><a href="/resume-builder/" className="hover:underline">Free Resume Builder</a></li>
         </ul>
       </section>
     </>
