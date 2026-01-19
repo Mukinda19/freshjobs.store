@@ -210,13 +210,13 @@ export default function CategoryLocationPage() {
         </div>
       )}
 
-      {/* ================= STEP 7 – INTERNAL LINKING ================= */}
+      {/* ================= STEP 7 – INTERNAL LINKING (FINAL) ================= */}
       <section className="mt-12 border-t pt-6">
         <h2 className="text-xl font-semibold mb-4">
           Explore More Job Opportunities
         </h2>
 
-        <ul className="list-disc list-inside space-y-2 text-blue-600">
+        <ul className="grid md:grid-cols-2 gap-3 text-blue-600 text-sm">
           <li>
             <Link href="/" className="hover:underline">
               Latest Jobs in India
@@ -230,31 +230,31 @@ export default function CategoryLocationPage() {
           </li>
 
           <li>
-            <Link href="/work-from-home/" className="hover:underline">
+            <Link href="/work-from-home" className="hover:underline">
               Work From Home Jobs
             </Link>
           </li>
 
           <li>
-            <Link href="/international-jobs/" className="hover:underline">
-              International Jobs
-            </Link>
-          </li>
-
-          <li>
-            <Link href="/govt-jobs/" className="hover:underline">
+            <Link href="/jobs/govt-jobs" className="hover:underline">
               Government Jobs
             </Link>
           </li>
 
           <li>
-            <Link href="/ai-jobs/" className="hover:underline">
+            <Link href="/jobs/ai" className="hover:underline">
               AI Jobs
             </Link>
           </li>
 
           <li>
-            <Link href="/high-paying-jobs/" className="hover:underline">
+            <Link href="/international-jobs" className="hover:underline">
+              International Jobs
+            </Link>
+          </li>
+
+          <li>
+            <Link href="/work-from-home/high-paying" className="hover:underline">
               High Paying Jobs
             </Link>
           </li>

@@ -174,6 +174,24 @@ export default function CategoryPage() {
           )}
         </div>
       )}
+
+      {/* ✅ STEP 7 – CATEGORY INTERNAL LINKS */}
+      <section className="mt-16 border-t pt-8">
+        <h2 className="text-xl font-semibold mb-4">
+          Explore More Job Categories
+        </h2>
+
+        <ul className="grid md:grid-cols-2 gap-3 text-blue-700 text-sm">
+          <li><Link href="/jobs/it-jobs" className="hover:underline">IT Jobs in India</Link></li>
+          <li><Link href="/jobs/banking-jobs" className="hover:underline">Banking Jobs in India</Link></li>
+          <li><Link href="/jobs/bpo-jobs" className="hover:underline">BPO Jobs in India</Link></li>
+          <li><Link href="/jobs/sales-jobs" className="hover:underline">Sales Jobs in India</Link></li>
+          <li><Link href="/jobs/engineering-jobs" className="hover:underline">Engineering Jobs in India</Link></li>
+          <li><Link href="/work-from-home" className="hover:underline">Work From Home Jobs</Link></li>
+          <li><Link href="/government-jobs" className="hover:underline">Government Jobs</Link></li>
+          <li><Link href="/international-jobs" className="hover:underline">International Jobs</Link></li>
+        </ul>
+      </section>
     </div>
   );
 }
