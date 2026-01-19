@@ -44,7 +44,7 @@ export default function Home({ initialJobs }) {
         const data = await res.json();
         setFilteredJobs(data.jobs || []);
         setPage(1);
-      } catch (error) {
+      } catch {
         setFilteredJobs([]);
       }
     };
@@ -84,7 +84,7 @@ export default function Home({ initialJobs }) {
           name="description"
           content="Search latest IT, Government, Work From Home, AI and International jobs in India. Apply on official company websites."
         />
-        <link rel="canonical" href="https://freshjobs.store/" />
+        <link rel="canonical" href="https://www.freshjobs.store/" />
       </Head>
 
       {/* 🔹 Breadcrumb */}
@@ -162,13 +162,17 @@ export default function Home({ initialJobs }) {
 
       {/* 🔹 Categories */}
       <section className="my-12">
-        <h2 className="text-2xl font-semibold mb-6">Popular Job Categories</h2>
+        <h2 className="text-2xl font-semibold mb-6">
+          Popular Job Categories
+        </h2>
         <CategoryGrid />
       </section>
 
       {/* 🔹 Featured Jobs */}
       <section className="my-12">
-        <h2 className="text-2xl font-semibold mb-6">Latest Job Openings</h2>
+        <h2 className="text-2xl font-semibold mb-6">
+          Latest Job Openings
+        </h2>
 
         <div className="grid md:grid-cols-2 gap-4">
           {filteredJobs.length > 0 ? (
@@ -191,6 +195,41 @@ export default function Home({ initialJobs }) {
             </button>
           </div>
         )}
+      </section>
+
+      {/* ✅ STEP 6 – HOMEPAGE INTERNAL LINKS (SEO BOOST) */}
+      <section className="mt-16">
+        <h2 className="text-2xl font-bold mb-4">
+          Popular Job Pages
+        </h2>
+
+        <ul className="grid md:grid-cols-2 gap-3 text-blue-700">
+          <li>
+            <a href="/resume-builder/" className="hover:underline">
+              Free Resume Builder
+            </a>
+          </li>
+          <li>
+            <a href="/work-from-home/" className="hover:underline">
+              Work From Home Jobs
+            </a>
+          </li>
+          <li>
+            <a href="/work-from-home/high-paying/" className="hover:underline">
+              High Paying Jobs
+            </a>
+          </li>
+          <li>
+            <a href="/international-jobs/" className="hover:underline">
+              International Jobs
+            </a>
+          </li>
+          <li>
+            <a href="/government-jobs/" className="hover:underline">
+              Government Jobs in India
+            </a>
+          </li>
+        </ul>
       </section>
     </>
   );
