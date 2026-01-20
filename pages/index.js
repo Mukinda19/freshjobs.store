@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import CategoryGrid from "../components/CategoryGrid";
 import JobCard from "../components/JobCard";
 
@@ -10,17 +11,14 @@ export default function Home({ initialJobs }) {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Search states
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
 
   const [filteredJobs, setFilteredJobs] = useState(initialJobs || []);
 
-  // 🔹 Search submit
   const handleSearch = (e) => {
     e.preventDefault();
-
     const finalCategory = category || "all";
     const finalLocation = location || "india";
 
@@ -29,7 +27,6 @@ export default function Home({ initialJobs }) {
     );
   };
 
-  // 🔹 Fetch jobs on filter change
   useEffect(() => {
     const fetchFilteredJobs = async () => {
       try {
@@ -40,7 +37,6 @@ export default function Home({ initialJobs }) {
         const res = await fetch(
           `/api/search?category=${finalCategory}&location=${finalLocation}${qParam}&page=1&limit=10`
         );
-
         const data = await res.json();
         setFilteredJobs(data.jobs || []);
         setPage(1);
@@ -52,10 +48,8 @@ export default function Home({ initialJobs }) {
     fetchFilteredJobs();
   }, [category, location, keyword]);
 
-  // 🔹 Load more
   const loadMore = async () => {
     if (loading) return;
-
     setLoading(true);
     const nextPage = page + 1;
 
@@ -67,7 +61,6 @@ export default function Home({ initialJobs }) {
       const res = await fetch(
         `/api/search?category=${finalCategory}&location=${finalLocation}${qParam}&page=${nextPage}&limit=10`
       );
-
       const data = await res.json();
       setFilteredJobs((prev) => [...prev, ...(data.jobs || [])]);
       setPage(nextPage);
@@ -82,17 +75,22 @@ export default function Home({ initialJobs }) {
         <title>Latest Jobs in India | FreshJobs.Store</title>
         <meta
           name="description"
-          content="Search latest IT, Government, Work From Home, AI and International jobs in India. Apply on official company websites."
+          content="Find latest IT jobs, BPO jobs, sales jobs, engineering jobs, government and work from home jobs in India. Apply on official company websites."
         />
         <link rel="canonical" href="https://www.freshjobs.store/" />
       </Head>
 
-      {/* 🔹 Breadcrumb */}
-      <nav className="text-sm text-gray-600 mb-4">
-        <a href="/" className="text-blue-600 hover:underline">
-          Home
-        </a>
-        <span> / Jobs in India</span>
+      {/* 🔹 SEO BREADCRUMB */}
+      <nav aria-label="Breadcrumb" className="text-sm text-gray-600 mb-4">
+        <ol className="flex gap-2">
+          <li>
+            <Link href="/" className="text-blue-600 hover:underline">
+              Home
+            </Link>
+          </li>
+          <li>/</li>
+          <li className="text-gray-800 font-medium">Jobs in India</li>
+        </ol>
       </nav>
 
       {/* 🔹 SEO INTRO */}
@@ -101,12 +99,13 @@ export default function Home({ initialJobs }) {
           Search Latest Jobs in India
         </h1>
         <p className="text-gray-700 max-w-3xl">
-          FreshJobs.Store helps you find verified IT jobs, government vacancies,
-          work from home jobs, AI roles, and international opportunities.
+          FreshJobs.Store is a trusted job search platform where you can explore
+          IT jobs, BPO jobs, sales jobs, engineering roles, government vacancies,
+          work from home and international job opportunities across India.
         </p>
       </section>
 
-      {/* 🔹 HERO SEARCH */}
+      {/* 🔹 SEARCH */}
       <section className="my-8">
         <form
           onSubmit={handleSearch}
@@ -150,28 +149,21 @@ export default function Home({ initialJobs }) {
             <option value="hyderabad">Hyderabad</option>
           </select>
 
-          <button
-            type="submit"
-            className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700"
-          >
+          <button className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700">
             Search Jobs
           </button>
         </form>
       </section>
 
-      {/* 🔹 Categories */}
+      {/* 🔹 CATEGORIES */}
       <section className="my-12">
-        <h2 className="text-2xl font-semibold mb-6">
-          Popular Job Categories
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6">Popular Job Categories</h2>
         <CategoryGrid />
       </section>
 
-      {/* 🔹 Featured Jobs */}
+      {/* 🔹 JOB LIST */}
       <section className="my-12">
-        <h2 className="text-2xl font-semibold mb-6">
-          Latest Job Openings
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6">Latest Job Openings</h2>
 
         <div className="grid md:grid-cols-2 gap-4">
           {filteredJobs.length > 0 ? (
@@ -196,21 +188,26 @@ export default function Home({ initialJobs }) {
         )}
       </section>
 
-      {/* ✅ STEP 6 – HOMEPAGE INTERNAL LINKS (FINAL) */}
+      {/* ✅ STEP 6 + STEP 9 – FINAL INTERNAL LINKS */}
       <section className="mt-16">
         <h2 className="text-2xl font-bold mb-4">
-          Popular Job Pages in India
+          Browse Jobs by Popular Categories in India
         </h2>
 
+        <p className="text-gray-600 mb-4 max-w-3xl">
+          These job categories receive the highest search demand in India.
+          Explore verified job openings updated daily to apply directly on
+          official company portals.
+        </p>
+
         <ul className="grid md:grid-cols-2 gap-3 text-blue-700">
-          <li><a href="/jobs/it-jobs" className="hover:underline">IT Jobs in India</a></li>
-          <li><a href="/jobs/banking-jobs" className="hover:underline">Banking Jobs in India</a></li>
-          <li><a href="/jobs/bpo-jobs" className="hover:underline">BPO Jobs in India</a></li>
-          <li><a href="/jobs/sales-jobs" className="hover:underline">Sales Jobs in India</a></li>
-          <li><a href="/jobs/engineering-jobs" className="hover:underline">Engineering Jobs in India</a></li>
-          <li><a href="/work-from-home/" className="hover:underline">Work From Home Jobs</a></li>
-          <li><a href="/international-jobs/" className="hover:underline">International Jobs</a></li>
-          <li><a href="/resume-builder/" className="hover:underline">Free Resume Builder</a></li>
+          <li><Link href="/jobs/it-jobs/india">IT Jobs in India</Link></li>
+          <li><Link href="/jobs/banking-jobs/india">Banking Jobs in India</Link></li>
+          <li><Link href="/jobs/bpo-jobs/india">BPO Jobs in India</Link></li>
+          <li><Link href="/jobs/sales-jobs/india">Sales Jobs in India</Link></li>
+          <li><Link href="/jobs/engineering-jobs/india">Engineering Jobs in India</Link></li>
+          <li><Link href="/jobs/work-from-home/india">Work From Home Jobs</Link></li>
+          <li><Link href="/jobs/international/india">International Jobs</Link></li>
         </ul>
       </section>
     </>
