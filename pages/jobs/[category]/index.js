@@ -53,12 +53,10 @@ export default function CategoryPage() {
     `${readableCategory} Jobs in India` +
     (currentPage > 1 ? ` | Page ${currentPage}` : "");
 
-  const pageDescription = `Explore latest ${readableCategory} jobs in India. Apply online for verified government and private job openings with official links.`;
+  const pageDescription = `Find latest ${readableCategory} jobs in India. Apply online for verified private and government job openings with official application links.`;
 
-  const canonicalUrl =
-    currentPage > 1
-      ? `https://freshjobs.store/jobs/${category}?page=${currentPage}`
-      : `https://freshjobs.store/jobs/${category}`;
+  // 🔥 IMPORTANT: pagination canonical fix
+  const canonicalUrl = `https://www.freshjobs.store/jobs/${category}`;
 
   /* ---------------- Breadcrumb Schema ---------------- */
   const breadcrumbSchema = {
@@ -69,13 +67,13 @@ export default function CategoryPage() {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://freshjobs.store/",
+        item: "https://www.freshjobs.store/",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Jobs",
-        item: "https://freshjobs.store/jobs",
+        item: "https://www.freshjobs.store/jobs",
       },
       {
         "@type": "ListItem",
@@ -107,7 +105,7 @@ export default function CategoryPage() {
       </Head>
 
       {/* ---------------- Breadcrumb UI ---------------- */}
-      <nav className="text-sm text-gray-600 mb-4">
+      <nav className="text-sm text-gray-600 mb-4" aria-label="Breadcrumb">
         <Link href="/" className="hover:underline">
           Home
         </Link>
@@ -126,16 +124,24 @@ export default function CategoryPage() {
         {readableCategory} Jobs in India
       </h1>
 
-      {/* ---------------- SEO TEXT ---------------- */}
-      <section className="mb-8 text-gray-700 text-sm leading-relaxed">
+      {/* ---------------- SEO CONTENT (STRONG) ---------------- */}
+      <section className="mb-10 text-gray-700 text-sm leading-relaxed">
         <p>
-          FreshJobs.Store brings you the latest{" "}
-          <strong>{readableCategory} jobs in India</strong>. All vacancies are
-          sourced from verified company and government portals.
+          Looking for the latest <strong>{readableCategory} jobs in India</strong>?
+          FreshJobs.Store helps job seekers find verified openings from trusted
+          private companies and government sources.
         </p>
-        <p className="mt-2">
-          These {readableCategory} job openings are suitable for freshers and
-          experienced professionals across India.
+
+        <p className="mt-3">
+          This category includes opportunities suitable for freshers as well as
+          experienced professionals. All job listings are regularly updated and
+          include official application links to ensure safety and authenticity.
+        </p>
+
+        <p className="mt-3">
+          Whether you are searching for full-time, part-time, or entry-level
+          roles, these {readableCategory} job vacancies are available across
+          multiple locations in India.
         </p>
       </section>
 
@@ -175,21 +181,21 @@ export default function CategoryPage() {
         </div>
       )}
 
-      {/* ✅ STEP 7 – CATEGORY INTERNAL LINKS */}
+      {/* ---------------- INTERNAL LINKS ---------------- */}
       <section className="mt-16 border-t pt-8">
         <h2 className="text-xl font-semibold mb-4">
           Explore More Job Categories
         </h2>
 
         <ul className="grid md:grid-cols-2 gap-3 text-blue-700 text-sm">
-          <li><Link href="/jobs/it-jobs" className="hover:underline">IT Jobs in India</Link></li>
-          <li><Link href="/jobs/banking-jobs" className="hover:underline">Banking Jobs in India</Link></li>
-          <li><Link href="/jobs/bpo-jobs" className="hover:underline">BPO Jobs in India</Link></li>
-          <li><Link href="/jobs/sales-jobs" className="hover:underline">Sales Jobs in India</Link></li>
-          <li><Link href="/jobs/engineering-jobs" className="hover:underline">Engineering Jobs in India</Link></li>
-          <li><Link href="/work-from-home" className="hover:underline">Work From Home Jobs</Link></li>
-          <li><Link href="/government-jobs" className="hover:underline">Government Jobs</Link></li>
-          <li><Link href="/international-jobs" className="hover:underline">International Jobs</Link></li>
+          <li><Link href="/jobs/it-jobs">IT Jobs in India</Link></li>
+          <li><Link href="/jobs/banking-jobs">Banking Jobs in India</Link></li>
+          <li><Link href="/jobs/bpo-jobs">BPO Jobs in India</Link></li>
+          <li><Link href="/jobs/sales-jobs">Sales Jobs in India</Link></li>
+          <li><Link href="/jobs/engineering-jobs">Engineering Jobs in India</Link></li>
+          <li><Link href="/work-from-home">Work From Home Jobs</Link></li>
+          <li><Link href="/government-jobs">Government Jobs</Link></li>
+          <li><Link href="/international-jobs">International Jobs</Link></li>
         </ul>
       </section>
     </div>
