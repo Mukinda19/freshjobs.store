@@ -37,33 +37,6 @@ export default function WorkFromHomeJobs({ initialJobs }) {
     setLoading(false)
   }
 
-  /* ✅ JOB POSTING SCHEMA (TOP 10 ONLY) */
-  const jobSchema = jobs.slice(0, 10).map((job) => {
-    const slug =
-      job.slug ||
-      normalizeSlug(`${job.title || ""} ${job.company || ""}`)
-
-    return {
-      "@context": "https://schema.org",
-      "@type": "JobPosting",
-      title: job.title || "Work From Home Job",
-      description:
-        job.description ||
-        "Remote and work from home job opportunity. Apply using official link.",
-      hiringOrganization: {
-        "@type": "Organization",
-        name: job.source || "FreshJobs.Store",
-      },
-      employmentType: "FULL_TIME",
-      jobLocationType: "TELECOMMUTE",
-      applicantLocationRequirements: {
-        "@type": "Country",
-        name: "Worldwide",
-      },
-      url: `https://freshjobs.store/job/${slug}`,
-    }
-  })
-
   return (
     <>
       <Head>
@@ -81,13 +54,6 @@ export default function WorkFromHomeJobs({ initialJobs }) {
         <link
           rel="canonical"
           href="https://freshjobs.store/work-from-home"
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jobSchema),
-          }}
         />
       </Head>
 

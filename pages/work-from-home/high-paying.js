@@ -29,27 +29,6 @@ export default function HighPayingWFHJobs({ initialJobs }) {
     setLoading(false)
   }
 
-  /* ✅ SAFE JOB POSTING SCHEMA */
-  const jobSchema = jobs.slice(0, 10).map((job) => ({
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: job.title || "High Paying Work From Home Job",
-    description:
-      job.description ||
-      "High paying remote and work from home job opportunity.",
-    hiringOrganization: {
-      "@type": "Organization",
-      name: job.source || "FreshJobs.Store",
-    },
-    employmentType: "FULL_TIME",
-    jobLocationType: "TELECOMMUTE",
-    applicantLocationRequirements: {
-      "@type": "Country",
-      name: "Worldwide",
-    },
-    url: "https://freshjobs.store/work-from-home/high-paying",
-  }))
-
   return (
     <>
       <Head>
@@ -67,13 +46,6 @@ export default function HighPayingWFHJobs({ initialJobs }) {
         <link
           rel="canonical"
           href="https://freshjobs.store/work-from-home/high-paying"
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jobSchema),
-          }}
         />
       </Head>
 

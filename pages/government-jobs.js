@@ -25,31 +25,6 @@ export default function GovtJobs({ initialJobs, totalPages }) {
     setLoading(false);
   };
 
-  /* ✅ BASIC JOB POSTING SCHEMA (SAFE) */
-  const jobSchema = jobs.slice(0, 10).map((job) => ({
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: job.title || "Government Job Vacancy",
-    description:
-      job.description ||
-      "Latest government job vacancy. Check eligibility and apply online.",
-    hiringOrganization: {
-      "@type": "Organization",
-      name: job.source || "Government of India",
-    },
-    employmentType: "FULL_TIME",
-    jobLocation: {
-      "@type": "Place",
-      address: {
-        "@type": "PostalAddress",
-        addressCountry: "IN",
-      },
-    },
-    url: job.slug
-      ? `https://freshjobs.store/job/${job.slug}`
-      : "https://freshjobs.store/government-jobs",
-  }));
-
   return (
     <>
       {/* 🔹 SEO */}
@@ -68,13 +43,6 @@ export default function GovtJobs({ initialJobs, totalPages }) {
         <link
           rel="canonical"
           href="https://freshjobs.store/government-jobs"
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jobSchema),
-          }}
         />
       </Head>
 

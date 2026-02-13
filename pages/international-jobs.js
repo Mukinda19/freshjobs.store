@@ -29,27 +29,6 @@ export default function InternationalJobs({ initialJobs }) {
     setLoading(false)
   }
 
-  /* ✅ SEO SAFE JOB POSTING SCHEMA */
-  const jobSchema = jobs.slice(0, 10).map((job) => ({
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: job.title || "International Job Opening",
-    description:
-      job.description ||
-      "International job opportunity outside India. Apply online.",
-    hiringOrganization: {
-      "@type": "Organization",
-      name: job.source || "International Employer",
-    },
-    employmentType: "FULL_TIME",
-    jobLocationType: job.remote ? "TELECOMMUTE" : "ON_SITE",
-    applicantLocationRequirements: {
-      "@type": "Country",
-      name: "Worldwide",
-    },
-    url: job.link || "https://freshjobs.store/international-jobs",
-  }))
-
   return (
     <>
       <Head>
@@ -67,13 +46,6 @@ export default function InternationalJobs({ initialJobs }) {
         <link
           rel="canonical"
           href="https://freshjobs.store/international-jobs"
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jobSchema),
-          }}
         />
       </Head>
 

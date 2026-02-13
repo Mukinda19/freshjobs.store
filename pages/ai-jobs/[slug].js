@@ -15,7 +15,15 @@ export default function AIJobDetail({ job }) {
     )
   }
 
-  /* ✅ JOB POSTING SCHEMA (FUTURE-PROOF) */
+  // ✅ SAFE DATE HANDLING
+  const postedDate = job.pubDate
+    ? new Date(job.pubDate).toISOString()
+    : new Date().toISOString()
+
+  const validThrough = new Date()
+  validThrough.setDate(validThrough.getDate() + 30)
+
+  /* ✅ GOOGLE JOBS OPTIMIZED SCHEMA */
   const jobSchema = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
@@ -23,15 +31,23 @@ export default function AIJobDetail({ job }) {
     description:
       job.description ||
       "Latest Artificial Intelligence and Machine Learning job opening.",
+    datePosted: postedDate,
+    validThrough: validThrough.toISOString(),
+    employmentType: "FULL_TIME",
     hiringOrganization: {
       "@type": "Organization",
       name: job.source || "FreshJobs.Store",
+      sameAs: "https://freshjobs.store",
     },
-    employmentType: "FULL_TIME",
     jobLocationType: "TELECOMMUTE",
     applicantLocationRequirements: {
       "@type": "Country",
       name: "Worldwide",
+    },
+    identifier: {
+      "@type": "PropertyValue",
+      name: "FreshJobs.Store",
+      value: job.slug,
     },
     url: job.link || `https://freshjobs.store/ai-jobs/${job.slug}`,
   }
@@ -61,7 +77,6 @@ export default function AIJobDetail({ job }) {
           href={`https://freshjobs.store/ai-jobs/${job.slug}`}
         />
 
-        {/* ✅ JSON-LD FOR GOOGLE JOBS */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -108,7 +123,7 @@ export default function AIJobDetail({ job }) {
   )
 }
 
-/* ✅ SSR – FETCH SINGLE JOB BY SLUG (SAFE & STABLE) */
+/* ✅ SSR */
 export async function getServerSideProps({ params }) {
   try {
     const baseUrl =

@@ -60,28 +60,6 @@ export default function AIJobs({ initialJobs }) {
     url: "https://freshjobs.store/ai-jobs",
   }
 
-  const jobSchema = jobs.slice(0, 5).map((job) => ({
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: job.title || "AI Job Opening",
-    description:
-      job.description ||
-      "AI and Machine Learning related job opportunity.",
-    hiringOrganization: {
-      "@type": "Organization",
-      name: job.source || "FreshJobs.Store",
-    },
-    employmentType: "FULL_TIME",
-    jobLocationType: "TELECOMMUTE",
-    applicantLocationRequirements: {
-      "@type": "Country",
-      name: "Worldwide",
-    },
-    url: job.slug
-      ? `https://freshjobs.store/ai-jobs/${job.slug}`
-      : "https://freshjobs.store/ai-jobs",
-  }))
-
   return (
     <>
       <Head>
@@ -106,13 +84,6 @@ export default function AIJobs({ initialJobs }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(collectionSchema),
-          }}
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jobSchema),
           }}
         />
       </Head>
