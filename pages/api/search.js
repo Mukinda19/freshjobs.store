@@ -1,5 +1,15 @@
 // pages/api/search.js
 
+/* 🔹 SLUG GENERATOR */
+const generateSlug = (text = "", fallback = "") => {
+  const base = text || fallback || "job-opening"
+  return base
+    .toLowerCase()
+    .replace(/<[^>]*>?/gm, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+}
+
 export default async function handler(req, res) {
   try {
     const SHEET_URL =
@@ -11,6 +21,14 @@ export default async function handler(req, res) {
     const data = await response.json()
 
     let jobs = Array.isArray(data.jobs) ? data.jobs : []
+
+    /* 🔥 IMPORTANT: AUTO ADD SLUG TO ALL JOBS */
+    jobs = jobs.map((job, index) => ({
+      ...job,
+      slug:
+        job.slug ||
+        generateSlug(job.title, job.link) + "-" + index,
+    }))
 
     /* ================= KEYWORDS ================= */
 
@@ -76,7 +94,6 @@ export default async function handler(req, res) {
       "karnataka",
     ]
 
-    /* ✅ INTERNATIONAL SOURCE DOMAINS (ONLY 4 AS PER YOUR RSS) */
     const internationalDomains = [
       "remoteok",
       "weworkremotely",
@@ -98,7 +115,6 @@ export default async function handler(req, res) {
     if (category) {
       const cat = category.toLowerCase()
 
-      /* ✅ AI JOBS */
       if (cat === "ai" || cat === "ai-jobs") {
         jobs = jobs.filter((job) => {
           const text = `
@@ -112,7 +128,6 @@ export default async function handler(req, res) {
         })
       }
 
-      /* ✅ WORK FROM HOME */
       else if (cat === "work-from-home" || cat === "wfh") {
         jobs = jobs.filter((job) => {
           const text = `
@@ -126,7 +141,6 @@ export default async function handler(req, res) {
         })
       }
 
-      /* ✅ INTERNATIONAL JOBS — FINAL 4 SOURCES ONLY */
       else if (cat === "international" || cat === "international-jobs") {
         jobs = jobs.filter((job) => {
           const text = `
@@ -153,7 +167,6 @@ export default async function handler(req, res) {
         })
       }
 
-      /* ✅ NORMAL CATEGORIES */
       else if (normalCategoryMap[cat]) {
         const keywords = normalCategoryMap[cat]
 
@@ -170,7 +183,7 @@ export default async function handler(req, res) {
       }
     }
 
-    /* ================= SEARCH QUERY ================= */
+    /* ================= SEARCH ================= */
 
     if (q && q.trim() !== "") {
       const keyword = q.toLowerCase()
