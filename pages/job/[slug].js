@@ -114,37 +114,6 @@ export default function JobDetailPage() {
     ],
   };
 
-  /* ---------------- JobPosting Schema (NEW) ---------------- */
-  const jobPostingSchema = {
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: title,
-    description: description,
-    hiringOrganization: {
-      "@type": "Organization",
-      name: company,
-      sameAs: "https://freshjobs.store",
-    },
-    jobLocation: {
-      "@type": "Place",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: location,
-        addressCountry: "IN",
-      },
-    },
-    employmentType: "FULL_TIME",
-    datePosted: new Date().toISOString(),
-    validThrough: new Date(
-      Date.now() + 30 * 24 * 60 * 60 * 1000
-    ).toISOString(),
-    applicantLocationRequirements: {
-      "@type": "Country",
-      name: "India",
-    },
-    applyUrl: applyLink || canonicalUrl,
-  };
-
   return (
     <div className="max-w-4xl mx-auto p-4">
       {/* ---------------- SEO ---------------- */}
@@ -160,17 +129,11 @@ export default function JobDetailPage() {
 
         <link rel="canonical" href={canonicalUrl} />
 
+        {/* Breadcrumb Schema Only */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(breadcrumbSchema),
-          }}
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jobPostingSchema),
           }}
         />
       </Head>
