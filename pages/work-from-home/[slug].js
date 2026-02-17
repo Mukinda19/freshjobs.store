@@ -1,25 +1,13 @@
 import Head from "next/head"
 import Link from "next/link"
 
-export default function WorkFromHomeJobDetail(props) {
-  const job = props?.job || null
-  const baseUrl =
-    props?.baseUrl || "https://freshjobs.store"
+export default function WorkFromHomeJobDetail({ job }) {
 
-  if (!job || typeof job !== "object") {
-    return (
-      <div style={{ padding: "40px", maxWidth: "800px", margin: "auto" }}>
-        <h1>Job not available</h1>
-        <Link href="/work-from-home">
-          ← Back to Jobs
-        </Link>
-      </div>
-    )
-  }
+  const safeJob = job || {}
 
-  const title = job?.title || "Work From Home Job"
+  const title = safeJob.title || "Work From Home Job"
   const description =
-    (job?.description || "")
+    (safeJob.description || "")
       .replace(/<[^>]*>?/gm, "")
       .slice(0, 300) || "Remote job opportunity"
 
@@ -33,25 +21,26 @@ export default function WorkFromHomeJobDetail(props) {
       <div style={{ padding: "40px", maxWidth: "800px", margin: "auto" }}>
         <h1>{title}</h1>
 
-        <p style={{ marginTop: "10px", color: "#666" }}>
-          Source: {job?.source || "Verified Portal"}
-        </p>
+        {safeJob.source && (
+          <p style={{ color: "#666" }}>
+            Source: {safeJob.source}
+          </p>
+        )}
 
         <div style={{ marginTop: "20px" }}>
           {description}
         </div>
 
-        {job?.link && (
+        {safeJob.link && (
           <div style={{ marginTop: "30px" }}>
             <a
-              href={job.link}
+              href={safeJob.link}
               target="_blank"
               rel="noopener noreferrer"
               style={{
                 background: "green",
                 color: "white",
                 padding: "12px 20px",
-                display: "inline-block",
                 textDecoration: "none",
               }}
             >
@@ -62,7 +51,7 @@ export default function WorkFromHomeJobDetail(props) {
 
         <div style={{ marginTop: "40px" }}>
           <Link href="/work-from-home">
-            ← Back to Work From Home Jobs
+            ← Back to Jobs
           </Link>
         </div>
       </div>
@@ -81,29 +70,20 @@ export async function getServerSideProps({ params }) {
 
     const data = await res.json()
 
-    let jobs = []
+    const jobs =
+      Array.isArray(data)
+        ? data
+        : data?.jobs || data?.results || []
 
-    if (Array.isArray(data)) jobs = data
-    else if (Array.isArray(data?.jobs)) jobs = data.jobs
-    else if (Array.isArray(data?.results)) jobs = data.results
-
-    const job = jobs.find(
-      (j) =>
-        j?.slug === params?.slug ||
-        j?.link?.includes(params?.slug)
-    )
+    const job =
+      jobs.find(j => j?.slug === params?.slug) || null
 
     return {
-      props: {
-        job: job || null,
-        baseUrl,
-      },
+      props: { job },
     }
-  } catch (e) {
+  } catch {
     return {
-      props: {
-        job: null,
-      },
+      props: { job: null },
     }
   }
 }
