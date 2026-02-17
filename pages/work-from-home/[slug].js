@@ -1,7 +1,6 @@
 import Head from "next/head"
 import Link from "next/link"
 
-/* 🔹 SIMPLE HTML STRIPPER */
 const cleanText = (text = "") =>
   text.replace(/<[^>]*>?/gm, "").trim()
 
@@ -19,7 +18,6 @@ export default function WorkFromHomeJobDetail({ job, baseUrl }) {
     )
   }
 
-  /* ✅ SAFE DATE HANDLING */
   const postedDate = job.pubDate
     ? new Date(job.pubDate).toISOString()
     : new Date().toISOString()
@@ -29,11 +27,10 @@ export default function WorkFromHomeJobDetail({ job, baseUrl }) {
 
   const cleanDescription = cleanText(job.description || "")
 
-  /* ✅ GOOGLE JOBS OPTIMIZED SCHEMA */
   const jobSchema = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
-    title: job.title || "Work From Home Job Opening",
+    title: job.title || "Work From Home Job",
     description:
       cleanDescription ||
       "Latest remote and work from home job opportunity.",
@@ -53,9 +50,9 @@ export default function WorkFromHomeJobDetail({ job, baseUrl }) {
     identifier: {
       "@type": "PropertyValue",
       name: "FreshJobs.Store",
-      value: job.slug || job.link,
+      value: job.slug || job.link || "wfh-job",
     },
-    url: job.link || `${baseUrl}/work-from-home/${job.slug}`,
+    url: `${baseUrl}/work-from-home/${job.slug}`,
   }
 
   return (
@@ -76,8 +73,6 @@ export default function WorkFromHomeJobDetail({ job, baseUrl }) {
           }
         />
 
-        <meta name="robots" content="index, follow" />
-
         <link
           rel="canonical"
           href={`${baseUrl}/work-from-home/${job.slug}`}
@@ -94,7 +89,7 @@ export default function WorkFromHomeJobDetail({ job, baseUrl }) {
       <main className="max-w-4xl mx-auto px-4 py-10">
         <article className="border rounded-lg p-6 bg-white shadow-sm">
           <h1 className="text-2xl font-bold mb-3">
-            {job.title || "Work From Home Job Opening"}
+            {job.title}
           </h1>
 
           <p className="text-sm text-gray-500 mb-4">
@@ -132,7 +127,7 @@ export default function WorkFromHomeJobDetail({ job, baseUrl }) {
   )
 }
 
-/* ✅ SSR */
+/* ✅ SUPER SAFE SSR */
 export async function getServerSideProps({ params }) {
   try {
     const baseUrl =
@@ -142,10 +137,27 @@ export async function getServerSideProps({ params }) {
       `${baseUrl}/api/search?category=work-from-home&limit=300`
     )
 
+    if (!res.ok) {
+      return { notFound: true }
+    }
+
     const data = await res.json()
 
-    const job = (data.jobs || []).find(
-      (j) => j.slug === params.slug
+    // Handle every possible structure
+    let jobsArray = []
+
+    if (Array.isArray(data)) {
+      jobsArray = data
+    } else if (Array.isArray(data.jobs)) {
+      jobsArray = data.jobs
+    } else if (Array.isArray(data.results)) {
+      jobsArray = data.results
+    }
+
+    const job = jobsArray.find(
+      (j) =>
+        j.slug === params.slug ||
+        j.link?.includes(params.slug)
     )
 
     if (!job) {
