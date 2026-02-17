@@ -1,15 +1,30 @@
 import Head from "next/head"
 import Link from "next/link"
 
-export default function WorkFromHomeJobDetail({ job }) {
+export default function JobDetailPage({ job, categorySlug }) {
 
   const safeJob = job || {}
 
+  const readableCategory = categorySlug
+    ? categorySlug.replace(/-/g, " ")
+    : "jobs"
+
   const title = safeJob.title || "Work From Home Job"
-  const description =
-    (safeJob.description || "")
-      .replace(/<[^>]*>?/gm, "")
-      .slice(0, 300) || "Remote job opportunity"
+
+  const description = safeJob.description
+    ? safeJob.description.replace(/<[^>]*>?/gm, "").slice(0, 300)
+    : "Remote job opportunity"
+
+  if (!job) {
+    return (
+      <div style={{ padding: "40px", textAlign: "center" }}>
+        <h1>Job Not Found</h1>
+        <Link href="/work-from-home">
+          ← Back to {readableCategory}
+        </Link>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -42,6 +57,7 @@ export default function WorkFromHomeJobDetail({ job }) {
                 color: "white",
                 padding: "12px 20px",
                 textDecoration: "none",
+                display: "inline-block"
               }}
             >
               Apply Now
@@ -51,7 +67,7 @@ export default function WorkFromHomeJobDetail({ job }) {
 
         <div style={{ marginTop: "40px" }}>
           <Link href="/work-from-home">
-            ← Back to Jobs
+            ← Back to {readableCategory}
           </Link>
         </div>
       </div>
@@ -62,7 +78,7 @@ export default function WorkFromHomeJobDetail({ job }) {
 export async function getServerSideProps({ params }) {
   try {
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "https://freshjobs.store"
+      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
 
     const res = await fetch(
       `${baseUrl}/api/search?category=work-from-home&limit=200`
@@ -79,11 +95,17 @@ export async function getServerSideProps({ params }) {
       jobs.find(j => j?.slug === params?.slug) || null
 
     return {
-      props: { job },
+      props: {
+        job,
+        categorySlug: "work-from-home"
+      }
     }
-  } catch {
+  } catch (error) {
     return {
-      props: { job: null },
+      props: {
+        job: null,
+        categorySlug: "work-from-home"
+      }
     }
   }
 }
