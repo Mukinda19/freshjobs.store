@@ -1,6 +1,7 @@
 import { useState } from "react"
 import Head from "next/head"
 import Breadcrumb from "../../components/Breadcrumb"
+import JobCard from "../../components/JobCard"
 
 export default function HighPayingWFHJobs({ initialJobs }) {
   const [jobs, setJobs] = useState(initialJobs)
@@ -50,7 +51,6 @@ export default function HighPayingWFHJobs({ initialJobs }) {
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* ✅ BREADCRUMBS */}
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
@@ -77,37 +77,10 @@ export default function HighPayingWFHJobs({ initialJobs }) {
           </p>
         )}
 
+        {/* ✅ Universal JobCard Used */}
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
-            <article
-              key={job.link || index}
-              className="border rounded-lg p-4 bg-white hover:shadow-md transition"
-            >
-              <h2 className="font-semibold mb-1 text-blue-700">
-                {job.title || "High Paying Remote Job"}
-              </h2>
-
-              <p className="text-sm text-gray-500 mb-2">
-                Source: {job.source || "Verified Portal"}
-              </p>
-
-              {job.description && (
-                <p className="text-sm text-gray-700 mb-3">
-                  {job.description.slice(0, 150)}...
-                </p>
-              )}
-
-              {job.link && (
-                <a
-                  href={job.link}
-                  target="_blank"
-                  rel="noopener noreferrer nofollow"
-                  className="inline-block mt-2 bg-green-600 text-white px-4 py-1.5 rounded text-sm hover:bg-green-700"
-                >
-                  Apply Now →
-                </a>
-              )}
-            </article>
+            <JobCard key={job.id || index} job={job} />
           ))}
         </div>
 
@@ -127,7 +100,7 @@ export default function HighPayingWFHJobs({ initialJobs }) {
   )
 }
 
-/* ✅ SSR – FIRST 10 JOBS */
+/* ✅ SSR */
 export async function getServerSideProps() {
   try {
     const baseUrl =
