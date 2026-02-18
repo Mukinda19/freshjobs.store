@@ -80,7 +80,6 @@ export default function Home({ initialJobs }) {
         <link rel="canonical" href="https://www.freshjobs.store/" />
       </Head>
 
-      {/* 🔹 SEO BREADCRUMB */}
       <nav aria-label="Breadcrumb" className="text-sm text-gray-600 mb-4">
         <ol className="flex gap-2">
           <li>
@@ -93,7 +92,6 @@ export default function Home({ initialJobs }) {
         </ol>
       </nav>
 
-      {/* 🔹 SEO INTRO */}
       <section className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Search Latest Jobs in India
@@ -105,7 +103,6 @@ export default function Home({ initialJobs }) {
         </p>
       </section>
 
-      {/* 🔹 SEARCH */}
       <section className="my-8">
         <form
           onSubmit={handleSearch}
@@ -155,13 +152,11 @@ export default function Home({ initialJobs }) {
         </form>
       </section>
 
-      {/* 🔹 CATEGORIES */}
       <section className="my-12">
         <h2 className="text-2xl font-semibold mb-6">Popular Job Categories</h2>
         <CategoryGrid />
       </section>
 
-      {/* 🔹 JOB LIST */}
       <section className="my-12">
         <h2 className="text-2xl font-semibold mb-6">Latest Job Openings</h2>
 
@@ -188,7 +183,6 @@ export default function Home({ initialJobs }) {
         )}
       </section>
 
-      {/* ✅ STEP 6 + STEP 9 – FINAL INTERNAL LINKS */}
       <section className="mt-16">
         <h2 className="text-2xl font-bold mb-4">
           Browse Jobs by Popular Categories in India
@@ -214,16 +208,26 @@ export default function Home({ initialJobs }) {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    process.env.NEXT_PUBLIC_BASE_URL || "https://www.freshjobs.store";
 
-  const res = await fetch(`${baseUrl}/api/search?page=1&limit=10`);
-  const data = await res.json();
+  try {
+    const res = await fetch(`${baseUrl}/api/search?page=1&limit=10`);
+    const data = await res.json();
 
-  return {
-    props: {
-      initialJobs: data.jobs || [],
-    },
-  };
+    return {
+      props: {
+        initialJobs: data.jobs || [],
+      },
+      revalidate: 3600, // 1 hour caching
+    };
+  } catch (error) {
+    return {
+      props: {
+        initialJobs: [],
+      },
+      revalidate: 3600,
+    };
+  }
 }
