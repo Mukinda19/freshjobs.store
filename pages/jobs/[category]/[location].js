@@ -14,6 +14,21 @@ export default function CategoryLocationPage() {
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
 
+  /* ---------------- SAFE COMPUTED VALUES (ALL HOOKS FIRST) ---------------- */
+
+  const readableCategory = useMemo(
+    () => String(category || "").replace(/-/g, " "),
+    [category]
+  );
+
+  const readableLocation = useMemo(
+    () => String(location || "").replace(/-/g, " "),
+    [location]
+  );
+
+  const isWFH =
+    String(category || "").toLowerCase() === "work-from-home";
+
   /* ---------------- Fetch Jobs ---------------- */
   useEffect(() => {
     if (!category || !location) return;
@@ -43,26 +58,13 @@ export default function CategoryLocationPage() {
 
   /* ---------------- Pagination ---------------- */
   const goToPage = (p) => {
-    const query = q ? `?page=${p}&q=${encodeURIComponent(q)}` : `?page=${p}`;
+    const query = q
+      ? `?page=${p}&q=${encodeURIComponent(q)}`
+      : `?page=${p}`;
     router.push(`/jobs/${category}/${location}${query}`);
   };
 
-  if (!category || !location) {
-    return <p className="p-4">Loading page...</p>;
-  }
-
   /* ---------------- SEO SAFE VALUES ---------------- */
-  const readableCategory = useMemo(
-    () => String(category).replace(/-/g, " "),
-    [category]
-  );
-
-  const readableLocation = useMemo(
-    () => String(location).replace(/-/g, " "),
-    [location]
-  );
-
-  const isWFH = String(category).toLowerCase() === "work-from-home";
 
   const pageTitle =
     (isWFH
@@ -79,7 +81,6 @@ export default function CategoryLocationPage() {
       ? `https://www.freshjobs.store/jobs/${category}/${location}?page=${currentPage}`
       : `https://www.freshjobs.store/jobs/${category}/${location}`;
 
-  /* ---------------- Breadcrumb Schema ---------------- */
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -105,9 +106,14 @@ export default function CategoryLocationPage() {
     ],
   };
 
+  /* ---------------- CONDITIONAL RETURN AFTER HOOKS ---------------- */
+
+  if (!category || !location) {
+    return <p className="p-4">Loading page...</p>;
+  }
+
   return (
     <div className="max-w-6xl mx-auto p-4">
-      {/* ---------------- SEO ---------------- */}
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
@@ -120,61 +126,6 @@ export default function CategoryLocationPage() {
         />
       </Head>
 
-      {/* ---------------- Breadcrumb UI ---------------- */}
-      <nav className="text-sm text-gray-600 mb-4 overflow-x-auto whitespace-nowrap">
-        <Link href="/" className="hover:underline">
-          Home
-        </Link>
-        <span className="mx-2">›</span>
-
-        <Link
-          href={`/jobs/${category}`}
-          className="hover:underline capitalize"
-        >
-          {readableCategory} Jobs
-        </Link>
-
-        <span className="mx-2">›</span>
-
-        <span className="text-gray-900 font-medium capitalize">
-          {readableLocation}
-        </span>
-      </nav>
-
-      {/* ---------------- Heading ---------------- */}
-      <h1 className="text-2xl font-bold mb-4 capitalize">
-        {isWFH
-          ? `Work From Home Jobs in ${readableLocation}`
-          : `${readableCategory} Jobs in ${readableLocation}`}
-      </h1>
-
-      {/* ---------------- SEO Text ---------------- */}
-      <section className="mb-8 text-gray-700 text-sm leading-relaxed">
-        {isWFH ? (
-          <p>
-            Find verified{" "}
-            <strong>remote and work from home jobs in {readableLocation}</strong>.
-            FreshJobs.Store helps you discover legit WFH opportunities across
-            multiple industries.
-          </p>
-        ) : (
-          <>
-            <p>
-              Looking for the latest{" "}
-              <strong>{readableCategory} jobs in {readableLocation}</strong>?
-              FreshJobs.Store brings you verified government and private job
-              openings with direct apply links.
-            </p>
-            <p className="mt-3">
-              These{" "}
-              <strong>{readableCategory} vacancies in {readableLocation}</strong>{" "}
-              are updated regularly for freshers and experienced candidates.
-            </p>
-          </>
-        )}
-      </section>
-
-      {/* ---------------- Jobs ---------------- */}
       {loading && <p>Loading jobs...</p>}
 
       {!loading && jobs.length === 0 && (
@@ -186,80 +137,6 @@ export default function CategoryLocationPage() {
           <JobCard key={job.id || index} job={job} />
         ))}
       </div>
-
-      {/* ---------------- Pagination ---------------- */}
-      {!loading && totalPages > 1 && (
-        <div className="flex items-center gap-2 mt-8 flex-wrap">
-          {currentPage > 1 && (
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              className="px-3 py-1 border rounded"
-            >
-              Previous
-            </button>
-          )}
-
-          {currentPage < totalPages && (
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              className="px-3 py-1 border rounded"
-            >
-              Next
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* ================= STEP 7 – INTERNAL LINKING (FINAL) ================= */}
-      <section className="mt-12 border-t pt-6">
-        <h2 className="text-xl font-semibold mb-4">
-          Explore More Job Opportunities
-        </h2>
-
-        <ul className="grid md:grid-cols-2 gap-3 text-blue-600 text-sm">
-          <li>
-            <Link href="/" className="hover:underline">
-              Latest Jobs in India
-            </Link>
-          </li>
-
-          <li>
-            <Link href={`/jobs/${category}`} className="hover:underline capitalize">
-              {readableCategory} Jobs in India
-            </Link>
-          </li>
-
-          <li>
-            <Link href="/work-from-home" className="hover:underline">
-              Work From Home Jobs
-            </Link>
-          </li>
-
-          <li>
-            <Link href="/jobs/govt-jobs" className="hover:underline">
-              Government Jobs
-            </Link>
-          </li>
-
-          <li>
-            <Link href="/jobs/ai" className="hover:underline">
-              AI Jobs
-            </Link>
-          </li>
-
-          <li>
-            <Link href="/international-jobs" className="hover:underline">
-              International Jobs
-            </Link>
-          </li>
-
-          <li>
-            <Link href="/work-from-home/high-paying" className="hover:underline">
-              High Paying Jobs
-            </Link>
-          </li>
-        </ul>
-      </section>
     </div>
   );
 }
