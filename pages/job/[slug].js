@@ -1,5 +1,3 @@
-import { useRouter } from "next/router";
-import { useEffect, useState, useMemo } from "react";
 import Head from "next/head";
 
 /* ---------------- Helper ---------------- */
@@ -9,94 +7,7 @@ const normalizeSlug = (text = "") =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-export default function JobDetailPage() {
-  const router = useRouter();
-  const { slug } = router.query;
-
-  const [job, setJob] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  /* ---------------- Fetch Job ---------------- */
-  useEffect(() => {
-    if (!slug) return;
-
-    setLoading(true);
-
-    fetch("/api/search?limit=2000")
-      .then((res) => res.json())
-      .then((data) => {
-        const jobs = data.jobs || [];
-
-        const foundJob = jobs.find((j) => {
-          const jobSlug =
-            j.slug ||
-            normalizeSlug(`${j.title || ""} ${j.company || ""}`);
-          return jobSlug === slug || String(j.id) === String(slug);
-        });
-
-        setJob(foundJob || null);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [slug]);
-
-  /* ---------------- Safe Computed Values (ALL HOOKS BEFORE RETURN) ---------------- */
-
-  const title = job?.title || "Latest Job Opening";
-  const company = job?.company || "Company";
-  const location = job?.location || "India";
-  const salary = job?.salary || "";
-  const description =
-    job?.snippet ||
-    "Check eligibility, job details, and apply using the official link.";
-
-  const canonicalSlug =
-    job?.slug ||
-    normalizeSlug(`${job?.title || ""} ${job?.company || ""}`);
-
-  const canonicalUrl = `https://freshjobs.store/job/${canonicalSlug}`;
-
-  const categorySlug = normalizeSlug(job?.category || "jobs");
-
-  const readableCategory = useMemo(() => {
-    return categorySlug.replace(/-/g, " ");
-  }, [categorySlug]);
-
-  const locationSlug = normalizeSlug(location) || "india";
-  const applyLink = job?.url || job?.link || job?.applyLink || "";
-
-  /* ---------------- Breadcrumb Schema ---------------- */
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: "https://freshjobs.store/",
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: `${readableCategory} Jobs`,
-        item: `https://freshjobs.store/jobs/${categorySlug}/india`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: title,
-        item: canonicalUrl,
-      },
-    ],
-  };
-
-  /* ---------------- RETURNS AFTER ALL HOOKS ---------------- */
-
-  if (loading) {
-    return <p className="p-4">Loading job details...</p>;
-  }
-
+export default function JobDetailPage({ job }) {
   if (!job) {
     return (
       <div className="max-w-3xl mx-auto p-6">
@@ -104,20 +15,32 @@ export default function JobDetailPage() {
           <title>Job Not Found | FreshJobs.Store</title>
           <meta
             name="description"
-            content="The job you are looking for is no longer available. Browse latest jobs on FreshJobs.Store."
+            content="The job you are looking for is no longer available."
           />
-          <link rel="canonical" href="https://freshjobs.store/" />
         </Head>
-
-        <h1 className="text-2xl font-bold mb-2">Job Not Found</h1>
-        <p className="text-gray-600">
-          This job listing may have expired. Please browse other latest jobs.
-        </p>
+        <h1 className="text-2xl font-bold">Job Not Found</h1>
       </div>
     );
   }
 
-  /* ---------------- MAIN UI ---------------- */
+  const title = job.title || "Latest Job Opening";
+  const company = job.company || "Company";
+  const location = job.location || "India";
+  const salary = job.salary || "";
+  const description =
+    job.snippet ||
+    "Check eligibility, job details, and apply using the official link.";
+
+  const canonicalSlug =
+    job.slug ||
+    normalizeSlug(`${job.title || ""} ${job.company || ""}`);
+
+  const canonicalUrl = `https://freshjobs.store/job/${canonicalSlug}`;
+
+  const categorySlug = normalizeSlug(job.category || "jobs");
+  const readableCategory = categorySlug.replace(/-/g, " ");
+  const locationSlug = normalizeSlug(location) || "india";
+  const applyLink = job.url || job.link || job.applyLink || "";
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -128,32 +51,11 @@ export default function JobDetailPage() {
 
         <meta
           name="description"
-          content={`Apply for ${title} job at ${company} in ${location}. Check eligibility, salary, and official apply link.`}
+          content={`Apply for ${title} job at ${company} in ${location}.`}
         />
 
         <link rel="canonical" href={canonicalUrl} />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(breadcrumbSchema),
-          }}
-        />
       </Head>
-
-      <nav className="text-sm mb-4 text-gray-600 overflow-x-auto whitespace-nowrap">
-        <a href="/" className="hover:underline text-blue-600">
-          Home
-        </a>{" "}
-        /{" "}
-        <a
-          href={`/jobs/${categorySlug}/india`}
-          className="hover:underline text-blue-600 capitalize"
-        >
-          {readableCategory} Jobs
-        </a>{" "}
-        / <span className="text-gray-800 font-medium">{title}</span>
-      </nav>
 
       <h1 className="text-3xl font-bold mb-2">{title}</h1>
       <p className="text-gray-700 mb-3">
@@ -183,32 +85,51 @@ export default function JobDetailPage() {
           Apply on Official Website
         </a>
       )}
-
-      <div className="mt-10 border-t pt-6">
-        <h3 className="font-semibold mb-3 text-lg">
-          Explore More Jobs
-        </h3>
-
-        <ul className="list-disc list-inside space-y-2 text-blue-700">
-          <li>
-            <a
-              href={`/jobs/${categorySlug}/india`}
-              className="hover:underline"
-            >
-              More {readableCategory} Jobs in India
-            </a>
-          </li>
-
-          <li>
-            <a
-              href={`/jobs/${categorySlug}/${locationSlug}`}
-              className="hover:underline"
-            >
-              More Jobs in {location}
-            </a>
-          </li>
-        </ul>
-      </div>
     </div>
   );
+}
+
+/* ---------------- STATIC GENERATION ---------------- */
+
+export async function getStaticPaths() {
+  const res = await fetch("https://freshjobs.store/api/search?limit=2000");
+  const data = await res.json();
+  const jobs = data.jobs || [];
+
+  const paths = jobs.map((job) => ({
+    params: {
+      slug:
+        job.slug ||
+        normalizeSlug(`${job.title || ""} ${job.company || ""}`),
+    },
+  }));
+
+  return {
+    paths,
+    fallback: "blocking",
+  };
+}
+
+export async function getStaticProps({ params }) {
+  const res = await fetch("https://freshjobs.store/api/search?limit=2000");
+  const data = await res.json();
+  const jobs = data.jobs || [];
+
+  const job = jobs.find((j) => {
+    const jobSlug =
+      j.slug ||
+      normalizeSlug(`${j.title || ""} ${j.company || ""}`);
+    return jobSlug === params.slug;
+  });
+
+  if (!job) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: { job },
+    revalidate: 3600, // 1 hour
+  };
 }

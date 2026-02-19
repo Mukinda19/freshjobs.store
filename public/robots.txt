@@ -1,25 +1,9 @@
-# ================================
-# Robots.txt for freshjobs.store
-# SEO + AdSense Safe Configuration
-# ================================
-
+# *
 User-agent: *
 Allow: /
 
-# Allow Google AdSense
-User-agent: Mediapartners-Google
-Allow: /
-
-# Prevent unnecessary crawling (optional safety)
-Disallow: /api/
-Disallow: /_next/
-Disallow: /static/
-
-# Crawl control (safe for shared hosting)
-Crawl-delay: 5
-
-# Preferred domain
+# Host
 Host: https://freshjobs.store
 
-# Sitemap
+# Sitemaps
 Sitemap: https://freshjobs.store/sitemap.xml

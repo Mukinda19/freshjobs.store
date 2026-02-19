@@ -175,8 +175,8 @@ export default function AIJobs({ initialJobs }) {
   )
 }
 
-/* ---------------- SSR ---------------- */
-export async function getServerSideProps() {
+/* ---------------- SSG ---------------- */
+export async function getStaticProps() {
   try {
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
@@ -190,12 +190,14 @@ export async function getServerSideProps() {
       props: {
         initialJobs: data.jobs || [],
       },
+      revalidate: 3600,
     }
   } catch {
     return {
       props: {
         initialJobs: [],
       },
+      revalidate: 3600,
     }
   }
 }

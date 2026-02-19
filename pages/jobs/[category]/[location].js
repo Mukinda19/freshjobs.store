@@ -1,70 +1,20 @@
-import { useRouter } from "next/router";
-import { useEffect, useState, useMemo } from "react";
 import Head from "next/head";
-import Link from "next/link";
 import JobCard from "../../../components/JobCard";
 
-export default function CategoryLocationPage() {
-  const router = useRouter();
-  const { category, location, page = 1, q = "" } = router.query;
+/* ================= PAGE COMPONENT ================= */
 
-  const currentPage = Number(page) || 1;
-
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [totalPages, setTotalPages] = useState(1);
-
-  /* ---------------- SAFE COMPUTED VALUES (ALL HOOKS FIRST) ---------------- */
-
-  const readableCategory = useMemo(
-    () => String(category || "").replace(/-/g, " "),
-    [category]
-  );
-
-  const readableLocation = useMemo(
-    () => String(location || "").replace(/-/g, " "),
-    [location]
-  );
+export default function CategoryLocationPage({
+  jobs,
+  totalPages,
+  category,
+  location,
+  currentPage,
+}) {
+  const readableCategory = String(category || "").replace(/-/g, " ");
+  const readableLocation = String(location || "").replace(/-/g, " ");
 
   const isWFH =
     String(category || "").toLowerCase() === "work-from-home";
-
-  /* ---------------- Fetch Jobs ---------------- */
-  useEffect(() => {
-    if (!category || !location) return;
-
-    setLoading(true);
-
-    const fetchJobs = async () => {
-      const qParam = q ? `&q=${encodeURIComponent(q)}` : "";
-
-      try {
-        const res = await fetch(
-          `/api/search?category=${category}&location=${location}${qParam}&page=${currentPage}&limit=10`
-        );
-        const data = await res.json();
-        setJobs(data.jobs || []);
-        setTotalPages(data.totalPages || 1);
-      } catch {
-        setJobs([]);
-        setTotalPages(1);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchJobs();
-  }, [category, location, currentPage, q]);
-
-  /* ---------------- Pagination ---------------- */
-  const goToPage = (p) => {
-    const query = q
-      ? `?page=${p}&q=${encodeURIComponent(q)}`
-      : `?page=${p}`;
-    router.push(`/jobs/${category}/${location}${query}`);
-  };
-
-  /* ---------------- SEO SAFE VALUES ---------------- */
 
   const pageTitle =
     (isWFH
@@ -106,12 +56,6 @@ export default function CategoryLocationPage() {
     ],
   };
 
-  /* ---------------- CONDITIONAL RETURN AFTER HOOKS ---------------- */
-
-  if (!category || !location) {
-    return <p className="p-4">Loading page...</p>;
-  }
-
   return (
     <div className="max-w-6xl mx-auto p-4">
       <Head>
@@ -126,9 +70,7 @@ export default function CategoryLocationPage() {
         />
       </Head>
 
-      {loading && <p>Loading jobs...</p>}
-
-      {!loading && jobs.length === 0 && (
+      {jobs.length === 0 && (
         <p>No jobs found for this category and location.</p>
       )}
 
@@ -139,4 +81,48 @@ export default function CategoryLocationPage() {
       </div>
     </div>
   );
+}
+
+/* ================= STATIC GENERATION ================= */
+
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+}
+
+export async function getStaticProps({ params }) {
+  const { category, location } = params;
+
+  try {
+    // ✅ Localhost safe fetch
+    const res = await fetch(
+      `http://localhost:3000/api/search?category=${category}&location=${location}&page=1&limit=10`
+    );
+
+    const data = await res.json();
+
+    return {
+      props: {
+        jobs: data.jobs || [],
+        totalPages: data.totalPages || 1,
+        category,
+        location,
+        currentPage: 1,
+      },
+      revalidate: 1800,
+    };
+  } catch {
+    return {
+      props: {
+        jobs: [],
+        totalPages: 1,
+        category,
+        location,
+        currentPage: 1,
+      },
+      revalidate: 1800,
+    };
+  }
 }
