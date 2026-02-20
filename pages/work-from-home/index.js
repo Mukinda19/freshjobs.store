@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Head from "next/head"
 import Link from "next/link"
 import Breadcrumb from "../../components/Breadcrumb"
@@ -16,49 +16,90 @@ export default function WorkFromHomeJobs({ initialJobs }) {
   const [loading, setLoading] = useState(false)
   const [hasMore, setHasMore] = useState(initialJobs.length === 10)
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
     if (loading || !hasMore) return
     setLoading(true)
 
-    const nextPage = page + 1
-    const res = await fetch(
-      `/api/search?category=work-from-home&page=${nextPage}&limit=10`
-    )
-    const data = await res.json()
+    try {
+      const nextPage = page + 1
 
-    if (!data.jobs || data.jobs.length === 0) {
-      setHasMore(false)
-    } else {
-      setJobs((prev) => [...prev, ...data.jobs])
-      setPage(nextPage)
-      if (data.jobs.length < 10) setHasMore(false)
+      const res = await fetch(
+        `/api/search?category=work-from-home&page=${nextPage}&limit=10`
+      )
+
+      const data = await res.json()
+
+      if (!data.jobs || data.jobs.length === 0) {
+        setHasMore(false)
+      } else {
+        setJobs((prev) => [...prev, ...data.jobs])
+        setPage(nextPage)
+        if (data.jobs.length < 10) setHasMore(false)
+      }
+    } catch (err) {
+      console.error("Load more error:", err)
     }
 
     setLoading(false)
+  }, [loading, hasMore, page])
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Are these work from home jobs verified?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, we list remote and work from home jobs from trusted and official sources."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I apply for international remote jobs?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, many listed jobs are open for global applicants including USA, UAE, Canada and other countries."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are work from home jobs available for freshers?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, we regularly update remote jobs suitable for both freshers and experienced candidates."
+        }
+      }
+    ]
   }
 
   return (
     <>
       <Head>
         <title>
-          Work From Home Jobs in India & Abroad | Remote Jobs – FreshJobs.Store
+          Remote & Work From Home Jobs Worldwide 2026 | FreshJobs
         </title>
 
         <meta
           name="description"
-          content="Latest work from home and remote jobs in India and abroad. Apply for verified WFH jobs from trusted portals."
+          content="Find latest remote and work from home jobs from global companies. Updated daily with verified listings for freshers and experienced candidates."
         />
-
-        <meta name="robots" content="index, follow" />
 
         <link
           rel="canonical"
           href="https://freshjobs.store/work-from-home"
         />
+
+        <meta name="robots" content="index, follow" />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* ✅ BREADCRUMB */}
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
@@ -67,13 +108,14 @@ export default function WorkFromHomeJobs({ initialJobs }) {
         />
 
         <h1 className="text-3xl font-bold mb-3">
-          Work From Home & Remote Jobs
+          Remote & Work From Home Jobs Worldwide
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Find verified{" "}
-          <strong>work from home & remote jobs</strong> from India and
-          international companies. Updated daily.
+          Explore the latest <strong>remote jobs</strong>, work from home
+          opportunities, online jobs and flexible careers from global
+          companies. Whether you are from India, USA, UAE or anywhere in
+          the world, find verified remote job listings updated daily.
         </p>
 
         {jobs.length === 0 && (
@@ -96,9 +138,10 @@ export default function WorkFromHomeJobs({ initialJobs }) {
                 <h2 className="font-semibold mb-1">
                   <Link
                     href={`/job/${slug}`}
+                    prefetch={false}
                     className="text-blue-700 hover:underline"
                   >
-                    {job.title || "Work From Home Job"}
+                    {job.title || "Remote Job Opportunity"}
                   </Link>
                 </h2>
 
@@ -108,7 +151,7 @@ export default function WorkFromHomeJobs({ initialJobs }) {
 
                 {job.description && (
                   <p className="text-sm text-gray-700 mb-3">
-                    {job.description.slice(0, 150)}...
+                    {job.description.slice(0, 140)}...
                   </p>
                 )}
 
@@ -138,21 +181,56 @@ export default function WorkFromHomeJobs({ initialJobs }) {
             </button>
           </div>
         )}
+
+        {/* Internal Linking Boost */}
+        <section className="mt-12">
+          <h2 className="text-xl font-semibold mb-4">
+            Explore More Opportunities
+          </h2>
+          <ul className="list-disc pl-5 space-y-2 text-blue-700">
+            <li>
+              <Link href="/resume-builder" prefetch={false}>
+                Free Resume Builder
+              </Link>
+            </li>
+            <li>
+              <Link href="/ai-jobs" prefetch={false}>
+                AI & Tech Jobs
+              </Link>
+            </li>
+            <li>
+              <Link href="/international-jobs" prefetch={false}>
+                International Job Listings
+              </Link>
+            </li>
+            <li>
+              <Link href="/category/government/india" prefetch={false}>
+                Government Jobs in India
+              </Link>
+            </li>
+          </ul>
+        </section>
       </main>
     </>
   )
 }
 
-/* ✅ SSR */
-export async function getServerSideProps() {
+/* ✅ Faster SSR */
+export async function getServerSideProps({ res }) {
   try {
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      process.env.NEXT_PUBLIC_BASE_URL || "https://freshjobs.store"
 
-    const res = await fetch(
+    const response = await fetch(
       `${baseUrl}/api/search?category=work-from-home&page=1&limit=10`
     )
-    const data = await res.json()
+
+    const data = await response.json()
+
+    res.setHeader(
+      "Cache-Control",
+      "public, s-maxage=120, stale-while-revalidate=300"
+    )
 
     return {
       props: {

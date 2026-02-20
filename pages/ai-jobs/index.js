@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Head from "next/head"
 import Link from "next/link"
 import Breadcrumb from "../../components/Breadcrumb"
@@ -9,26 +9,30 @@ export default function AIJobs({ initialJobs }) {
   const [loading, setLoading] = useState(false)
   const [hasMore, setHasMore] = useState(initialJobs.length === 10)
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
     if (loading || !hasMore) return
     setLoading(true)
 
-    const nextPage = page + 1
-    const res = await fetch(
-      `/api/search?category=ai-jobs&page=${nextPage}&limit=10`
-    )
-    const data = await res.json()
+    try {
+      const nextPage = page + 1
+      const res = await fetch(
+        `/api/search?category=ai-jobs&page=${nextPage}&limit=10`
+      )
+      const data = await res.json()
 
-    if (!data.jobs || data.jobs.length === 0) {
-      setHasMore(false)
-    } else {
-      setJobs((prev) => [...prev, ...data.jobs])
-      setPage(nextPage)
-      if (data.jobs.length < 10) setHasMore(false)
+      if (!data.jobs || data.jobs.length === 0) {
+        setHasMore(false)
+      } else {
+        setJobs((prev) => [...prev, ...data.jobs])
+        setPage(nextPage)
+        if (data.jobs.length < 10) setHasMore(false)
+      }
+    } catch (err) {
+      console.error("AI Jobs Load Error:", err)
     }
 
     setLoading(false)
-  }
+  }, [loading, hasMore, page])
 
   /* ---------------- SEO SCHEMAS ---------------- */
 
@@ -54,20 +58,53 @@ export default function AIJobs({ initialJobs }) {
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "AI Jobs & Artificial Intelligence Jobs",
+    name: "AI Jobs & Artificial Intelligence Careers",
     description:
-      "Latest AI jobs, machine learning jobs, and artificial intelligence job openings.",
+      "Latest AI jobs, machine learning jobs, data science roles and artificial intelligence careers worldwide.",
     url: "https://freshjobs.store/ai-jobs",
+  }
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What qualifications are required for AI jobs?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Most AI jobs require knowledge of machine learning, Python, data science, or artificial intelligence frameworks. Requirements vary by company and role."
+        }
+      },
+      {
+        "@type": "Question",
+        name: "Are AI jobs available remotely?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes, many AI and machine learning roles are available as remote or hybrid positions globally."
+        }
+      },
+      {
+        "@type": "Question",
+        name: "Do AI jobs offer high salary packages?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "AI and data science roles are among the highest paying tech jobs worldwide, especially in USA, Canada, UK and remote markets."
+        }
+      }
+    ]
   }
 
   return (
     <>
       <Head>
-        <title>AI Jobs & Artificial Intelligence Jobs | FreshJobs.Store</title>
+        <title>
+          AI Jobs 2026 | Machine Learning & Data Science Careers Worldwide
+        </title>
 
         <meta
           name="description"
-          content="Find latest AI jobs, Machine Learning roles, Data Science and Artificial Intelligence job openings. Apply from verified sources."
+          content="Find latest AI jobs, Machine Learning roles, Data Science and Artificial Intelligence careers worldwide. High-paying remote and global tech opportunities."
         />
 
         <meta name="robots" content="index, follow" />
@@ -75,16 +112,17 @@ export default function AIJobs({ initialJobs }) {
 
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(breadcrumbSchema),
-          }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
         />
 
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(collectionSchema),
-          }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+        />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
       </Head>
 
@@ -97,15 +135,14 @@ export default function AIJobs({ initialJobs }) {
         />
 
         <h1 className="text-3xl font-bold mb-3">
-          AI Jobs & Artificial Intelligence Jobs
+          AI Jobs & Artificial Intelligence Careers
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore latest{" "}
-          <strong>
-            AI jobs, Machine Learning roles, Data Science careers
-          </strong>{" "}
-          including Indian and international opportunities.
+          Explore latest <strong>AI jobs, Machine Learning roles,
+          Data Science careers</strong> and artificial intelligence
+          opportunities from global tech companies. Discover
+          high-paying remote and international AI job openings.
         </p>
 
         {jobs.length === 0 && (
@@ -123,7 +160,8 @@ export default function AIJobs({ initialJobs }) {
               <h2 className="font-semibold mb-1">
                 {job.slug ? (
                   <Link
-                    href={`/ai-jobs/${job.slug}`}
+                    href={`/job/${job.slug}`}   {/* ✅ ROUTE FIXED */}
+                    prefetch={false}
                     className="text-blue-600 hover:text-blue-800 hover:underline"
                   >
                     {job.title || "AI Job Opening"}
@@ -170,6 +208,35 @@ export default function AIJobs({ initialJobs }) {
             </button>
           </div>
         )}
+
+        {/* Internal Linking Boost */}
+        <section className="mt-12">
+          <h2 className="text-xl font-semibold mb-4">
+            Explore More Career Options
+          </h2>
+          <ul className="list-disc pl-5 space-y-2 text-blue-700">
+            <li>
+              <Link href="/international-jobs" prefetch={false}>
+                International Jobs
+              </Link>
+            </li>
+            <li>
+              <Link href="/work-from-home" prefetch={false}>
+                Remote & Work From Home Jobs
+              </Link>
+            </li>
+            <li>
+              <Link href="/government-jobs" prefetch={false}>
+                Government Jobs
+              </Link>
+            </li>
+            <li>
+              <Link href="/resume-builder" prefetch={false}>
+                Free Resume Builder
+              </Link>
+            </li>
+          </ul>
+        </section>
       </main>
     </>
   )
@@ -179,7 +246,7 @@ export default function AIJobs({ initialJobs }) {
 export async function getStaticProps() {
   try {
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      process.env.NEXT_PUBLIC_BASE_URL || "https://freshjobs.store"
 
     const res = await fetch(
       `${baseUrl}/api/search?category=ai-jobs&page=1&limit=10`
@@ -190,14 +257,14 @@ export async function getStaticProps() {
       props: {
         initialJobs: data.jobs || [],
       },
-      revalidate: 3600,
+      revalidate: 1800,
     }
   } catch {
     return {
       props: {
         initialJobs: [],
       },
-      revalidate: 3600,
+      revalidate: 1800,
     }
   }
 }
