@@ -5,7 +5,7 @@ const config = {
 
   sitemapSize: 5000,
 
-  changefreq: "daily", // hourly unnecessary hai
+  changefreq: "daily",
   priority: 0.7,
 
   exclude: [
@@ -22,9 +22,6 @@ const config = {
         allow: "/",
       },
     ],
-    additionalSitemaps: [
-      "https://freshjobs.store/sitemap.xml",
-    ],
   },
 
   additionalPaths: async () => {
@@ -38,6 +35,16 @@ const config = {
         loc: "/work-from-home",
         changefreq: "daily",
         priority: 0.9,
+      },
+      {
+        loc: "/international-jobs",
+        changefreq: "daily",
+        priority: 0.9,
+      },
+      {
+        loc: "/resume-builder",
+        changefreq: "weekly",
+        priority: 0.8,
       },
     ];
   },
