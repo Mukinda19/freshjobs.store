@@ -13,10 +13,6 @@ export default function JobDetailPage({ job }) {
       <div className="max-w-3xl mx-auto p-6">
         <Head>
           <title>Job Not Found | FreshJobs.Store</title>
-          <meta
-            name="description"
-            content="The job you are looking for is no longer available."
-          />
         </Head>
         <h1 className="text-2xl font-bold">Job Not Found</h1>
       </div>
@@ -37,9 +33,6 @@ export default function JobDetailPage({ job }) {
 
   const canonicalUrl = `https://freshjobs.store/job/${canonicalSlug}`;
 
-  const categorySlug = normalizeSlug(job.category || "jobs");
-  const readableCategory = categorySlug.replace(/-/g, " ");
-  const locationSlug = normalizeSlug(location) || "india";
   const applyLink = job.url || job.link || job.applyLink || "";
 
   return (
@@ -48,12 +41,10 @@ export default function JobDetailPage({ job }) {
         <title>
           {title} at {company} | Jobs in {location}
         </title>
-
         <meta
           name="description"
           content={`Apply for ${title} job at ${company} in ${location}.`}
         />
-
         <link rel="canonical" href={canonicalUrl} />
       </Head>
 
@@ -92,44 +83,36 @@ export default function JobDetailPage({ job }) {
 /* ---------------- STATIC GENERATION ---------------- */
 
 export async function getStaticPaths() {
-  const res = await fetch("https://freshjobs.store/api/search?limit=2000");
-  const data = await res.json();
-  const jobs = data.jobs || [];
-
-  const paths = jobs.map((job) => ({
-    params: {
-      slug:
-        job.slug ||
-        normalizeSlug(`${job.title || ""} ${job.company || ""}`),
-    },
-  }));
-
   return {
-    paths,
-    fallback: "blocking",
+    paths: [], // 👈 pre-build me kuch generate nahi karega
+    fallback: "blocking", // first visit pe generate karega
   };
 }
 
 export async function getStaticProps({ params }) {
-  const res = await fetch("https://freshjobs.store/api/search?limit=2000");
-  const data = await res.json();
-  const jobs = data.jobs || [];
+  try {
+    const res = await fetch(
+      `https://freshjobs.store/api/search?limit=2000`
+    );
+    const data = await res.json();
+    const jobs = data.jobs || [];
 
-  const job = jobs.find((j) => {
-    const jobSlug =
-      j.slug ||
-      normalizeSlug(`${j.title || ""} ${j.company || ""}`);
-    return jobSlug === params.slug;
-  });
+    const job = jobs.find((j) => {
+      const jobSlug =
+        j.slug ||
+        normalizeSlug(`${j.title || ""} ${j.company || ""}`);
+      return jobSlug === params.slug;
+    });
 
-  if (!job) {
+    if (!job) {
+      return { notFound: true };
+    }
+
     return {
-      notFound: true,
+      props: { job },
+      revalidate: 3600,
     };
+  } catch (error) {
+    return { notFound: true };
   }
-
-  return {
-    props: { job },
-    revalidate: 3600, // 1 hour
-  };
 }

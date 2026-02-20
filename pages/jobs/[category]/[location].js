@@ -31,43 +31,12 @@ export default function CategoryLocationPage({
       ? `https://www.freshjobs.store/jobs/${category}/${location}?page=${currentPage}`
       : `https://www.freshjobs.store/jobs/${category}/${location}`;
 
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: "https://www.freshjobs.store/",
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: `${readableCategory} Jobs`,
-        item: `https://www.freshjobs.store/jobs/${category}`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: `${readableCategory} Jobs in ${readableLocation}`,
-        item: canonicalUrl,
-      },
-    ],
-  };
-
   return (
     <div className="max-w-6xl mx-auto p-4">
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
         <link rel="canonical" href={canonicalUrl} />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(breadcrumbSchema),
-          }}
-        />
       </Head>
 
       {jobs.length === 0 && (
@@ -95,10 +64,26 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   const { category, location } = params;
 
+  /* ✅ CATEGORY MAPPING FIX */
+  const categoryMap = {
+    government: "govt-jobs",
+    "work-from-home": "work-from-home",
+    "high-paying": "high-paying",
+    international: "international",
+  };
+
+  const normalizedCategory =
+    categoryMap[category?.toLowerCase()] || category;
+
+  const normalizedLocation = location?.toLowerCase();
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    "https://www.freshjobs.store";
+
   try {
-    // ✅ Localhost safe fetch
     const res = await fetch(
-      `http://localhost:3000/api/search?category=${category}&location=${location}&page=1&limit=10`
+      `${baseUrl}/api/search?category=${normalizedCategory}&location=${normalizedLocation}&page=1&limit=10`
     );
 
     const data = await res.json();
@@ -113,7 +98,9 @@ export async function getStaticProps({ params }) {
       },
       revalidate: 1800,
     };
-  } catch {
+  } catch (error) {
+    console.error("Category Location Fetch Error:", error);
+
     return {
       props: {
         jobs: [],

@@ -95,20 +95,16 @@ export default function GovtJobs({ initialJobs, totalPages }) {
   );
 }
 
-/* 🔥 BUILD SAFE STATIC GENERATION */
-export async function getStaticProps() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
-
-  if (!baseUrl) {
-    console.warn(
-      "NEXT_PUBLIC_BASE_URL not defined in .env.local. Build may fail!"
-    );
-  }
+/* ✅ SSR - BUILD SAFE */
+export async function getServerSideProps() {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
   try {
     const res = await fetch(
       `${baseUrl}/api/search?category=govt-jobs&page=1&limit=10`
     );
+
     const data = await res.json();
 
     return {
@@ -116,7 +112,6 @@ export async function getStaticProps() {
         initialJobs: data.jobs || [],
         totalPages: data.totalPages || 1,
       },
-      revalidate: 1800, // 30 min auto refresh
     };
   } catch (error) {
     console.error("Government Jobs Fetch Error:", error);
@@ -126,7 +121,6 @@ export async function getStaticProps() {
         initialJobs: [],
         totalPages: 1,
       },
-      revalidate: 1800,
     };
   }
 }
