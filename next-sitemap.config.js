@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 
-const BASE_URL = "https://freshjobs.store"
+const BASE_URL = "https://www.freshjobs.store"
 
 const config = {
   siteUrl: BASE_URL,
