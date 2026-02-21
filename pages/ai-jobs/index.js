@@ -34,8 +34,6 @@ export default function AIJobs({ initialJobs }) {
     setLoading(false)
   }, [loading, hasMore, page])
 
-  /* ---------------- SEO SCHEMAS ---------------- */
-
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -160,7 +158,7 @@ export default function AIJobs({ initialJobs }) {
               <h2 className="font-semibold mb-1">
                 {job.slug ? (
                   <Link
-                    href={`/job/${job.slug}`}   {/* ✅ ROUTE FIXED */}
+                    href={`/job/${job.slug}`}
                     prefetch={false}
                     className="text-blue-600 hover:text-blue-800 hover:underline"
                   >
@@ -209,7 +207,6 @@ export default function AIJobs({ initialJobs }) {
           </div>
         )}
 
-        {/* Internal Linking Boost */}
         <section className="mt-12">
           <h2 className="text-xl font-semibold mb-4">
             Explore More Career Options
@@ -242,7 +239,6 @@ export default function AIJobs({ initialJobs }) {
   )
 }
 
-/* ---------------- SSG ---------------- */
 export async function getStaticProps() {
   try {
     const baseUrl =
