@@ -1,4 +1,3 @@
-import { useState, useCallback } from "react"
 import Head from "next/head"
 import Link from "next/link"
 import Breadcrumb from "../../components/Breadcrumb"
@@ -10,38 +9,8 @@ const normalizeSlug = (text = "") =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
 
-export default function WorkFromHomeJobs({ initialJobs }) {
-  const [jobs, setJobs] = useState(initialJobs)
-  const [page, setPage] = useState(1)
-  const [loading, setLoading] = useState(false)
-  const [hasMore, setHasMore] = useState(initialJobs.length === 10)
-
-  const loadMore = useCallback(async () => {
-    if (loading || !hasMore) return
-    setLoading(true)
-
-    try {
-      const nextPage = page + 1
-
-      const res = await fetch(
-        `/api/search?category=work-from-home&page=${nextPage}&limit=10`
-      )
-
-      const data = await res.json()
-
-      if (!data.jobs || data.jobs.length === 0) {
-        setHasMore(false)
-      } else {
-        setJobs((prev) => [...prev, ...data.jobs])
-        setPage(nextPage)
-        if (data.jobs.length < 10) setHasMore(false)
-      }
-    } catch (err) {
-      console.error("Load more error:", err)
-    }
-
-    setLoading(false)
-  }, [loading, hasMore, page])
+export default function WorkFromHomeJobs({ initialJobs, totalPages }) {
+  const jobs = initialJobs
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -114,8 +83,7 @@ export default function WorkFromHomeJobs({ initialJobs }) {
         <p className="text-gray-600 mb-6 max-w-3xl">
           Explore the latest <strong>remote jobs</strong>, work from home
           opportunities, online jobs and flexible careers from global
-          companies. Whether you are from India, USA, UAE or anywhere in
-          the world, find verified remote job listings updated daily.
+          companies.
         </p>
 
         {jobs.length === 0 && (
@@ -170,58 +138,30 @@ export default function WorkFromHomeJobs({ initialJobs }) {
           })}
         </div>
 
-        {hasMore && (
-          <div className="text-center mt-8">
-            <button
-              onClick={loadMore}
-              disabled={loading}
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+        {/* ✅ Pagination Instead of Load More */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
+            <Link
+              href="/work-from-home/page/2"
+              className="px-4 py-2 border rounded hover:bg-gray-200"
             >
-              {loading ? "Loading..." : "Load More Jobs"}
-            </button>
+              Next »
+            </Link>
           </div>
         )}
-
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold mb-4">
-            Explore More Opportunities
-          </h2>
-          <ul className="list-disc pl-5 space-y-2 text-blue-700">
-            <li>
-              <Link href="/resume-builder" prefetch={false}>
-                Free Resume Builder
-              </Link>
-            </li>
-            <li>
-              <Link href="/ai-jobs" prefetch={false}>
-                AI & Tech Jobs
-              </Link>
-            </li>
-            <li>
-              <Link href="/international-jobs" prefetch={false}>
-                International Job Listings
-              </Link>
-            </li>
-            <li>
-              <Link href="/category/government/india" prefetch={false}>
-                Government Jobs in India
-              </Link>
-            </li>
-          </ul>
-        </section>
       </main>
     </>
   )
 }
 
-/* ✅ Static Generation for Speed */
+/* ✅ Static Generation */
 export async function getStaticProps() {
   try {
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "https://www.freshjobs.store"
+      process.env.NEXT_PUBLIC_SITE_URL || "https://www.freshjobs.store"
 
     const response = await fetch(
-      `${baseUrl}/api/search?category=work-from-home&page=1&limit=10`
+      `${baseUrl}/api/search?category=wfh&page=1&limit=10`
     )
 
     const data = await response.json()
@@ -229,15 +169,17 @@ export async function getStaticProps() {
     return {
       props: {
         initialJobs: data.jobs || [],
+        totalPages: data.totalPages || 1,
       },
-      revalidate: 1800,
+      revalidate: 300,
     }
   } catch {
     return {
       props: {
         initialJobs: [],
+        totalPages: 1,
       },
-      revalidate: 1800,
+      revalidate: 300,
     }
   }
 }
