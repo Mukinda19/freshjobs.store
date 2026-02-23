@@ -11,9 +11,11 @@ export default function AIJobsPage({ jobs, currentPage, totalPages }) {
           AI Jobs – Page {currentPage} | FreshJobs
         </title>
 
-        <meta
-          name="robots"
-          content="index, follow"
+        <meta name="robots" content="index, follow" />
+
+        <link
+          rel="canonical"
+          href={`https://www.freshjobs.store/ai-jobs/page/${currentPage}`}
         />
       </Head>
 
@@ -71,7 +73,9 @@ export default function AIJobsPage({ jobs, currentPage, totalPages }) {
 
 export async function getStaticProps({ params }) {
   const page = Number(params.page) || 1
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.freshjobs.store"
 
   const res = await fetch(
     `${baseUrl}/api/search?category=ai-jobs&page=${page}&limit=10`
