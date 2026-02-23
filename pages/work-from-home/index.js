@@ -138,15 +138,37 @@ export default function WorkFromHomeJobs({ initialJobs, totalPages }) {
           })}
         </div>
 
-        {/* ✅ Pagination Instead of Load More */}
+        {/* ✅ Number Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center mt-8">
-            <Link
-              href="/work-from-home/page/2"
-              className="px-4 py-2 border rounded hover:bg-gray-200"
-            >
-              Next »
-            </Link>
+          <div className="flex justify-center mt-10 space-x-2 flex-wrap">
+            {/* Current Page = 1 */}
+            <span className="px-4 py-2 border rounded bg-blue-600 text-white">
+              1
+            </span>
+
+            {/* Page Numbers */}
+            {Array.from({ length: totalPages }, (_, i) => i + 2)
+              .filter((page) => page <= totalPages)
+              .slice(0, 9)
+              .map((page) => (
+                <Link
+                  key={page}
+                  href={`/work-from-home/page/${page}`}
+                  className="px-4 py-2 border rounded hover:bg-gray-200"
+                >
+                  {page}
+                </Link>
+              ))}
+
+            {/* Next Button */}
+            {totalPages > 1 && (
+              <Link
+                href={`/work-from-home/page/2`}
+                className="px-4 py-2 border rounded hover:bg-gray-200"
+              >
+                Next »
+              </Link>
+            )}
           </div>
         )}
       </main>
