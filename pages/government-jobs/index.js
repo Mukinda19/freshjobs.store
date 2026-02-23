@@ -1,33 +1,10 @@
-import { useState, useCallback } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import JobCard from "../components/JobCard";
 
 export default function GovtJobs({ initialJobs, totalPages }) {
-  const [jobs, setJobs] = useState(initialJobs);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-
-  const loadMore = useCallback(async () => {
-    if (loading || page >= totalPages) return;
-
-    setLoading(true);
-    const nextPage = page + 1;
-
-    try {
-      const res = await fetch(
-        `/api/search?category=govt-jobs&page=${nextPage}&limit=10`
-      );
-      const data = await res.json();
-
-      setJobs((prev) => [...prev, ...(data.jobs || [])]);
-      setPage(nextPage);
-    } catch (error) {
-      console.error("Load More Error:", error);
-    }
-
-    setLoading(false);
-  }, [loading, page, totalPages]);
+  const jobs = initialJobs;
+  const currentPage = 1;
 
   /* 🔥 SEO SCHEMA */
   const itemListSchema = {
@@ -108,15 +85,29 @@ export default function GovtJobs({ initialJobs, totalPages }) {
           ))}
         </div>
 
-        {page < totalPages && (
-          <div className="text-center mt-8">
-            <button
-              onClick={loadMore}
-              disabled={loading}
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50 transition"
+        {/* 🔥 Professional Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-10 space-x-2">
+            <span className="px-4 py-2 border rounded bg-blue-600 text-white">
+              1
+            </span>
+
+            {Array.from({ length: totalPages - 1 }, (_, i) => (
+              <Link
+                key={i}
+                href={`/government-jobs/page/${i + 2}`}
+                className="px-4 py-2 border rounded hover:bg-gray-200"
+              >
+                {i + 2}
+              </Link>
+            ))}
+
+            <Link
+              href="/government-jobs/page/2"
+              className="px-4 py-2 border rounded hover:bg-gray-200"
             >
-              {loading ? "Loading..." : "Load More Jobs"}
-            </button>
+              Next »
+            </Link>
           </div>
         )}
       </main>
@@ -124,7 +115,7 @@ export default function GovtJobs({ initialJobs, totalPages }) {
   );
 }
 
-/* 🚀 PRODUCTION ISR (FAST + SEO SAFE) */
+/* 🚀 PRODUCTION ISR */
 export async function getStaticProps() {
   try {
     const baseUrl =
@@ -142,7 +133,7 @@ export async function getStaticProps() {
         initialJobs: data.jobs || [],
         totalPages: data.totalPages || 1,
       },
-      revalidate: 300, // 5 min ISR
+      revalidate: 300,
     };
   } catch (error) {
     console.error("Government Jobs Fetch Error:", error);
