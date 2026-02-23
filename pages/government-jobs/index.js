@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
-import JobCard from "../components/JobCard";
+import JobCard from "../../components/JobCard";
 
 export default function GovtJobs({ initialJobs, totalPages }) {
   const jobs = initialJobs;
