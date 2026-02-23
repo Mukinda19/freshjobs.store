@@ -2,8 +2,6 @@ import { useState, useCallback } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import JobCard from "../components/JobCard";
-import dbConnect from "../lib/dbConnect";
-import Job from "../models/Job";
 
 export default function GovtJobs({ initialJobs, totalPages }) {
   const [jobs, setJobs] = useState(initialJobs);
@@ -21,6 +19,7 @@ export default function GovtJobs({ initialJobs, totalPages }) {
         `/api/search?category=govt-jobs&page=${nextPage}&limit=10`
       );
       const data = await res.json();
+
       setJobs((prev) => [...prev, ...(data.jobs || [])]);
       setPage(nextPage);
     } catch (error) {
@@ -30,10 +29,11 @@ export default function GovtJobs({ initialJobs, totalPages }) {
     setLoading(false);
   }, [loading, page, totalPages]);
 
+  /* 🔥 SEO SCHEMA */
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: initialJobs.map((job, index) => ({
+    itemListElement: jobs.map((job, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: job.title,
@@ -59,6 +59,17 @@ export default function GovtJobs({ initialJobs, totalPages }) {
         />
 
         <meta name="robots" content="index, follow" />
+
+        <meta property="og:title" content="Latest Government Jobs 2026 | FreshJobs" />
+        <meta
+          property="og:description"
+          content="Daily updated Sarkari Naukri listings for Railway, Banking, Defence & PSU."
+        />
+        <meta
+          property="og:url"
+          content="https://www.freshjobs.store/government-jobs"
+        />
+        <meta property="og:type" content="website" />
 
         <script
           type="application/ld+json"
@@ -92,8 +103,8 @@ export default function GovtJobs({ initialJobs, totalPages }) {
         </p>
 
         <div className="grid md:grid-cols-2 gap-4">
-          {jobs.map((job) => (
-            <JobCard key={job._id} job={job} />
+          {jobs.map((job, index) => (
+            <JobCard key={job.slug || index} job={job} />
           ))}
         </div>
 
@@ -113,30 +124,25 @@ export default function GovtJobs({ initialJobs, totalPages }) {
   );
 }
 
-/* 🚀 ULTRA FAST ISR (Production Optimized) */
+/* 🚀 PRODUCTION ISR (FAST + SEO SAFE) */
 export async function getStaticProps() {
   try {
-    await dbConnect();
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      "https://www.freshjobs.store";
 
-    const limit = 10;
+    const res = await fetch(
+      `${baseUrl}/api/search?category=govt-jobs&page=1&limit=10`
+    );
 
-    const totalJobs = await Job.countDocuments({
-      category: "govt-jobs",
-    });
-
-    const jobs = await Job.find({
-      category: "govt-jobs",
-    })
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .lean();
+    const data = await res.json();
 
     return {
       props: {
-        initialJobs: JSON.parse(JSON.stringify(jobs)),
-        totalPages: Math.ceil(totalJobs / limit),
+        initialJobs: data.jobs || [],
+        totalPages: data.totalPages || 1,
       },
-      revalidate: 300, // 5 minutes
+      revalidate: 300, // 5 min ISR
     };
   } catch (error) {
     console.error("Government Jobs Fetch Error:", error);

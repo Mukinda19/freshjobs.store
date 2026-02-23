@@ -1,5 +1,10 @@
 // pages/api/search.js
 
+/* 🔹 SIMPLE MEMORY CACHE */
+let cachedJobs = null
+let lastFetchTime = 0
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+
 /* 🔹 SLUG GENERATOR */
 const generateSlug = (text = "", fallback = "") => {
   const base = text || fallback || "job-opening"
@@ -15,99 +20,68 @@ export default async function handler(req, res) {
     const SHEET_URL =
       "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
-    const { category, q, page = 1, limit = 10 } = req.query
+    const { category, q } = req.query
+    const page = Number(req.query.page) || 1
+    const limit = Number(req.query.limit) || 10
 
-    const response = await fetch(`${SHEET_URL}?limit=1000`)
-    const data = await response.json()
+    /* 🔥 CACHE CHECK */
+    if (!cachedJobs || Date.now() - lastFetchTime > CACHE_DURATION) {
+      const response = await fetch(`${SHEET_URL}?limit=1000`)
+      const data = await response.json()
 
-    let jobs = Array.isArray(data.jobs) ? data.jobs : []
+      let jobs = Array.isArray(data.jobs) ? data.jobs : []
 
-    /* 🔥 IMPORTANT: AUTO ADD SLUG TO ALL JOBS */
-    jobs = jobs.map((job, index) => ({
-      ...job,
-      slug:
-        job.slug ||
-        generateSlug(job.title, job.link) + "-" + index,
-    }))
+      jobs = jobs.map((job, index) => ({
+        ...job,
+        slug:
+          job.slug ||
+          generateSlug(job.title, job.link) + "-" + index,
+      }))
+
+      cachedJobs = jobs
+      lastFetchTime = Date.now()
+    }
+
+    let jobs = [...cachedJobs]
 
     /* ================= KEYWORDS ================= */
 
     const aiKeywords = [
-      "ai",
-      "artificial intelligence",
-      "machine learning",
-      "ml",
-      "deep learning",
-      "data scientist",
-      "data science",
-      "genai",
-      "nlp",
-      "chatgpt",
-      "openai",
+      "ai","artificial intelligence","machine learning","ml",
+      "deep learning","data scientist","data science",
+      "genai","nlp","chatgpt","openai",
     ]
 
     const wfhKeywords = [
-      "work from home",
-      "remote",
-      "wfh",
-      "anywhere",
-      "worldwide",
-      "work anywhere",
+      "work from home","remote","wfh",
+      "anywhere","worldwide","work anywhere",
     ]
 
     const govtKeywords = [
-      "government",
-      "govt",
-      "sarkari",
-      "psu",
-      "ssc",
-      "upsc",
-      "railway",
-      "defence",
-      "police",
-      "court",
-      "ministry",
+      "government","govt","sarkari","psu","ssc","upsc",
+      "railway","defence","police","court","ministry",
     ]
 
     const indiaKeywords = [
-      "india",
-      "indian",
-      "bharat",
-      "new delhi",
-      "delhi",
-      "mumbai",
-      "pune",
-      "bangalore",
-      "bengaluru",
-      "chennai",
-      "hyderabad",
-      "kolkata",
-      "ahmedabad",
-      "noida",
-      "gurgaon",
-      "maharashtra",
-      "uttar pradesh",
-      "bihar",
-      "madhya pradesh",
-      "rajasthan",
-      "tamil nadu",
-      "karnataka",
+      "india","indian","bharat","new delhi","delhi",
+      "mumbai","pune","bangalore","bengaluru",
+      "chennai","hyderabad","kolkata","ahmedabad",
+      "noida","gurgaon","maharashtra",
+      "uttar pradesh","bihar","madhya pradesh",
+      "rajasthan","tamil nadu","karnataka",
     ]
 
     const internationalDomains = [
-      "remoteok",
-      "weworkremotely",
-      "remotive",
-      "jobicy",
+      "remoteok","weworkremotely","remotive","jobicy",
     ]
 
     const normalCategoryMap = {
       "govt-jobs": govtKeywords,
-      banking: ["bank", "banking", "ibps", "rbi", "sbi"],
-      it: ["software", "developer", "engineer", "programmer"],
-      bpo: ["bpo", "call center", "customer support"],
-      sales: ["sales", "marketing"],
-      engineering: ["mechanical", "civil", "electrical"],
+      banking: ["bank","banking","ibps","rbi","sbi"],
+      it: ["software","developer","engineer","programmer"],
+      bpo: ["bpo","call center","customer support"],
+      sales: ["sales","marketing"],
+      engineering: ["mechanical","civil","electrical"],
     }
 
     /* ================= CATEGORY FILTER ================= */
@@ -123,7 +97,6 @@ export default async function handler(req, res) {
             ${job.snippet || ""}
             ${job.company || ""}
           `.toLowerCase()
-
           return aiKeywords.some((kw) => text.includes(kw))
         })
       }
@@ -136,7 +109,6 @@ export default async function handler(req, res) {
             ${job.snippet || ""}
             ${job.location || ""}
           `.toLowerCase()
-
           return wfhKeywords.some((kw) => text.includes(kw))
         })
       }
@@ -177,7 +149,6 @@ export default async function handler(req, res) {
             ${job.category || ""}
             ${job.company || ""}
           `.toLowerCase()
-
           return keywords.some((kw) => text.includes(kw))
         })
       }
@@ -187,7 +158,6 @@ export default async function handler(req, res) {
 
     if (q && q.trim() !== "") {
       const keyword = q.toLowerCase()
-
       jobs = jobs.filter((job) => {
         const text = `
           ${job.title || ""}
@@ -195,23 +165,21 @@ export default async function handler(req, res) {
           ${job.snippet || ""}
           ${job.company || ""}
         `.toLowerCase()
-
         return text.includes(keyword)
       })
     }
 
     /* ================= PAGINATION ================= */
 
-    const pageNum = Number(page)
-    const pageLimit = Number(limit)
-    const start = (pageNum - 1) * pageLimit
+    const start = (page - 1) * limit
 
     return res.status(200).json({
-      jobs: jobs.slice(start, start + pageLimit),
+      jobs: jobs.slice(start, start + limit),
       total: jobs.length,
-      page: pageNum,
-      totalPages: Math.ceil(jobs.length / pageLimit),
+      page,
+      totalPages: Math.ceil(jobs.length / limit),
     })
+
   } catch (err) {
     console.error("API error:", err)
     return res.status(500).json({
