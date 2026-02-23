@@ -9,6 +9,20 @@ export default function GovtJobsPage({ jobs, currentPage, totalPages }) {
         <title>
           Government Jobs – Page {currentPage} | FreshJobs
         </title>
+
+        <meta
+          name="robots"
+          content="index, follow"
+        />
+
+        <link
+          rel="canonical"
+          href={
+            currentPage === 1
+              ? "https://www.freshjobs.store/government-jobs"
+              : `https://www.freshjobs.store/government-jobs/page/${currentPage}`
+          }
+        />
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 my-8">
@@ -57,22 +71,33 @@ export default function GovtJobsPage({ jobs, currentPage, totalPages }) {
 
 export async function getStaticProps({ params }) {
   const page = Number(params.page) || 1;
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-  const res = await fetch(
-    `${baseUrl}/api/search?category=govt-jobs&page=${page}&limit=10`
-  );
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://www.freshjobs.store";
 
-  const data = await res.json();
+  try {
+    const res = await fetch(
+      `${baseUrl}/api/search?category=govt-jobs&page=${page}&limit=10`
+    );
 
-  return {
-    props: {
-      jobs: data.jobs || [],
-      currentPage: page,
-      totalPages: data.totalPages || 1,
-    },
-    revalidate: 300,
-  };
+    const data = await res.json();
+
+    if (!data.jobs || data.jobs.length === 0) {
+      return { notFound: true };
+    }
+
+    return {
+      props: {
+        jobs: data.jobs,
+        currentPage: page,
+        totalPages: data.totalPages || 1,
+      },
+      revalidate: 300,
+    };
+  } catch (error) {
+    return { notFound: true };
+  }
 }
 
 export async function getStaticPaths() {
