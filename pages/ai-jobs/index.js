@@ -1,38 +1,9 @@
-import { useState, useCallback } from "react"
 import Head from "next/head"
 import Link from "next/link"
 import Breadcrumb from "../../components/Breadcrumb"
 
-export default function AIJobs({ initialJobs }) {
-  const [jobs, setJobs] = useState(initialJobs)
-  const [page, setPage] = useState(1)
-  const [loading, setLoading] = useState(false)
-  const [hasMore, setHasMore] = useState(initialJobs.length === 10)
-
-  const loadMore = useCallback(async () => {
-    if (loading || !hasMore) return
-    setLoading(true)
-
-    try {
-      const nextPage = page + 1
-      const res = await fetch(
-        `/api/search?category=ai-jobs&page=${nextPage}&limit=10`
-      )
-      const data = await res.json()
-
-      if (!data.jobs || data.jobs.length === 0) {
-        setHasMore(false)
-      } else {
-        setJobs((prev) => [...prev, ...data.jobs])
-        setPage(nextPage)
-        if (data.jobs.length < 10) setHasMore(false)
-      }
-    } catch (err) {
-      console.error("AI Jobs Load Error:", err)
-    }
-
-    setLoading(false)
-  }, [loading, hasMore, page])
+export default function AIJobs({ initialJobs, totalPages }) {
+  const jobs = initialJobs
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -195,15 +166,32 @@ export default function AIJobs({ initialJobs }) {
           ))}
         </div>
 
-        {hasMore && (
-          <div className="text-center mt-8">
-            <button
-              onClick={loadMore}
-              disabled={loading}
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+        {/* ✅ Number Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-10 space-x-2 flex-wrap">
+            <span className="px-4 py-2 border rounded bg-blue-600 text-white">
+              1
+            </span>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 2)
+              .filter((page) => page <= totalPages)
+              .slice(0, 9)
+              .map((page) => (
+                <Link
+                  key={page}
+                  href={`/ai-jobs/page/${page}`}
+                  className="px-4 py-2 border rounded hover:bg-gray-200"
+                >
+                  {page}
+                </Link>
+              ))}
+
+            <Link
+              href={`/ai-jobs/page/2`}
+              className="px-4 py-2 border rounded hover:bg-gray-200"
             >
-              {loading ? "Loading..." : "Load More AI Jobs"}
-            </button>
+              Next »
+            </Link>
           </div>
         )}
 
@@ -252,6 +240,7 @@ export async function getStaticProps() {
     return {
       props: {
         initialJobs: data.jobs || [],
+        totalPages: data.totalPages || 1,
       },
       revalidate: 1800,
     }
@@ -259,6 +248,7 @@ export async function getStaticProps() {
     return {
       props: {
         initialJobs: [],
+        totalPages: 1,
       },
       revalidate: 1800,
     }
