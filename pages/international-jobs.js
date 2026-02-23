@@ -84,7 +84,7 @@ export default function InternationalJobs({ initialJobs }) {
 
         <link
           rel="canonical"
-          href="https://freshjobs.store/international-jobs"
+          href="https://www.freshjobs.store/international-jobs"
         />
 
         <script
@@ -136,7 +136,6 @@ export default function InternationalJobs({ initialJobs }) {
           </div>
         )}
 
-        {/* Internal Linking Boost */}
         <section className="mt-12">
           <h2 className="text-xl font-semibold mb-4">
             Explore More Job Categories
@@ -169,11 +168,11 @@ export default function InternationalJobs({ initialJobs }) {
   )
 }
 
-/* ✅ Faster SSR with Cache */
-export async function getServerSideProps({ res }) {
+/* ✅ Static Generation for Speed */
+export async function getStaticProps() {
   try {
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "https://freshjobs.store"
+      process.env.NEXT_PUBLIC_BASE_URL || "https://www.freshjobs.store"
 
     const response = await fetch(
       `${baseUrl}/api/search?category=international&page=1&limit=10`
@@ -181,21 +180,18 @@ export async function getServerSideProps({ res }) {
 
     const data = await response.json()
 
-    res.setHeader(
-      "Cache-Control",
-      "public, s-maxage=120, stale-while-revalidate=300"
-    )
-
     return {
       props: {
         initialJobs: data.jobs || [],
       },
+      revalidate: 1800,
     }
   } catch {
     return {
       props: {
         initialJobs: [],
       },
+      revalidate: 1800,
     }
   }
 }

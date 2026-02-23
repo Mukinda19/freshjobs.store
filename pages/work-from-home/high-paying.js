@@ -46,7 +46,7 @@ export default function HighPayingWFHJobs({ initialJobs }) {
 
         <link
           rel="canonical"
-          href="https://freshjobs.store/work-from-home/high-paying"
+          href="https://www.freshjobs.store/work-from-home/high-paying"
         />
       </Head>
 
@@ -64,9 +64,8 @@ export default function HighPayingWFHJobs({ initialJobs }) {
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore{" "}
           <strong>
-            high salary remote & work from home jobs
+            High salary remote & work from home jobs
           </strong>{" "}
           offering better pay, international exposure and flexible work options.
         </p>
@@ -77,7 +76,6 @@ export default function HighPayingWFHJobs({ initialJobs }) {
           </p>
         )}
 
-        {/* ✅ Universal JobCard Used */}
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
             <JobCard key={job.id || index} job={job} />
@@ -100,11 +98,11 @@ export default function HighPayingWFHJobs({ initialJobs }) {
   )
 }
 
-/* ✅ SSR */
-export async function getServerSideProps() {
+/* ✅ Static Generation for Speed */
+export async function getStaticProps() {
   try {
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      process.env.NEXT_PUBLIC_BASE_URL || "https://www.freshjobs.store"
 
     const res = await fetch(
       `${baseUrl}/api/search?category=work-from-home&salary=high&page=1&limit=10`
@@ -115,12 +113,14 @@ export async function getServerSideProps() {
       props: {
         initialJobs: data.jobs || [],
       },
+      revalidate: 1800, // 30 min ISR
     }
   } catch {
     return {
       props: {
         initialJobs: [],
       },
+      revalidate: 1800,
     }
   }
 }

@@ -46,29 +46,29 @@ export default function WorkFromHomeJobs({ initialJobs }) {
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": [
+    mainEntity: [
       {
         "@type": "Question",
-        "name": "Are these work from home jobs verified?",
-        "acceptedAnswer": {
+        name: "Are these work from home jobs verified?",
+        acceptedAnswer: {
           "@type": "Answer",
-          "text": "Yes, we list remote and work from home jobs from trusted and official sources."
+          text: "Yes, we list remote and work from home jobs from trusted and official sources."
         }
       },
       {
         "@type": "Question",
-        "name": "Can I apply for international remote jobs?",
-        "acceptedAnswer": {
+        name: "Can I apply for international remote jobs?",
+        acceptedAnswer: {
           "@type": "Answer",
-          "text": "Yes, many listed jobs are open for global applicants including USA, UAE, Canada and other countries."
+          text: "Yes, many listed jobs are open for global applicants including USA, UAE, Canada and other countries."
         }
       },
       {
         "@type": "Question",
-        "name": "Are work from home jobs available for freshers?",
-        "acceptedAnswer": {
+        name: "Are work from home jobs available for freshers?",
+        acceptedAnswer: {
           "@type": "Answer",
-          "text": "Yes, we regularly update remote jobs suitable for both freshers and experienced candidates."
+          text: "Yes, we regularly update remote jobs suitable for both freshers and experienced candidates."
         }
       }
     ]
@@ -88,7 +88,7 @@ export default function WorkFromHomeJobs({ initialJobs }) {
 
         <link
           rel="canonical"
-          href="https://freshjobs.store/work-from-home"
+          href="https://www.freshjobs.store/work-from-home"
         />
 
         <meta name="robots" content="index, follow" />
@@ -182,7 +182,6 @@ export default function WorkFromHomeJobs({ initialJobs }) {
           </div>
         )}
 
-        {/* Internal Linking Boost */}
         <section className="mt-12">
           <h2 className="text-xl font-semibold mb-4">
             Explore More Opportunities
@@ -215,11 +214,11 @@ export default function WorkFromHomeJobs({ initialJobs }) {
   )
 }
 
-/* ✅ Faster SSR */
-export async function getServerSideProps({ res }) {
+/* ✅ Static Generation for Speed */
+export async function getStaticProps() {
   try {
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "https://freshjobs.store"
+      process.env.NEXT_PUBLIC_BASE_URL || "https://www.freshjobs.store"
 
     const response = await fetch(
       `${baseUrl}/api/search?category=work-from-home&page=1&limit=10`
@@ -227,21 +226,18 @@ export async function getServerSideProps({ res }) {
 
     const data = await response.json()
 
-    res.setHeader(
-      "Cache-Control",
-      "public, s-maxage=120, stale-while-revalidate=300"
-    )
-
     return {
       props: {
         initialJobs: data.jobs || [],
       },
+      revalidate: 1800,
     }
   } catch {
     return {
       props: {
         initialJobs: [],
       },
+      revalidate: 1800,
     }
   }
 }

@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://freshjobs.store
+Host: https://www.freshjobs.store
 
 # Sitemaps
-Sitemap: https://freshjobs.store/sitemap.xml
+Sitemap: https://www.freshjobs.store/sitemap.xml
