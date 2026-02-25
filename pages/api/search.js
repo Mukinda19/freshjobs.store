@@ -16,13 +16,21 @@ const generateSlug = (text = "", fallback = "") => {
 }
 
 export default async function handler(req, res) {
+  /* ✅ VERCEL EDGE CACHE */
+  res.setHeader(
+    "Cache-Control",
+    "s-maxage=600, stale-while-revalidate"
+  )
+
   try {
     const SHEET_URL =
       "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
     const { category, q } = req.query
     const page = Number(req.query.page) || 1
-    const limit = Number(req.query.limit) || 10
+
+    /* ✅ LIMIT SAFETY CAP (Max 20) */
+    const limit = Math.min(Number(req.query.limit) || 10, 20)
 
     /* 🔥 CACHE CHECK */
     if (!cachedJobs || Date.now() - lastFetchTime > CACHE_DURATION) {
@@ -89,44 +97,29 @@ export default async function handler(req, res) {
     if (category) {
       const cat = category.toLowerCase()
 
+      const buildText = (job, fields) =>
+        fields.map((f) => job[f] || "").join(" ").toLowerCase()
+
       if (cat === "ai" || cat === "ai-jobs") {
-        jobs = jobs.filter((job) => {
-          const text = `
-            ${job.title || ""}
-            ${job.description || ""}
-            ${job.snippet || ""}
-            ${job.company || ""}
-          `.toLowerCase()
-          return aiKeywords.some((kw) => text.includes(kw))
-        })
+        jobs = jobs.filter((job) =>
+          aiKeywords.some((kw) =>
+            buildText(job, ["title","description","snippet","company"]).includes(kw)
+          )
+        )
       }
 
       else if (cat === "work-from-home" || cat === "wfh") {
-        jobs = jobs.filter((job) => {
-          const text = `
-            ${job.title || ""}
-            ${job.description || ""}
-            ${job.snippet || ""}
-            ${job.location || ""}
-          `.toLowerCase()
-          return wfhKeywords.some((kw) => text.includes(kw))
-        })
+        jobs = jobs.filter((job) =>
+          wfhKeywords.some((kw) =>
+            buildText(job, ["title","description","snippet","location"]).includes(kw)
+          )
+        )
       }
 
       else if (cat === "international" || cat === "international-jobs") {
         jobs = jobs.filter((job) => {
-          const text = `
-            ${job.title || ""}
-            ${job.description || ""}
-            ${job.snippet || ""}
-          `.toLowerCase()
-
-          const urlText = `
-            ${job.url || ""}
-            ${job.link || ""}
-            ${job.apply_url || ""}
-            ${job.source || ""}
-          `.toLowerCase()
+          const text = buildText(job, ["title","description","snippet"])
+          const urlText = buildText(job, ["url","link","apply_url","source"])
 
           const isInternationalSource = internationalDomains.some((d) =>
             urlText.includes(d)
@@ -142,15 +135,11 @@ export default async function handler(req, res) {
       else if (normalCategoryMap[cat]) {
         const keywords = normalCategoryMap[cat]
 
-        jobs = jobs.filter((job) => {
-          const text = `
-            ${job.title || ""}
-            ${job.description || ""}
-            ${job.category || ""}
-            ${job.company || ""}
-          `.toLowerCase()
-          return keywords.some((kw) => text.includes(kw))
-        })
+        jobs = jobs.filter((job) =>
+          keywords.some((kw) =>
+            buildText(job, ["title","description","category","company"]).includes(kw)
+          )
+        )
       }
     }
 
@@ -158,26 +147,25 @@ export default async function handler(req, res) {
 
     if (q && q.trim() !== "") {
       const keyword = q.toLowerCase()
-      jobs = jobs.filter((job) => {
-        const text = `
-          ${job.title || ""}
-          ${job.description || ""}
-          ${job.snippet || ""}
-          ${job.company || ""}
-        `.toLowerCase()
-        return text.includes(keyword)
-      })
+      jobs = jobs.filter((job) =>
+        ["title","description","snippet","company"]
+          .map((f) => job[f] || "")
+          .join(" ")
+          .toLowerCase()
+          .includes(keyword)
+      )
     }
 
     /* ================= PAGINATION ================= */
 
     const start = (page - 1) * limit
+    const totalPages = Math.ceil(jobs.length / limit)
 
     return res.status(200).json({
       jobs: jobs.slice(start, start + limit),
       total: jobs.length,
       page,
-      totalPages: Math.ceil(jobs.length / limit),
+      totalPages,
     })
 
   } catch (err) {
