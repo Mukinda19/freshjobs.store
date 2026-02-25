@@ -3,7 +3,14 @@ import Link from "next/link"
 import Breadcrumb from "../../../../components/Breadcrumb"
 import JobCard from "../../../../components/JobCard"
 
-export default function HighPayingWFHPage({ jobs, currentPage, totalPages }) {
+export default function HighPayingWFHPage({
+  jobs,
+  currentPage,
+  totalPages,
+  siteUrl,
+}) {
+  const pageUrl = `${siteUrl}/work-from-home/high-paying/page/${currentPage}`
+
   return (
     <>
       <Head>
@@ -11,11 +18,37 @@ export default function HighPayingWFHPage({ jobs, currentPage, totalPages }) {
           High Paying Work From Home Jobs – Page {currentPage} | FreshJobs
         </title>
 
+        <meta
+          name="description"
+          content={`Browse page ${currentPage} of high paying work from home jobs. Discover premium salary remote jobs and international WFH careers updated daily.`}
+        />
+
         <meta name="robots" content="index, follow" />
 
-        <link
-          rel="canonical"
-          href={`https://www.freshjobs.store/work-from-home/high-paying/page/${currentPage}`}
+        <link rel="canonical" href={pageUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:title"
+          content={`High Paying Work From Home Jobs – Page ${currentPage}`}
+        />
+        <meta
+          property="og:description"
+          content="Verified high salary remote and work from home jobs from trusted companies."
+        />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:site_name" content="FreshJobs" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content={`High Paying WFH Jobs – Page ${currentPage}`}
+        />
+        <meta
+          name="twitter:description"
+          content="Top paying remote jobs with competitive salary packages."
         />
       </Head>
 
@@ -34,9 +67,7 @@ export default function HighPayingWFHPage({ jobs, currentPage, totalPages }) {
         </h1>
 
         {jobs.length === 0 && (
-          <p className="text-red-500">
-            No jobs found on this page.
-          </p>
+          <p className="text-red-500">No jobs found on this page.</p>
         )}
 
         <div className="grid md:grid-cols-2 gap-4">
@@ -45,34 +76,62 @@ export default function HighPayingWFHPage({ jobs, currentPage, totalPages }) {
           ))}
         </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-8 space-x-2 flex-wrap">
-          {currentPage > 1 && (
-            <Link
-              href={
-                currentPage === 2
+        {/* ✅ Numeric Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-10 flex-wrap gap-2">
+
+            {/* Prev Button */}
+            {currentPage > 1 && (
+              <Link
+                href={
+                  currentPage === 2
+                    ? "/work-from-home/high-paying"
+                    : `/work-from-home/high-paying/page/${currentPage - 1}`
+                }
+                className="px-3 py-2 border rounded hover:bg-gray-200"
+              >
+                « Prev
+              </Link>
+            )}
+
+            {/* Page Numbers */}
+            {[...Array(totalPages)].map((_, i) => {
+              const pageNumber = i + 1
+
+              const href =
+                pageNumber === 1
                   ? "/work-from-home/high-paying"
-                  : `/work-from-home/high-paying/page/${currentPage - 1}`
-              }
-              className="px-4 py-2 border rounded hover:bg-gray-200"
-            >
-              « Prev
-            </Link>
-          )}
+                  : `/work-from-home/high-paying/page/${pageNumber}`
 
-          <span className="px-4 py-2 border rounded bg-blue-600 text-white">
-            {currentPage}
-          </span>
+              const isActive = pageNumber === currentPage
 
-          {currentPage < totalPages && (
-            <Link
-              href={`/work-from-home/high-paying/page/${currentPage + 1}`}
-              className="px-4 py-2 border rounded hover:bg-gray-200"
-            >
-              Next »
-            </Link>
-          )}
-        </div>
+              return (
+                <Link
+                  key={pageNumber}
+                  href={href}
+                  className={`px-3 py-2 border rounded ${
+                    isActive
+                      ? "bg-blue-600 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  {pageNumber}
+                </Link>
+              )
+            })}
+
+            {/* Next Button */}
+            {currentPage < totalPages && (
+              <Link
+                href={`/work-from-home/high-paying/page/${currentPage + 1}`}
+                className="px-3 py-2 border rounded hover:bg-gray-200"
+              >
+                Next »
+              </Link>
+            )}
+
+          </div>
+        )}
       </main>
     </>
   )
@@ -82,11 +141,12 @@ export async function getStaticProps({ params }) {
   const page = Number(params.page) || 1
 
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || "https://www.freshjobs.store"
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+      "https://www.freshjobs.store"
 
     const res = await fetch(
-      `${baseUrl}/api/search?category=work-from-home&salary=high&page=${page}&limit=10`
+      `${siteUrl}/api/search?category=work-from-home&salary=high&page=${page}&limit=10`
     )
 
     const data = await res.json()
@@ -96,8 +156,9 @@ export async function getStaticProps({ params }) {
         jobs: data.jobs || [],
         currentPage: page,
         totalPages: data.totalPages || 1,
+        siteUrl,
       },
-      revalidate: 300,
+      revalidate: 600,
     }
   } catch {
     return {
@@ -105,8 +166,9 @@ export async function getStaticProps({ params }) {
         jobs: [],
         currentPage: page,
         totalPages: 1,
+        siteUrl: "https://www.freshjobs.store",
       },
-      revalidate: 300,
+      revalidate: 600,
     }
   }
 }

@@ -33,7 +33,7 @@ export default function HighPayingWFHJobs({ jobs, totalPages, siteUrl }) {
         <meta property="og:url" content={pageUrl} />
         <meta property="og:site_name" content="FreshJobs" />
 
-        {/* Twitter Card */}
+        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:title"
@@ -76,15 +76,40 @@ export default function HighPayingWFHJobs({ jobs, totalPages, siteUrl }) {
           ))}
         </div>
 
-        {/* Pagination */}
+        {/* ✅ Numeric Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center mt-8">
+          <div className="flex justify-center mt-10 flex-wrap gap-2">
+
+            {/* Page 1 Active */}
+            <Link
+              href="/work-from-home/high-paying"
+              className="px-3 py-2 border rounded bg-blue-600 text-white"
+            >
+              1
+            </Link>
+
+            {/* Other Pages */}
+            {[...Array(totalPages - 1)].map((_, i) => {
+              const pageNumber = i + 2
+              return (
+                <Link
+                  key={pageNumber}
+                  href={`/work-from-home/high-paying/page/${pageNumber}`}
+                  className="px-3 py-2 border rounded hover:bg-gray-200"
+                >
+                  {pageNumber}
+                </Link>
+              )
+            })}
+
+            {/* Next Button */}
             <Link
               href="/work-from-home/high-paying/page/2"
-              className="px-4 py-2 border rounded hover:bg-gray-200"
+              className="px-3 py-2 border rounded hover:bg-gray-200"
             >
-              Next Page →
+              Next »
             </Link>
+
           </div>
         )}
       </main>
@@ -92,7 +117,7 @@ export default function HighPayingWFHJobs({ jobs, totalPages, siteUrl }) {
   )
 }
 
-/* ✅ Static Generation with Strong Fallback */
+/* ✅ Static Generation */
 export async function getStaticProps() {
   try {
     const siteUrl =
@@ -111,7 +136,7 @@ export async function getStaticProps() {
         totalPages: data.totalPages || 1,
         siteUrl,
       },
-      revalidate: 600, // 10 minutes ISR
+      revalidate: 600,
     }
   } catch {
     return {
