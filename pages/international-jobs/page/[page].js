@@ -1,7 +1,7 @@
 import Head from "next/head"
 import Link from "next/link"
-import Breadcrumb from "../../../../components/Breadcrumb"
-import JobCard from "../../../../components/JobCard"
+import Breadcrumb from "../../../components/Breadcrumb"
+import JobCard from "../../../components/JobCard"
 
 export default function InternationalJobsPage({
   jobs,
@@ -46,7 +46,6 @@ export default function InternationalJobsPage({
           />
         )}
 
-        {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta
           property="og:title"
@@ -85,7 +84,6 @@ export default function InternationalJobsPage({
           ))}
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 flex-wrap gap-2">
             {currentPage > 1 && (
@@ -137,7 +135,6 @@ export default function InternationalJobsPage({
   )
 }
 
-/* Static Generation */
 export async function getStaticProps({ params }) {
   const page = Number(params.page) || 1
 
