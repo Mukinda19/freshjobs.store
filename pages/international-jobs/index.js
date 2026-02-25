@@ -3,6 +3,9 @@ import Link from "next/link"
 import Breadcrumb from "../../components/Breadcrumb"
 import JobCard from "../../components/JobCard"
 
+const SHEET_URL =
+  "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
+
 export default function InternationalJobs({
   jobs,
   totalPages,
@@ -10,78 +13,20 @@ export default function InternationalJobs({
 }) {
   const pageUrl = `${siteUrl}/international-jobs`
 
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "Can I apply for jobs outside my country?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes, many international jobs listed here are open to global applicants. Please check visa and eligibility requirements before applying."
-        }
-      },
-      {
-        "@type": "Question",
-        name: "Are remote international jobs available?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes, we list both onsite and remote international job opportunities from global companies."
-        }
-      },
-      {
-        "@type": "Question",
-        name: "Which countries are included in international jobs?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "We publish job listings from USA, UAE, Canada, UK, Australia and other countries."
-        }
-      }
-    ]
-  }
-
   return (
     <>
       <Head>
-        {/* Primary SEO */}
         <title>
           International Jobs 2026 | USA, UAE, Canada & Global Careers
         </title>
 
         <meta
           name="description"
-          content="Find latest international jobs in USA, UAE, Canada, UK and other countries. Explore overseas and remote global career opportunities with verified apply links."
+          content="Find latest international jobs in USA, UAE, Canada, UK and other countries."
         />
 
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={pageUrl} />
-
-        {/* Open Graph */}
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="International Jobs 2026 | FreshJobs" />
-        <meta
-          property="og:description"
-          content="Explore overseas and remote global job opportunities with trusted companies worldwide."
-        />
-        <meta property="og:url" content={pageUrl} />
-        <meta property="og:site_name" content="FreshJobs" />
-
-        {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="International Jobs 2026 | FreshJobs" />
-        <meta
-          name="twitter:description"
-          content="Discover verified international and overseas job opportunities."
-        />
-
-        {/* FAQ Schema */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(faqSchema),
-          }}
-        />
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -92,21 +37,9 @@ export default function InternationalJobs({
           ]}
         />
 
-        <h1 className="text-3xl font-bold mb-3">
+        <h1 className="text-3xl font-bold mb-6">
           International Jobs & Global Career Opportunities
         </h1>
-
-        <p className="text-gray-600 mb-6 max-w-3xl">
-          Explore verified international job opportunities including onsite and
-          remote roles from global companies in USA, UAE, Canada, UK and other
-          countries. Updated daily with trusted application links.
-        </p>
-
-        {jobs.length === 0 && (
-          <p className="text-red-500">
-            Currently no international jobs available.
-          </p>
-        )}
 
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
@@ -114,7 +47,6 @@ export default function InternationalJobs({
           ))}
         </div>
 
-        {/* Numeric Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 flex-wrap gap-2">
             <Link
@@ -137,64 +69,83 @@ export default function InternationalJobs({
               )
             })}
 
-            {totalPages > 1 && (
-              <Link
-                href="/international-jobs/page/2"
-                className="px-3 py-2 border rounded hover:bg-gray-200"
-              >
-                Next »
-              </Link>
-            )}
+            <Link
+              href="/international-jobs/page/2"
+              className="px-3 py-2 border rounded hover:bg-gray-200"
+            >
+              Next »
+            </Link>
           </div>
         )}
-
-        {/* Internal Links */}
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold mb-4">
-            Explore More Job Categories
-          </h2>
-          <ul className="list-disc pl-5 space-y-2 text-blue-700">
-            <li>
-              <Link href="/resume-builder">Free Resume Builder</Link>
-            </li>
-            <li>
-              <Link href="/work-from-home">Remote & Work From Home Jobs</Link>
-            </li>
-            <li>
-              <Link href="/ai-jobs">AI & Tech Jobs</Link>
-            </li>
-            <li>
-              <Link href="/government-jobs">
-                Government Jobs in India
-              </Link>
-            </li>
-          </ul>
-        </section>
       </main>
     </>
   )
 }
 
-/* Static Generation */
+/* 🔥 Optimized Static Generation */
 export async function getStaticProps() {
   try {
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    const response = await fetch(
-      `${siteUrl}/api/search?category=international&page=1&limit=10`
-    )
-
+    const response = await fetch(`${SHEET_URL}?limit=1000`)
     const data = await response.json()
+
+    let jobs = Array.isArray(data.jobs) ? data.jobs : []
+
+    const internationalDomains = [
+      "remoteok","weworkremotely","remotive","jobicy",
+    ]
+
+    const govtKeywords = [
+      "government","govt","sarkari","psu","ssc","upsc",
+      "railway","defence","police","court","ministry",
+    ]
+
+    const indiaKeywords = [
+      "india","indian","bharat","new delhi","delhi",
+      "mumbai","pune","bangalore","bengaluru",
+      "chennai","hyderabad","kolkata","ahmedabad",
+      "noida","gurgaon","maharashtra",
+      "uttar pradesh","bihar","madhya pradesh",
+      "rajasthan","tamil nadu","karnataka",
+    ]
+
+    jobs = jobs.filter((job) => {
+      const text = `
+        ${job.title || ""}
+        ${job.description || ""}
+        ${job.snippet || ""}
+      `.toLowerCase()
+
+      const urlText = `
+        ${job.url || ""}
+        ${job.link || ""}
+        ${job.apply_url || ""}
+        ${job.source || ""}
+      `.toLowerCase()
+
+      const isInternationalSource = internationalDomains.some((d) =>
+        urlText.includes(d)
+      )
+
+      const isGovt = govtKeywords.some((kw) => text.includes(kw))
+      const isIndia = indiaKeywords.some((kw) => text.includes(kw))
+
+      return isInternationalSource && !isGovt && !isIndia
+    })
+
+    const limit = 10
+    const totalPages = Math.ceil(jobs.length / limit)
 
     return {
       props: {
-        jobs: data.jobs || [],
-        totalPages: data.totalPages || 1,
+        jobs: jobs.slice(0, limit),
+        totalPages,
         siteUrl,
       },
-      revalidate: 600,
+      revalidate: 1800,
     }
   } catch {
     return {
@@ -203,7 +154,7 @@ export async function getStaticProps() {
         totalPages: 1,
         siteUrl: "https://www.freshjobs.store",
       },
-      revalidate: 600,
+      revalidate: 1800,
     }
   }
 }

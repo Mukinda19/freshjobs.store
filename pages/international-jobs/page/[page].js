@@ -3,6 +3,9 @@ import Link from "next/link"
 import Breadcrumb from "../../../components/Breadcrumb"
 import JobCard from "../../../components/JobCard"
 
+const SHEET_URL =
+  "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
+
 export default function InternationalJobsPage({
   jobs,
   currentPage,
@@ -21,11 +24,10 @@ export default function InternationalJobsPage({
 
         <meta
           name="description"
-          content={`Browse international jobs page ${currentPage}. Find overseas and global job opportunities in USA, UAE, Canada, UK and more.`}
+          content={`Browse international jobs page ${currentPage}. Find overseas and global job opportunities.`}
         />
 
         <meta name="robots" content="index, follow" />
-
         <link rel="canonical" href={pageUrl} />
 
         {currentPage > 1 && (
@@ -45,18 +47,6 @@ export default function InternationalJobsPage({
             href={`${siteUrl}/international-jobs/page/${currentPage + 1}`}
           />
         )}
-
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:title"
-          content={`International Jobs – Page ${currentPage}`}
-        />
-        <meta
-          property="og:description"
-          content="Explore verified global and overseas job opportunities."
-        />
-        <meta property="og:url" content={pageUrl} />
-        <meta property="og:site_name" content="FreshJobs" />
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -71,12 +61,6 @@ export default function InternationalJobsPage({
         <h1 className="text-3xl font-bold mb-6">
           International Jobs – Page {currentPage}
         </h1>
-
-        {jobs.length === 0 && (
-          <p className="text-red-500">
-            No jobs found on this page.
-          </p>
-        )}
 
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
@@ -135,6 +119,7 @@ export default function InternationalJobsPage({
   )
 }
 
+/* 🔥 Optimized Static Generation */
 export async function getStaticProps({ params }) {
   const page = Number(params.page) || 1
 
@@ -143,20 +128,65 @@ export async function getStaticProps({ params }) {
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    const response = await fetch(
-      `${siteUrl}/api/search?category=international&page=${page}&limit=10`
-    )
-
+    const response = await fetch(`${SHEET_URL}?limit=1000`)
     const data = await response.json()
+
+    let jobs = Array.isArray(data.jobs) ? data.jobs : []
+
+    const internationalDomains = [
+      "remoteok","weworkremotely","remotive","jobicy",
+    ]
+
+    const govtKeywords = [
+      "government","govt","sarkari","psu","ssc","upsc",
+      "railway","defence","police","court","ministry",
+    ]
+
+    const indiaKeywords = [
+      "india","indian","bharat","new delhi","delhi",
+      "mumbai","pune","bangalore","bengaluru",
+      "chennai","hyderabad","kolkata","ahmedabad",
+      "noida","gurgaon","maharashtra",
+      "uttar pradesh","bihar","madhya pradesh",
+      "rajasthan","tamil nadu","karnataka",
+    ]
+
+    jobs = jobs.filter((job) => {
+      const text = `
+        ${job.title || ""}
+        ${job.description || ""}
+        ${job.snippet || ""}
+      `.toLowerCase()
+
+      const urlText = `
+        ${job.url || ""}
+        ${job.link || ""}
+        ${job.apply_url || ""}
+        ${job.source || ""}
+      `.toLowerCase()
+
+      const isInternationalSource = internationalDomains.some((d) =>
+        urlText.includes(d)
+      )
+
+      const isGovt = govtKeywords.some((kw) => text.includes(kw))
+      const isIndia = indiaKeywords.some((kw) => text.includes(kw))
+
+      return isInternationalSource && !isGovt && !isIndia
+    })
+
+    const limit = 10
+    const totalPages = Math.ceil(jobs.length / limit)
+    const start = (page - 1) * limit
 
     return {
       props: {
-        jobs: data.jobs || [],
+        jobs: jobs.slice(start, start + limit),
         currentPage: page,
-        totalPages: data.totalPages || 1,
+        totalPages,
         siteUrl,
       },
-      revalidate: 600,
+      revalidate: 1800,
     }
   } catch {
     return {
@@ -166,7 +196,7 @@ export async function getStaticProps({ params }) {
         totalPages: 1,
         siteUrl: "https://www.freshjobs.store",
       },
-      revalidate: 600,
+      revalidate: 1800,
     }
   }
 }
