@@ -24,12 +24,22 @@ export default function InternationalJobsPage({
 
         <meta
           name="description"
-          content={`Browse international jobs page ${currentPage}. Find overseas and global job opportunities.`}
+          content={`Browse international jobs page ${currentPage}. Find overseas and global job opportunities in IT, healthcare, engineering and remote roles.`}
         />
 
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={pageUrl} />
 
+        {/* Open Graph */}
+        <meta property="og:title" content={`International Jobs – Page ${currentPage}`} />
+        <meta property="og:description" content="Latest international job openings worldwide." />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:type" content="website" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+
+        {/* Pagination SEO */}
         {currentPage > 1 && (
           <link
             rel="prev"
@@ -58,9 +68,15 @@ export default function InternationalJobsPage({
           ]}
         />
 
-        <h1 className="text-3xl font-bold mb-6">
+        <h1 className="text-3xl font-bold mb-4">
           International Jobs – Page {currentPage}
         </h1>
+
+        <p className="mb-6 text-gray-700">
+          Explore more international job opportunities across USA, UAE,
+          Canada, UK and other global destinations. Updated listings
+          for skilled professionals and remote workers.
+        </p>
 
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
@@ -68,6 +84,7 @@ export default function InternationalJobsPage({
           ))}
         </div>
 
+        {/* Pagination UI */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 flex-wrap gap-2">
             {currentPage > 1 && (
@@ -119,7 +136,7 @@ export default function InternationalJobsPage({
   )
 }
 
-/* 🔥 Optimized Static Generation */
+/* 🔥 FINAL Optimized Static Generation */
 export async function getStaticProps({ params }) {
   const page = Number(params.page) || 1
 
@@ -134,30 +151,13 @@ export async function getStaticProps({ params }) {
     let jobs = Array.isArray(data.jobs) ? data.jobs : []
 
     const internationalDomains = [
-      "remoteok","weworkremotely","remotive","jobicy",
-    ]
-
-    const govtKeywords = [
-      "government","govt","sarkari","psu","ssc","upsc",
-      "railway","defence","police","court","ministry",
-    ]
-
-    const indiaKeywords = [
-      "india","indian","bharat","new delhi","delhi",
-      "mumbai","pune","bangalore","bengaluru",
-      "chennai","hyderabad","kolkata","ahmedabad",
-      "noida","gurgaon","maharashtra",
-      "uttar pradesh","bihar","madhya pradesh",
-      "rajasthan","tamil nadu","karnataka",
+      "remoteok",
+      "weworkremotely",
+      "remotive",
+      "jobicy",
     ]
 
     jobs = jobs.filter((job) => {
-      const text = `
-        ${job.title || ""}
-        ${job.description || ""}
-        ${job.snippet || ""}
-      `.toLowerCase()
-
       const urlText = `
         ${job.url || ""}
         ${job.link || ""}
@@ -165,18 +165,18 @@ export async function getStaticProps({ params }) {
         ${job.source || ""}
       `.toLowerCase()
 
-      const isInternationalSource = internationalDomains.some((d) =>
+      return internationalDomains.some((d) =>
         urlText.includes(d)
       )
-
-      const isGovt = govtKeywords.some((kw) => text.includes(kw))
-      const isIndia = indiaKeywords.some((kw) => text.includes(kw))
-
-      return isInternationalSource && !isGovt && !isIndia
     })
 
     const limit = 10
     const totalPages = Math.ceil(jobs.length / limit)
+
+    if (page > totalPages || page < 1) {
+      return { notFound: true }
+    }
+
     const start = (page - 1) * limit
 
     return {
