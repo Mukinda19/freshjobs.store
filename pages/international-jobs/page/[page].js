@@ -3,9 +3,6 @@ import Link from "next/link"
 import Breadcrumb from "../../../components/Breadcrumb"
 import JobCard from "../../../components/JobCard"
 
-const SHEET_URL =
-  "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
-
 export default function InternationalJobsPage({
   jobs,
   currentPage,
@@ -24,29 +21,19 @@ export default function InternationalJobsPage({
 
         <meta
           name="description"
-          content={`Browse international jobs page ${currentPage}. Find overseas and global job opportunities in IT, healthcare, engineering and remote roles.`}
+          content={`Browse international jobs page ${currentPage}. Find overseas and global job opportunities.`}
         />
 
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={pageUrl} />
 
-        {/* Open Graph */}
-        <meta property="og:title" content={`International Jobs – Page ${currentPage}`} />
-        <meta property="og:description" content="Latest international job openings worldwide." />
-        <meta property="og:url" content={pageUrl} />
-        <meta property="og:type" content="website" />
-
-        {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-
-        {/* Pagination SEO */}
         {currentPage > 1 && (
           <link
             rel="prev"
             href={
               currentPage === 2
                 ? baseUrl
-                : `${siteUrl}/international-jobs/page/${currentPage - 1}`
+                : `${baseUrl}/page/${currentPage - 1}`
             }
           />
         )}
@@ -54,7 +41,7 @@ export default function InternationalJobsPage({
         {currentPage < totalPages && (
           <link
             rel="next"
-            href={`${siteUrl}/international-jobs/page/${currentPage + 1}`}
+            href={`${baseUrl}/page/${currentPage + 1}`}
           />
         )}
       </Head>
@@ -72,21 +59,15 @@ export default function InternationalJobsPage({
           International Jobs – Page {currentPage}
         </h1>
 
-        <p className="mb-6 text-gray-700">
-          Explore more international job opportunities across USA, UAE,
-          Canada, UK and other global destinations. Updated listings
-          for skilled professionals and remote workers.
-        </p>
-
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
             <JobCard key={job.slug || index} job={job} />
           ))}
         </div>
 
-        {/* Pagination UI */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 flex-wrap gap-2">
+
             {currentPage > 1 && (
               <Link
                 href={
@@ -100,7 +81,7 @@ export default function InternationalJobsPage({
               </Link>
             )}
 
-            {[...Array(totalPages)].map((_, i) => {
+            {Array.from({ length: Math.min(totalPages, 10) }).map((_, i) => {
               const pageNumber = i + 1
               return (
                 <Link
@@ -129,6 +110,7 @@ export default function InternationalJobsPage({
                 Next »
               </Link>
             )}
+
           </div>
         )}
       </main>
@@ -136,7 +118,8 @@ export default function InternationalJobsPage({
   )
 }
 
-/* 🔥 FINAL Optimized Static Generation */
+
+/* ✅ FINAL API BASED STATIC GENERATION */
 export async function getStaticProps({ params }) {
   const page = Number(params.page) || 1
 
@@ -145,59 +128,28 @@ export async function getStaticProps({ params }) {
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    const response = await fetch(`${SHEET_URL}?limit=1000`)
-    const data = await response.json()
+    const res = await fetch(
+      `${siteUrl}/api/search?category=international&page=${page}&limit=10`
+    )
 
-    let jobs = Array.isArray(data.jobs) ? data.jobs : []
+    const data = await res.json()
 
-    const internationalDomains = [
-      "remoteok",
-      "weworkremotely",
-      "remotive",
-      "jobicy",
-    ]
-
-    jobs = jobs.filter((job) => {
-      const urlText = `
-        ${job.url || ""}
-        ${job.link || ""}
-        ${job.apply_url || ""}
-        ${job.source || ""}
-      `.toLowerCase()
-
-      return internationalDomains.some((d) =>
-        urlText.includes(d)
-      )
-    })
-
-    const limit = 10
-    const totalPages = Math.ceil(jobs.length / limit)
-
-    if (page > totalPages || page < 1) {
+    if (!data.jobs || data.jobs.length === 0) {
       return { notFound: true }
     }
 
-    const start = (page - 1) * limit
-
     return {
       props: {
-        jobs: jobs.slice(start, start + limit),
+        jobs: data.jobs,
         currentPage: page,
-        totalPages,
+        totalPages: data.totalPages || 1,
         siteUrl,
       },
       revalidate: 1800,
     }
+
   } catch {
-    return {
-      props: {
-        jobs: [],
-        currentPage: page,
-        totalPages: 1,
-        siteUrl: "https://www.freshjobs.store",
-      },
-      revalidate: 1800,
-    }
+    return { notFound: true }
   }
 }
 

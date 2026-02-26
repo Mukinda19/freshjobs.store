@@ -3,9 +3,6 @@ import Link from "next/link"
 import Breadcrumb from "../../components/Breadcrumb"
 import JobCard from "../../components/JobCard"
 
-const SHEET_URL =
-  "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
-
 export default function InternationalJobs({
   jobs,
   totalPages,
@@ -16,24 +13,24 @@ export default function InternationalJobs({
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": [
+    mainEntity: [
       {
         "@type": "Question",
-        "name": "How can I apply for international jobs?",
-        "acceptedAnswer": {
+        name: "How can I apply for international jobs?",
+        acceptedAnswer: {
           "@type": "Answer",
-          "text": "You can apply directly through the official job source link provided inside each job listing."
-        }
+          text: "You can apply directly through the official job source link provided inside each job listing.",
+        },
       },
       {
         "@type": "Question",
-        "name": "Which countries are included in international jobs?",
-        "acceptedAnswer": {
+        name: "Which countries are included in international jobs?",
+        acceptedAnswer: {
           "@type": "Answer",
-          "text": "International jobs include opportunities from USA, UAE, Canada, UK, Europe and other global locations."
-        }
-      }
-    ]
+          text: "International jobs include opportunities from USA, UAE, Canada, UK, Europe and other global locations.",
+        },
+      },
+    ],
   }
 
   return (
@@ -51,13 +48,11 @@ export default function InternationalJobs({
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={pageUrl} />
 
-        {/* Open Graph */}
         <meta property="og:title" content="International Jobs 2026" />
         <meta property="og:description" content="Latest international job openings worldwide." />
         <meta property="og:url" content={pageUrl} />
         <meta property="og:type" content="website" />
 
-        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
 
         <script
@@ -79,16 +74,12 @@ export default function InternationalJobs({
           International Jobs & Global Career Opportunities
         </h1>
 
-        {/* Intro SEO Content */}
         <p className="mb-6 text-gray-700">
-          Explore the latest international job openings across USA, UAE,
-          Canada, UK and other countries. Find opportunities in IT,
-          healthcare, engineering, remote jobs and skilled worker roles.
-          All listings are updated regularly to help you find verified
-          global career opportunities.
+          Explore verified international job openings across USA, UAE,
+          Canada, UK and other countries. Updated regularly to help
+          you find trusted global opportunities.
         </p>
 
-        {/* Job Grid */}
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
             <JobCard key={job.slug || index} job={job} />
@@ -98,20 +89,23 @@ export default function InternationalJobs({
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 flex-wrap gap-2">
-            <Link
-              href="/international-jobs"
-              className="px-3 py-2 border rounded bg-blue-600 text-white"
-            >
-              1
-            </Link>
 
-            {[...Array(totalPages - 1)].map((_, i) => {
-              const pageNumber = i + 2
+            {Array.from({ length: Math.min(totalPages, 10) }).map((_, i) => {
+              const pageNumber = i + 1
+              const href =
+                pageNumber === 1
+                  ? "/international-jobs"
+                  : `/international-jobs/page/${pageNumber}`
+
               return (
                 <Link
                   key={pageNumber}
-                  href={`/international-jobs/page/${pageNumber}`}
-                  className="px-3 py-2 border rounded hover:bg-gray-200"
+                  href={href}
+                  className={`px-3 py-2 border rounded ${
+                    pageNumber === 1
+                      ? "bg-blue-600 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
                 >
                   {pageNumber}
                 </Link>
@@ -126,10 +120,11 @@ export default function InternationalJobs({
                 Next »
               </Link>
             )}
+
           </div>
         )}
 
-        {/* Explore More Categories */}
+        {/* Explore More */}
         <div className="mt-16 border-t pt-8">
           <h2 className="text-xl font-semibold mb-4">
             Explore More Job Categories
@@ -142,7 +137,7 @@ export default function InternationalJobs({
             <Link href="/private-jobs" className="text-blue-600 underline">
               Private Jobs
             </Link>
-            <Link href="/work-from-home-jobs" className="text-blue-600 underline">
+            <Link href="/work-from-home" className="text-blue-600 underline">
               Work From Home Jobs
             </Link>
           </div>
@@ -153,46 +148,29 @@ export default function InternationalJobs({
   )
 }
 
-/* 🔥 Optimized Static Generation */
+
+/* ✅ FINAL API BASED STATIC GENERATION */
 export async function getStaticProps() {
   try {
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    const response = await fetch(`${SHEET_URL}?limit=1000`)
-    const data = await response.json()
+    const res = await fetch(
+      `${siteUrl}/api/search?category=international&page=1&limit=10`
+    )
 
-    let jobs = Array.isArray(data.jobs) ? data.jobs : []
-
-    const internationalDomains = [
-      "remoteok","weworkremotely","remotive","jobicy",
-    ]
-
-    jobs = jobs.filter((job) => {
-      const urlText = `
-        ${job.url || ""}
-        ${job.link || ""}
-        ${job.apply_url || ""}
-        ${job.source || ""}
-      `.toLowerCase()
-
-      return internationalDomains.some((d) =>
-        urlText.includes(d)
-      )
-    })
-
-    const limit = 10
-    const totalPages = Math.ceil(jobs.length / limit)
+    const data = await res.json()
 
     return {
       props: {
-        jobs: jobs.slice(0, limit),
-        totalPages,
+        jobs: data.jobs || [],
+        totalPages: data.totalPages || 1,
         siteUrl,
       },
       revalidate: 1800,
     }
+
   } catch {
     return {
       props: {
