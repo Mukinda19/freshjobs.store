@@ -36,10 +36,9 @@ export default function JobDetailPage({ job }) {
     job.slug ||
     normalizeSlug(`${job.title || ""} ${job.company || ""}`);
 
-  /* ✅ FIXED ROUTE */
   const canonicalUrl = `${baseUrl}/job/${canonicalSlug}`;
 
-  const categorySlug = normalizeSlug(job.category || "jobs");
+  const categorySlug = normalizeSlug(job.category || "ai-jobs");
   const applyLink = job.url || job.link || job.applyLink || "";
 
   /* -------- Detect Country Automatically -------- */
@@ -69,7 +68,7 @@ export default function JobDetailPage({ job }) {
         "@type": "ListItem",
         position: 2,
         name: job.category || "Jobs",
-        item: `${baseUrl}/category/${categorySlug}`,
+        item: `${baseUrl}/${categorySlug}`, // ✅ FIXED
       },
       {
         "@type": "ListItem",
@@ -116,7 +115,6 @@ export default function JobDetailPage({ job }) {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-
       <Head>
         <title>
           {title} at {company} ({location}) | FreshJobs
@@ -155,7 +153,7 @@ export default function JobDetailPage({ job }) {
       {/* Breadcrumb UI */}
       <div className="text-sm mb-4 text-gray-600">
         <Link href="/" prefetch={false}>Home</Link> ›{" "}
-        <Link href={`/category/${categorySlug}`} prefetch={false}>
+        <Link href={`/${categorySlug}`} prefetch={false}>
           {job.category || "Jobs"}
         </Link>{" "}
         › <span className="font-medium">{title}</span>
@@ -234,26 +232,24 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }) {
   try {
     const res = await fetch(
-      `https://freshjobs.store/api/search?limit=2000`
+      `https://freshjobs.store/api/search?slug=${params.slug}`
     );
+
+    if (!res.ok) {
+      return { notFound: true };
+    }
+
     const data = await res.json();
-    const jobs = data.jobs || [];
 
-    const job = jobs.find((j) => {
-      const jobSlug =
-        j.slug ||
-        normalizeSlug(`${j.title || ""} ${j.company || ""}`);
-      return jobSlug === params.slug;
-    });
-
-    if (!job) {
+    if (!data.job) {
       return { notFound: true };
     }
 
     return {
-      props: { job },
-      revalidate: 1800, // 30 min revalidation
+      props: { job: data.job },
+      revalidate: 1800,
     };
+
   } catch {
     return { notFound: true };
   }
