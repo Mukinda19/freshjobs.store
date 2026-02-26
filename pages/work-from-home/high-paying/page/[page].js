@@ -9,7 +9,12 @@ export default function HighPayingWFHPage({
   totalPages,
   siteUrl,
 }) {
-  const pageUrl = `${siteUrl}/work-from-home/high-paying/page/${currentPage}`
+  const pageUrl =
+    currentPage === 1
+      ? `${siteUrl}/work-from-home/high-paying`
+      : `${siteUrl}/work-from-home/high-paying/page/${currentPage}`
+
+  const maxPagesToShow = Math.min(totalPages, 10)
 
   return (
     <>
@@ -20,36 +25,11 @@ export default function HighPayingWFHPage({
 
         <meta
           name="description"
-          content={`Browse page ${currentPage} of high paying work from home jobs. Discover premium salary remote jobs and international WFH careers updated daily.`}
+          content={`Browse page ${currentPage} of high paying work from home jobs with premium salary packages.`}
         />
-
-        <meta name="robots" content="index, follow" />
 
         <link rel="canonical" href={pageUrl} />
-
-        {/* Open Graph */}
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:title"
-          content={`High Paying Work From Home Jobs – Page ${currentPage}`}
-        />
-        <meta
-          property="og:description"
-          content="Verified high salary remote and work from home jobs from trusted companies."
-        />
-        <meta property="og:url" content={pageUrl} />
-        <meta property="og:site_name" content="FreshJobs" />
-
-        {/* Twitter */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:title"
-          content={`High Paying WFH Jobs – Page ${currentPage}`}
-        />
-        <meta
-          name="twitter:description"
-          content="Top paying remote jobs with competitive salary packages."
-        />
+        <meta name="robots" content="index, follow" />
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -76,11 +56,10 @@ export default function HighPayingWFHPage({
           ))}
         </div>
 
-        {/* ✅ Numeric Pagination */}
+        {/* Pagination 1–10 + Next */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 flex-wrap gap-2">
 
-            {/* Prev Button */}
             {currentPage > 1 && (
               <Link
                 href={
@@ -94,10 +73,8 @@ export default function HighPayingWFHPage({
               </Link>
             )}
 
-            {/* Page Numbers */}
-            {[...Array(totalPages)].map((_, i) => {
+            {[...Array(maxPagesToShow)].map((_, i) => {
               const pageNumber = i + 1
-
               const href =
                 pageNumber === 1
                   ? "/work-from-home/high-paying"
@@ -120,8 +97,7 @@ export default function HighPayingWFHPage({
               )
             })}
 
-            {/* Next Button */}
-            {currentPage < totalPages && (
+            {currentPage < totalPages && currentPage < 10 && (
               <Link
                 href={`/work-from-home/high-paying/page/${currentPage + 1}`}
                 className="px-3 py-2 border rounded hover:bg-gray-200"

@@ -1,14 +1,14 @@
-import Head from "next/head";
-import Link from "next/link";
+import Head from "next/head"
+import Link from "next/link"
 
 /* ---------------- Helper ---------------- */
 const normalizeSlug = (text = "") =>
   String(text)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+    .replace(/(^-|-$)/g, "")
 
-export default function JobDetailPage({ job }) {
+export default function JobDetailPage({ job, siteUrl }) {
   if (!job) {
     return (
       <div className="max-w-3xl mx-auto p-6">
@@ -18,39 +18,40 @@ export default function JobDetailPage({ job }) {
         </Head>
         <h1 className="text-2xl font-bold">Job Not Found</h1>
       </div>
-    );
+    )
   }
 
-  const baseUrl = "https://freshjobs.store";
-
-  const title = job.title || "Latest Job Opening";
-  const company = job.company || "Company";
-  const location = job.location || "Worldwide";
-  const salary = job.salary || "";
+  const title = job.title || "Latest Job Opening"
+  const company = job.company || "Company"
+  const location = job.location || "Worldwide"
+  const salary = job.salary || ""
   const description =
     job.snippet ||
     job.description ||
-    "Check eligibility, job details, and apply using the official link.";
+    "Check eligibility, job details, and apply using the official link."
 
   const canonicalSlug =
     job.slug ||
-    normalizeSlug(`${job.title || ""} ${job.company || ""}`);
+    normalizeSlug(`${job.title || ""} ${job.company || ""}`)
 
-  const canonicalUrl = `${baseUrl}/job/${canonicalSlug}`;
+  /* ✅ FIXED URL STRUCTURE */
+  const canonicalUrl = `${siteUrl}/jobs/${canonicalSlug}`
 
-  const categorySlug = normalizeSlug(job.category || "ai-jobs");
-  const applyLink = job.url || job.link || job.applyLink || "";
+  const categorySlug = normalizeSlug(job.category || "jobs")
+  const applyLink = job.url || job.link || job.applyLink || ""
 
-  /* -------- Detect Country Automatically -------- */
+  /* -------- Country Detection -------- */
+  const lowerLocation = location.toLowerCase()
+
   const isInternational =
-    location.toLowerCase().includes("usa") ||
-    location.toLowerCase().includes("uae") ||
-    location.toLowerCase().includes("canada") ||
-    location.toLowerCase().includes("uk") ||
-    location.toLowerCase().includes("australia");
+    lowerLocation.includes("usa") ||
+    lowerLocation.includes("uae") ||
+    lowerLocation.includes("canada") ||
+    lowerLocation.includes("uk") ||
+    lowerLocation.includes("australia")
 
-  const countryCode = isInternational ? "US" : "IN";
-  const currency = isInternational ? "USD" : "INR";
+  const countryCode = isInternational ? "US" : "IN"
+  const currency = isInternational ? "USD" : "INR"
 
   /* ================= SCHEMA ================= */
 
@@ -62,13 +63,13 @@ export default function JobDetailPage({ job }) {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: baseUrl,
+        item: siteUrl,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: job.category || "Jobs",
-        item: `${baseUrl}/${categorySlug}`, // ✅ FIXED
+        item: `${siteUrl}/${categorySlug}`,
       },
       {
         "@type": "ListItem",
@@ -77,7 +78,7 @@ export default function JobDetailPage({ job }) {
         item: canonicalUrl,
       },
     ],
-  };
+  }
 
   const jobPostingSchema = {
     "@context": "https://schema.org",
@@ -97,6 +98,7 @@ export default function JobDetailPage({ job }) {
       },
     },
     employmentType: job.employmentType || "FULL_TIME",
+    directApply: true,
     baseSalary: salary
       ? {
           "@type": "MonetaryAmount",
@@ -108,10 +110,11 @@ export default function JobDetailPage({ job }) {
         }
       : undefined,
     datePosted: job.date || new Date().toISOString(),
+    dateModified: new Date().toISOString(),
     validThrough:
       job.validThrough ||
       new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
-  };
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -126,7 +129,6 @@ export default function JobDetailPage({ job }) {
         />
 
         <meta name="robots" content="index, follow" />
-
         <link rel="canonical" href={canonicalUrl} />
 
         {/* Open Graph */}
@@ -134,6 +136,9 @@ export default function JobDetailPage({ job }) {
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="article" />
+        <meta property="og:site_name" content="FreshJobs" />
+
+        <meta name="twitter:card" content="summary_large_image" />
 
         {/* Structured Data */}
         <script
@@ -194,30 +199,13 @@ export default function JobDetailPage({ job }) {
       <div className="mt-10 border-t pt-6">
         <h3 className="font-semibold mb-3">Explore More Jobs</h3>
         <ul className="list-disc pl-5 text-blue-700 space-y-2">
-          <li>
-            <Link href="/government-jobs" prefetch={false}>
-              Government Jobs in India
-            </Link>
-          </li>
-          <li>
-            <Link href="/work-from-home" prefetch={false}>
-              Remote & Work From Home Jobs
-            </Link>
-          </li>
-          <li>
-            <Link href="/international-jobs" prefetch={false}>
-              International Jobs
-            </Link>
-          </li>
-          <li>
-            <Link href="/resume-builder" prefetch={false}>
-              Free Resume Builder
-            </Link>
-          </li>
+          <li><Link href="/government-jobs">Government Jobs</Link></li>
+          <li><Link href="/work-from-home">Work From Home Jobs</Link></li>
+          <li><Link href="/international-jobs">International Jobs</Link></li>
         </ul>
       </div>
     </div>
-  );
+  )
 }
 
 /* ---------------- STATIC GENERATION ---------------- */
@@ -226,31 +214,33 @@ export async function getStaticPaths() {
   return {
     paths: [],
     fallback: "blocking",
-  };
+  }
 }
 
 export async function getStaticProps({ params }) {
   try {
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+      "https://www.freshjobs.store"
+
     const res = await fetch(
-      `https://freshjobs.store/api/search?slug=${params.slug}`
-    );
+      `${siteUrl}/api/search?slug=${params.slug}`
+    )
 
-    if (!res.ok) {
-      return { notFound: true };
-    }
+    if (!res.ok) return { notFound: true }
 
-    const data = await res.json();
+    const data = await res.json()
 
-    if (!data.job) {
-      return { notFound: true };
-    }
+    if (!data.job) return { notFound: true }
 
     return {
-      props: { job: data.job },
+      props: {
+        job: data.job,
+        siteUrl,
+      },
       revalidate: 1800,
-    };
-
+    }
   } catch {
-    return { notFound: true };
+    return { notFound: true }
   }
 }

@@ -5,7 +5,7 @@ import Link from "next/link"
 const cleanText = (text = "") =>
   text.replace(/<[^>]*>?/gm, "").trim()
 
-export default function AIJobDetail({ job, baseUrl }) {
+export default function AIJobDetail({ job, siteUrl }) {
   if (!job) {
     return (
       <main className="max-w-4xl mx-auto px-4 py-10">
@@ -19,7 +19,8 @@ export default function AIJobDetail({ job, baseUrl }) {
     )
   }
 
-  /* ✅ SAFE DATE HANDLING */
+  const cleanDescription = cleanText(job.description || "")
+
   const postedDate = job.pubDate
     ? new Date(job.pubDate).toISOString()
     : new Date().toISOString()
@@ -27,7 +28,7 @@ export default function AIJobDetail({ job, baseUrl }) {
   const validThrough = new Date()
   validThrough.setDate(validThrough.getDate() + 30)
 
-  const cleanDescription = cleanText(job.description || "")
+  const pageUrl = `${siteUrl}/ai-jobs/${job.slug}`
 
   /* ✅ GOOGLE JOBS OPTIMIZED SCHEMA */
   const jobSchema = {
@@ -36,14 +37,14 @@ export default function AIJobDetail({ job, baseUrl }) {
     title: job.title || "AI Job Opening",
     description:
       cleanDescription ||
-      "Latest Artificial Intelligence and Machine Learning job opening.",
+      "Latest Artificial Intelligence and Machine Learning job opportunity.",
     datePosted: postedDate,
     validThrough: validThrough.toISOString(),
     employmentType: job.employmentType || "FULL_TIME",
     hiringOrganization: {
       "@type": "Organization",
       name: job.source || "FreshJobs.Store",
-      sameAs: baseUrl,
+      sameAs: siteUrl,
     },
     jobLocationType: "TELECOMMUTE",
     applicantLocationRequirements: {
@@ -55,7 +56,7 @@ export default function AIJobDetail({ job, baseUrl }) {
       name: "FreshJobs.Store",
       value: job.slug || job.link,
     },
-    url: job.link || `${baseUrl}/ai-jobs/${job.slug}`,
+    url: job.link || pageUrl,
   }
 
   return (
@@ -63,8 +64,8 @@ export default function AIJobDetail({ job, baseUrl }) {
       <Head>
         <title>
           {job.title
-            ? `${job.title} – AI Job | FreshJobs.Store`
-            : "AI Job Opening | FreshJobs.Store"}
+            ? `${job.title} – AI Job | FreshJobs`
+            : "AI Job Opening | FreshJobs"}
         </title>
 
         <meta
@@ -72,17 +73,20 @@ export default function AIJobDetail({ job, baseUrl }) {
           content={
             cleanDescription
               ? cleanDescription.slice(0, 160)
-              : "Latest AI and Artificial Intelligence job opening."
+              : "Latest AI and Artificial Intelligence job opportunity."
           }
         />
 
         <meta name="robots" content="index, follow" />
+        <link rel="canonical" href={pageUrl} />
 
-        <link
-          rel="canonical"
-          href={`${baseUrl}/ai-jobs/${job.slug}`}
-        />
+        {/* Open Graph */}
+        <meta property="og:title" content={job.title} />
+        <meta property="og:description" content={cleanDescription.slice(0, 160)} />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:type" content="article" />
 
+        {/* Job Schema */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -129,14 +133,15 @@ export default function AIJobDetail({ job, baseUrl }) {
   )
 }
 
-/* ✅ SSR */
-export async function getServerSideProps({ params }) {
+/* ✅ STATIC GENERATION (FAST + SEO SAFE) */
+export async function getStaticProps({ params }) {
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "https://freshjobs.store"
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+      "https://freshjobs.store"
 
     const res = await fetch(
-      `${baseUrl}/api/search?category=ai-jobs&limit=300`
+      `${siteUrl}/api/search?category=ai-jobs&limit=500`
     )
 
     const data = await res.json()
@@ -152,10 +157,18 @@ export async function getServerSideProps({ params }) {
     return {
       props: {
         job,
-        baseUrl,
+        siteUrl,
       },
+      revalidate: 1800,
     }
-  } catch (error) {
+  } catch {
     return { notFound: true }
+  }
+}
+
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: "blocking",
   }
 }

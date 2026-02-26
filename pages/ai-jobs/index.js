@@ -2,8 +2,9 @@ import Head from "next/head"
 import Link from "next/link"
 import Breadcrumb from "../../components/Breadcrumb"
 
-export default function AIJobs({ initialJobs, totalPages }) {
+export default function AIJobs({ initialJobs, totalPages, siteUrl }) {
   const jobs = initialJobs
+  const pageUrl = `${siteUrl}/ai-jobs`
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -13,13 +14,13 @@ export default function AIJobs({ initialJobs, totalPages }) {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://freshjobs.store/",
+        item: siteUrl,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "AI Jobs",
-        item: "https://freshjobs.store/ai-jobs",
+        item: pageUrl,
       },
     ],
   }
@@ -30,7 +31,8 @@ export default function AIJobs({ initialJobs, totalPages }) {
     name: "AI Jobs & Artificial Intelligence Careers",
     description:
       "Latest AI jobs, machine learning jobs, data science roles and artificial intelligence careers worldwide.",
-    url: "https://freshjobs.store/ai-jobs",
+    url: pageUrl,
+    inLanguage: "en",
   }
 
   const faqSchema = {
@@ -42,7 +44,7 @@ export default function AIJobs({ initialJobs, totalPages }) {
         name: "What qualifications are required for AI jobs?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Most AI jobs require knowledge of machine learning, Python, data science, or artificial intelligence frameworks. Requirements vary by company and role."
+          text: "Most AI jobs require knowledge of machine learning, Python, data science, or artificial intelligence frameworks."
         }
       },
       {
@@ -58,7 +60,7 @@ export default function AIJobs({ initialJobs, totalPages }) {
         name: "Do AI jobs offer high salary packages?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "AI and data science roles are among the highest paying tech jobs worldwide, especially in USA, Canada, UK and remote markets."
+          text: "AI and data science roles are among the highest paying tech jobs worldwide."
         }
       }
     ]
@@ -77,18 +79,28 @@ export default function AIJobs({ initialJobs, totalPages }) {
         />
 
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://freshjobs.store/ai-jobs" />
+        <link rel="canonical" href={pageUrl} />
 
+        {/* Open Graph */}
+        <meta property="og:title" content="AI Jobs 2026 | Machine Learning Careers" />
+        <meta property="og:description" content="Latest AI, Machine Learning & Data Science job openings worldwide." />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:type" content="website" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="AI Jobs 2026" />
+        <meta name="twitter:description" content="Explore latest AI & ML job openings worldwide." />
+
+        {/* Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
         />
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
         />
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -110,8 +122,7 @@ export default function AIJobs({ initialJobs, totalPages }) {
         <p className="text-gray-600 mb-6 max-w-3xl">
           Explore latest <strong>AI jobs, Machine Learning roles,
           Data Science careers</strong> and artificial intelligence
-          opportunities from global tech companies. Discover
-          high-paying remote and international AI job openings.
+          opportunities from global tech companies.
         </p>
 
         {jobs.length === 0 && (
@@ -166,16 +177,14 @@ export default function AIJobs({ initialJobs, totalPages }) {
           ))}
         </div>
 
-        {/* ✅ Number Pagination */}
+        {/* ✅ 1–10 Pagination + Next */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 space-x-2 flex-wrap">
             <span className="px-4 py-2 border rounded bg-blue-600 text-white">
               1
             </span>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 2)
-              .filter((page) => page <= totalPages)
-              .slice(0, 9)
+            {Array.from({ length: Math.min(9, totalPages - 1) }, (_, i) => i + 2)
               .map((page) => (
                 <Link
                   key={page}
@@ -186,12 +195,14 @@ export default function AIJobs({ initialJobs, totalPages }) {
                 </Link>
               ))}
 
-            <Link
-              href={`/ai-jobs/page/2`}
-              className="px-4 py-2 border rounded hover:bg-gray-200"
-            >
-              Next »
-            </Link>
+            {totalPages > 1 && (
+              <Link
+                href={`/ai-jobs/page/2`}
+                className="px-4 py-2 border rounded hover:bg-gray-200"
+              >
+                Next »
+              </Link>
+            )}
           </div>
         )}
 
@@ -229,26 +240,30 @@ export default function AIJobs({ initialJobs, totalPages }) {
 
 export async function getStaticProps() {
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "https://freshjobs.store"
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+      "https://freshjobs.store"
 
     const res = await fetch(
-      `${baseUrl}/api/search?category=ai-jobs&page=1&limit=10`
+      `${siteUrl}/api/search?category=ai-jobs&page=1&limit=10`
     )
+
     const data = await res.json()
 
     return {
       props: {
         initialJobs: data.jobs || [],
         totalPages: data.totalPages || 1,
+        siteUrl,
       },
-      revalidate: 1800,
+      revalidate: 1800, // 30 min ISR
     }
   } catch {
     return {
       props: {
         initialJobs: [],
         totalPages: 1,
+        siteUrl: "https://freshjobs.store",
       },
       revalidate: 1800,
     }

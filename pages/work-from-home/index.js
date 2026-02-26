@@ -9,9 +9,46 @@ const normalizeSlug = (text = "") =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
 
-export default function WorkFromHomeJobs({ initialJobs, totalPages }) {
+export default function WorkFromHomeJobs({
+  initialJobs,
+  totalPages,
+  siteUrl,
+}) {
   const jobs = initialJobs
 
+  const pageUrl = `${siteUrl}/work-from-home`
+
+  /* ✅ Breadcrumb Schema */
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Work From Home Jobs",
+        item: pageUrl,
+      },
+    ],
+  }
+
+  /* ✅ Collection Schema */
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Remote & Work From Home Jobs Worldwide",
+    description:
+      "Latest remote and work from home jobs from global companies. Verified listings updated daily.",
+    url: pageUrl,
+  }
+
+  /* ✅ FAQ Schema */
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -21,26 +58,26 @@ export default function WorkFromHomeJobs({ initialJobs, totalPages }) {
         name: "Are these work from home jobs verified?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes, we list remote and work from home jobs from trusted and official sources."
-        }
+          text: "Yes, we list remote and work from home jobs from trusted and official sources.",
+        },
       },
       {
         "@type": "Question",
         name: "Can I apply for international remote jobs?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes, many listed jobs are open for global applicants including USA, UAE, Canada and other countries."
-        }
+          text: "Yes, many listed jobs are open for global applicants including USA, UAE, Canada and other countries.",
+        },
       },
       {
         "@type": "Question",
         name: "Are work from home jobs available for freshers?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes, we regularly update remote jobs suitable for both freshers and experienced candidates."
-        }
-      }
-    ]
+          text: "Yes, we regularly update remote jobs suitable for both freshers and experienced candidates.",
+        },
+      },
+    ],
   }
 
   return (
@@ -55,13 +92,27 @@ export default function WorkFromHomeJobs({ initialJobs, totalPages }) {
           content="Find latest remote and work from home jobs from global companies. Updated daily with verified listings for freshers and experienced candidates."
         />
 
-        <link
-          rel="canonical"
-          href="https://www.freshjobs.store/work-from-home"
-        />
-
         <meta name="robots" content="index, follow" />
+        <link rel="canonical" href={pageUrl} />
 
+        {/* Open Graph */}
+        <meta property="og:title" content="Remote & Work From Home Jobs Worldwide" />
+        <meta
+          property="og:description"
+          content="Latest remote jobs and flexible work from home opportunities worldwide."
+        />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:type" content="website" />
+
+        {/* Schemas */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -138,18 +189,14 @@ export default function WorkFromHomeJobs({ initialJobs, totalPages }) {
           })}
         </div>
 
-        {/* ✅ Number Pagination */}
+        {/* ✅ 1–10 Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 space-x-2 flex-wrap">
-            {/* Current Page = 1 */}
             <span className="px-4 py-2 border rounded bg-blue-600 text-white">
               1
             </span>
 
-            {/* Page Numbers */}
-            {Array.from({ length: totalPages }, (_, i) => i + 2)
-              .filter((page) => page <= totalPages)
-              .slice(0, 9)
+            {Array.from({ length: Math.min(10, totalPages - 1) }, (_, i) => i + 2)
               .map((page) => (
                 <Link
                   key={page}
@@ -160,7 +207,6 @@ export default function WorkFromHomeJobs({ initialJobs, totalPages }) {
                 </Link>
               ))}
 
-            {/* Next Button */}
             {totalPages > 1 && (
               <Link
                 href={`/work-from-home/page/2`}
@@ -176,14 +222,15 @@ export default function WorkFromHomeJobs({ initialJobs, totalPages }) {
   )
 }
 
-/* ✅ Static Generation */
+/* ✅ STATIC GENERATION */
 export async function getStaticProps() {
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || "https://www.freshjobs.store"
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+      "https://freshjobs.store"
 
     const response = await fetch(
-      `${baseUrl}/api/search?category=wfh&page=1&limit=10`
+      `${siteUrl}/api/search?category=wfh&page=1&limit=10`
     )
 
     const data = await response.json()
@@ -192,16 +239,18 @@ export async function getStaticProps() {
       props: {
         initialJobs: data.jobs || [],
         totalPages: data.totalPages || 1,
+        siteUrl,
       },
-      revalidate: 300,
+      revalidate: 1800,
     }
   } catch {
     return {
       props: {
         initialJobs: [],
         totalPages: 1,
+        siteUrl: "https://freshjobs.store",
       },
-      revalidate: 300,
+      revalidate: 1800,
     }
   }
 }

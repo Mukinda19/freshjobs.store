@@ -1,8 +1,16 @@
-import Head from "next/head";
-import Link from "next/link";
-import JobCard from "../../../components/JobCard";
+import Head from "next/head"
+import Link from "next/link"
+import Breadcrumb from "../../../components/Breadcrumb"
+import JobCard from "../../../components/JobCard"
 
-export default function WorkFromHomePage({ jobs, currentPage, totalPages }) {
+export default function WorkFromHomePage({
+  jobs,
+  currentPage,
+  totalPages,
+  siteUrl,
+}) {
+  const pageUrl = `${siteUrl}/work-from-home/page/${currentPage}`
+
   return (
     <>
       <Head>
@@ -10,22 +18,59 @@ export default function WorkFromHomePage({ jobs, currentPage, totalPages }) {
           Work From Home Jobs – Page {currentPage} | FreshJobs
         </title>
 
-        <meta name="robots" content="index, follow" />
-
-        <link
-          rel="canonical"
-          href={
-            currentPage === 1
-              ? "https://www.freshjobs.store/work-from-home"
-              : `https://www.freshjobs.store/work-from-home/page/${currentPage}`
-          }
+        <meta
+          name="description"
+          content={`Browse Work From Home Jobs – Page ${currentPage}. Explore verified remote and online job opportunities worldwide.`}
         />
+
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href={pageUrl} />
+
+        {/* Pagination SEO */}
+        {currentPage > 1 && (
+          <link
+            rel="prev"
+            href={
+              currentPage === 2
+                ? `${siteUrl}/work-from-home`
+                : `${siteUrl}/work-from-home/page/${currentPage - 1}`
+            }
+          />
+        )}
+
+        {currentPage < totalPages && (
+          <link
+            rel="next"
+            href={`${siteUrl}/work-from-home/page/${currentPage + 1}`}
+          />
+        )}
+
+        {/* Open Graph */}
+        <meta property="og:title" content={`Work From Home Jobs – Page ${currentPage}`} />
+        <meta
+          property="og:description"
+          content="Latest remote and work from home jobs worldwide."
+        />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:type" content="website" />
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 my-8">
+        <Breadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Work From Home Jobs", href: "/work-from-home" },
+            { label: `Page ${currentPage}` },
+          ]}
+        />
+
         <h1 className="text-3xl font-bold mb-6">
           Work From Home Jobs – Page {currentPage}
         </h1>
+
+        {jobs.length === 0 && (
+          <p className="text-red-500">No jobs found on this page.</p>
+        )}
 
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
@@ -33,67 +78,97 @@ export default function WorkFromHomePage({ jobs, currentPage, totalPages }) {
           ))}
         </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-8 space-x-2">
-          {currentPage > 1 && (
-            <Link
-              href={
-                currentPage === 2
+        {/* ✅ 1–10 Pagination System */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-10 space-x-2 flex-wrap">
+            {currentPage > 1 && (
+              <Link
+                href={
+                  currentPage === 2
+                    ? "/work-from-home"
+                    : `/work-from-home/page/${currentPage - 1}`
+                }
+                className="px-4 py-2 border rounded hover:bg-gray-200"
+              >
+                « Prev
+              </Link>
+            )}
+
+            {Array.from(
+              { length: Math.min(10, totalPages) },
+              (_, i) => i + 1
+            ).map((page) => {
+              const href =
+                page === 1
                   ? "/work-from-home"
-                  : `/work-from-home/page/${currentPage - 1}`
-              }
-              className="px-4 py-2 border rounded hover:bg-gray-200"
-            >
-              « Prev
-            </Link>
-          )}
+                  : `/work-from-home/page/${page}`
 
-          <span className="px-4 py-2 border rounded bg-blue-600 text-white">
-            {currentPage}
-          </span>
+              return page === currentPage ? (
+                <span
+                  key={page}
+                  className="px-4 py-2 border rounded bg-blue-600 text-white"
+                >
+                  {page}
+                </span>
+              ) : (
+                <Link
+                  key={page}
+                  href={href}
+                  className="px-4 py-2 border rounded hover:bg-gray-200"
+                >
+                  {page}
+                </Link>
+              )
+            })}
 
-          {currentPage < totalPages && (
-            <Link
-              href={`/work-from-home/page/${currentPage + 1}`}
-              className="px-4 py-2 border rounded hover:bg-gray-200"
-            >
-              Next »
-            </Link>
-          )}
-        </div>
+            {currentPage < totalPages && (
+              <Link
+                href={`/work-from-home/page/${currentPage + 1}`}
+                className="px-4 py-2 border rounded hover:bg-gray-200"
+              >
+                Next »
+              </Link>
+            )}
+          </div>
+        )}
       </main>
     </>
-  );
+  )
 }
 
 export async function getStaticProps({ params }) {
-  const page = Number(params.page) || 1;
+  const page = Number(params.page)
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://www.freshjobs.store";
+  if (!page || page < 2) {
+    return { notFound: true }
+  }
 
   try {
-    const res = await fetch(
-      `${baseUrl}/api/search?category=wfh&page=${page}&limit=10`
-    );
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+      "https://freshjobs.store"
 
-    const data = await res.json();
+    const res = await fetch(
+      `${siteUrl}/api/search?category=wfh&page=${page}&limit=10`
+    )
+
+    const data = await res.json()
 
     if (!data.jobs || data.jobs.length === 0) {
-      return { notFound: true };
+      return { notFound: true }
     }
 
     return {
       props: {
-        jobs: data.jobs,
+        jobs: data.jobs || [],
         currentPage: page,
         totalPages: data.totalPages || 1,
+        siteUrl,
       },
-      revalidate: 300,
-    };
-  } catch (error) {
-    return { notFound: true };
+      revalidate: 1800,
+    }
+  } catch {
+    return { notFound: true }
   }
 }
 
@@ -101,5 +176,5 @@ export async function getStaticPaths() {
   return {
     paths: [],
     fallback: "blocking",
-  };
+  }
 }

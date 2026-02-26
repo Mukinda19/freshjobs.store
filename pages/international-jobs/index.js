@@ -10,6 +10,37 @@ export default function InternationalJobs({
 }) {
   const pageUrl = `${siteUrl}/international-jobs`
 
+  /* ✅ Breadcrumb Schema */
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "International Jobs",
+        item: pageUrl,
+      },
+    ],
+  }
+
+  /* ✅ Collection Schema */
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "International Jobs 2026",
+    description:
+      "Latest international job openings across USA, UAE, Canada, UK and other global destinations.",
+    url: pageUrl,
+  }
+
+  /* ✅ FAQ Schema */
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -30,6 +61,14 @@ export default function InternationalJobs({
           text: "International jobs include opportunities from USA, UAE, Canada, UK, Europe and other global locations.",
         },
       },
+      {
+        "@type": "Question",
+        name: "Are international jobs verified?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes, we list verified global job opportunities sourced from trusted employers and official platforms.",
+        },
+      },
     ],
   }
 
@@ -42,19 +81,34 @@ export default function InternationalJobs({
 
         <meta
           name="description"
-          content="Find latest international jobs in USA, UAE, Canada, UK and other countries. Apply for global career opportunities in IT, healthcare, engineering and more."
+          content="Find latest international jobs in USA, UAE, Canada, UK and other countries. Apply for verified global career opportunities updated daily."
         />
 
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={pageUrl} />
 
-        <meta property="og:title" content="International Jobs 2026" />
-        <meta property="og:description" content="Latest international job openings worldwide." />
-        <meta property="og:url" content={pageUrl} />
+        {/* Open Graph */}
         <meta property="og:type" content="website" />
+        <meta property="og:title" content="International Jobs 2026" />
+        <meta
+          property="og:description"
+          content="Latest verified international job openings worldwide."
+        />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:site_name" content="FreshJobs" />
 
+        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
 
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -62,7 +116,6 @@ export default function InternationalJobs({
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
@@ -74,11 +127,17 @@ export default function InternationalJobs({
           International Jobs & Global Career Opportunities
         </h1>
 
-        <p className="mb-6 text-gray-700">
+        <p className="mb-6 text-gray-700 max-w-3xl">
           Explore verified international job openings across USA, UAE,
           Canada, UK and other countries. Updated regularly to help
-          you find trusted global opportunities.
+          you find trusted global career opportunities.
         </p>
+
+        {jobs.length === 0 && (
+          <p className="text-red-500">
+            No international jobs available right now.
+          </p>
+        )}
 
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
@@ -86,31 +145,25 @@ export default function InternationalJobs({
           ))}
         </div>
 
-        {/* Pagination */}
+        {/* ✅ 1–10 Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 flex-wrap gap-2">
+            <span className="px-3 py-2 border rounded bg-blue-600 text-white">
+              1
+            </span>
 
-            {Array.from({ length: Math.min(totalPages, 10) }).map((_, i) => {
-              const pageNumber = i + 1
-              const href =
-                pageNumber === 1
-                  ? "/international-jobs"
-                  : `/international-jobs/page/${pageNumber}`
-
-              return (
-                <Link
-                  key={pageNumber}
-                  href={href}
-                  className={`px-3 py-2 border rounded ${
-                    pageNumber === 1
-                      ? "bg-blue-600 text-white"
-                      : "hover:bg-gray-200"
-                  }`}
-                >
-                  {pageNumber}
-                </Link>
-              )
-            })}
+            {Array.from(
+              { length: Math.min(9, totalPages - 1) },
+              (_, i) => i + 2
+            ).map((pageNumber) => (
+              <Link
+                key={pageNumber}
+                href={`/international-jobs/page/${pageNumber}`}
+                className="px-3 py-2 border rounded hover:bg-gray-200"
+              >
+                {pageNumber}
+              </Link>
+            ))}
 
             {totalPages > 1 && (
               <Link
@@ -120,7 +173,6 @@ export default function InternationalJobs({
                 Next »
               </Link>
             )}
-
           </div>
         )}
 
@@ -142,14 +194,12 @@ export default function InternationalJobs({
             </Link>
           </div>
         </div>
-
       </main>
     </>
   )
 }
 
-
-/* ✅ FINAL API BASED STATIC GENERATION */
+/* ✅ STATIC GENERATION */
 export async function getStaticProps() {
   try {
     const siteUrl =
@@ -170,7 +220,6 @@ export async function getStaticProps() {
       },
       revalidate: 1800,
     }
-
   } catch {
     return {
       props: {

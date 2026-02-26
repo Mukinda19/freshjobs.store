@@ -12,6 +12,41 @@ export default function InternationalJobsPage({
   const pageUrl = `${siteUrl}/international-jobs/page/${currentPage}`
   const baseUrl = `${siteUrl}/international-jobs`
 
+  /* ✅ Breadcrumb Schema */
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "International Jobs",
+        item: baseUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: `Page ${currentPage}`,
+        item: pageUrl,
+      },
+    ],
+  }
+
+  /* ✅ Collection Schema */
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `International Jobs – Page ${currentPage}`,
+    description: `Browse page ${currentPage} of verified international and overseas job opportunities.`,
+    url: pageUrl,
+  }
+
   return (
     <>
       <Head>
@@ -21,12 +56,13 @@ export default function InternationalJobsPage({
 
         <meta
           name="description"
-          content={`Browse international jobs page ${currentPage}. Find overseas and global job opportunities.`}
+          content={`Browse page ${currentPage} of international jobs. Find verified overseas and global career opportunities.`}
         />
 
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={pageUrl} />
 
+        {/* Prev / Next */}
         {currentPage > 1 && (
           <link
             rel="prev"
@@ -44,6 +80,32 @@ export default function InternationalJobsPage({
             href={`${baseUrl}/page/${currentPage + 1}`}
           />
         )}
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:title"
+          content={`International Jobs – Page ${currentPage}`}
+        />
+        <meta
+          property="og:description"
+          content="Latest verified international job openings worldwide."
+        />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:site_name" content="FreshJobs" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+        />
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -59,15 +121,23 @@ export default function InternationalJobsPage({
           International Jobs – Page {currentPage}
         </h1>
 
+        {jobs.length === 0 && (
+          <p className="text-red-500">
+            No international jobs found on this page.
+          </p>
+        )}
+
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
             <JobCard key={job.slug || index} job={job} />
           ))}
         </div>
 
+        {/* ✅ Smart Pagination (1–10 window) */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 flex-wrap gap-2">
 
+            {/* Prev */}
             {currentPage > 1 && (
               <Link
                 href={
@@ -81,27 +151,29 @@ export default function InternationalJobsPage({
               </Link>
             )}
 
-            {Array.from({ length: Math.min(totalPages, 10) }).map((_, i) => {
-              const pageNumber = i + 1
-              return (
-                <Link
-                  key={pageNumber}
-                  href={
-                    pageNumber === 1
-                      ? "/international-jobs"
-                      : `/international-jobs/page/${pageNumber}`
-                  }
-                  className={`px-3 py-2 border rounded ${
-                    pageNumber === currentPage
-                      ? "bg-blue-600 text-white"
-                      : "hover:bg-gray-200"
-                  }`}
-                >
-                  {pageNumber}
-                </Link>
-              )
-            })}
+            {/* Page Numbers */}
+            {Array.from(
+              { length: Math.min(10, totalPages) },
+              (_, i) => i + 1
+            ).map((pageNumber) => (
+              <Link
+                key={pageNumber}
+                href={
+                  pageNumber === 1
+                    ? "/international-jobs"
+                    : `/international-jobs/page/${pageNumber}`
+                }
+                className={`px-3 py-2 border rounded ${
+                  pageNumber === currentPage
+                    ? "bg-blue-600 text-white"
+                    : "hover:bg-gray-200"
+                }`}
+              >
+                {pageNumber}
+              </Link>
+            ))}
 
+            {/* Next */}
             {currentPage < totalPages && (
               <Link
                 href={`/international-jobs/page/${currentPage + 1}`}
@@ -110,7 +182,6 @@ export default function InternationalJobsPage({
                 Next »
               </Link>
             )}
-
           </div>
         )}
       </main>
@@ -118,8 +189,7 @@ export default function InternationalJobsPage({
   )
 }
 
-
-/* ✅ FINAL API BASED STATIC GENERATION */
+/* ✅ STATIC GENERATION */
 export async function getStaticProps({ params }) {
   const page = Number(params.page) || 1
 
@@ -147,7 +217,6 @@ export async function getStaticProps({ params }) {
       },
       revalidate: 1800,
     }
-
   } catch {
     return { notFound: true }
   }
