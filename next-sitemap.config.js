@@ -9,7 +9,13 @@ const config = {
   changefreq: "daily",
   priority: 0.7,
 
-  exclude: ["/404", "/500", "/api/*", "/admin/*"],
+  exclude: [
+    "/404",
+    "/500",
+    "/api/*",
+    "/admin/*",
+    "/**/page/*", // ❌ exclude pagination
+  ],
 
   robotsTxtOptions: {
     policies: [
@@ -22,26 +28,34 @@ const config = {
 
   additionalPaths: async () => {
     try {
+      /* 🔥 Fetch All Jobs (increase limit safely) */
       const res = await fetch(
-        `${BASE_URL}/api/search?page=1&limit=1000`
+        `${BASE_URL}/api/search?limit=5000`
       )
+
       const data = await res.json()
 
       const jobPaths =
         data.jobs?.map((job) => ({
-          loc: `/job/${job.slug}`,
+          loc: `/jobs/${job.slug}`, // ✅ fixed path
           changefreq: "daily",
           priority: 0.8,
         })) || []
 
       return [
+        /* 🔥 Core Category Pages */
         {
-          loc: "/ai-jobs",
+          loc: "/government-jobs",
           changefreq: "daily",
-          priority: 0.9,
+          priority: 0.95,
         },
         {
           loc: "/work-from-home",
+          changefreq: "daily",
+          priority: 0.95,
+        },
+        {
+          loc: "/high-paying-wfh",
           changefreq: "daily",
           priority: 0.9,
         },
@@ -51,10 +65,16 @@ const config = {
           priority: 0.9,
         },
         {
+          loc: "/ai-jobs",
+          changefreq: "daily",
+          priority: 0.9,
+        },
+        {
           loc: "/resume-builder",
           changefreq: "weekly",
           priority: 0.8,
         },
+
         ...jobPaths,
       ]
     } catch (e) {
