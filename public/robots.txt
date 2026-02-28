@@ -7,3 +7,4 @@ Host: https://www.freshjobs.store
 
 # Sitemaps
 Sitemap: https://www.freshjobs.store/sitemap.xml
+Sitemap: https://www.freshjobs.store/sitemap-categories.xml
