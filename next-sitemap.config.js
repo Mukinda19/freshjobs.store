@@ -27,9 +27,9 @@ const config = {
       },
     ],
 
-    // 🔥 ADD THIS
     additionalSitemaps: [
       `${BASE_URL}/sitemap-categories.xml`,
+      `${BASE_URL}/sitemap-pages.xml`,   // ✅ added
     ],
   },
 
