@@ -9,14 +9,29 @@ const normalizeSlug = (text = "") =>
     .replace(/(^-|-$)/g, "")
 
 export default function JobDetailPage({ job, siteUrl }) {
+  /* ✅ EXPIRED HANDLING (NEW ADDITION) */
   if (!job) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
+      <div className="max-w-3xl mx-auto p-6 text-center">
         <Head>
-          <title>Job Not Found | FreshJobs</title>
-          <meta name="robots" content="noindex" />
+          <title>Job Expired | FreshJobs</title>
+          <meta name="robots" content="noindex, follow" />
         </Head>
-        <h1 className="text-2xl font-bold">Job Not Found</h1>
+
+        <h1 className="text-2xl font-bold mb-4">
+          This Job Has Expired
+        </h1>
+
+        <p className="mb-6">
+          This job is no longer available. Please explore our latest openings.
+        </p>
+
+        <Link
+          href="/jobs"
+          className="inline-block bg-blue-600 text-white px-6 py-3 rounded font-bold hover:bg-blue-700"
+        >
+          Browse Latest Jobs
+        </Link>
       </div>
     )
   }
@@ -34,13 +49,11 @@ export default function JobDetailPage({ job, siteUrl }) {
     job.slug ||
     normalizeSlug(`${job.title || ""} ${job.company || ""}`)
 
-  /* ✅ FIXED URL STRUCTURE */
   const canonicalUrl = `${siteUrl}/jobs/${canonicalSlug}`
 
   const categorySlug = normalizeSlug(job.category || "jobs")
   const applyLink = job.url || job.link || job.applyLink || ""
 
-  /* -------- Country Detection -------- */
   const lowerLocation = location.toLowerCase()
 
   const isInternational =
@@ -52,8 +65,6 @@ export default function JobDetailPage({ job, siteUrl }) {
 
   const countryCode = isInternational ? "US" : "IN"
   const currency = isInternational ? "USD" : "INR"
-
-  /* ================= SCHEMA ================= */
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -131,7 +142,6 @@ export default function JobDetailPage({ job, siteUrl }) {
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={canonicalUrl} />
 
-        {/* Open Graph */}
         <meta property="og:title" content={`${title} at ${company}`} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonicalUrl} />
@@ -140,7 +150,6 @@ export default function JobDetailPage({ job, siteUrl }) {
 
         <meta name="twitter:card" content="summary_large_image" />
 
-        {/* Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -155,7 +164,6 @@ export default function JobDetailPage({ job, siteUrl }) {
         />
       </Head>
 
-      {/* Breadcrumb UI */}
       <div className="text-sm mb-4 text-gray-600">
         <Link href="/" prefetch={false}>Home</Link> ›{" "}
         <Link href={`/${categorySlug}`} prefetch={false}>
@@ -164,7 +172,6 @@ export default function JobDetailPage({ job, siteUrl }) {
         › <span className="font-medium">{title}</span>
       </div>
 
-      {/* Main Content */}
       <h1 className="text-3xl font-bold mb-2">{title}</h1>
 
       <p className="text-gray-700 mb-3">
@@ -195,7 +202,6 @@ export default function JobDetailPage({ job, siteUrl }) {
         </a>
       )}
 
-      {/* Internal Linking Boost */}
       <div className="mt-10 border-t pt-6">
         <h3 className="font-semibold mb-3">Explore More Jobs</h3>
         <ul className="list-disc pl-5 text-blue-700 space-y-2">
@@ -227,11 +233,21 @@ export async function getStaticProps({ params }) {
       `${siteUrl}/api/search?slug=${params.slug}`
     )
 
-    if (!res.ok) return { notFound: true }
+    if (!res.ok) {
+      return {
+        props: { job: null, siteUrl },
+        revalidate: 600,
+      }
+    }
 
     const data = await res.json()
 
-    if (!data.job) return { notFound: true }
+    if (!data.job) {
+      return {
+        props: { job: null, siteUrl },
+        revalidate: 600,
+      }
+    }
 
     return {
       props: {
@@ -241,6 +257,9 @@ export async function getStaticProps({ params }) {
       revalidate: 1800,
     }
   } catch {
-    return { notFound: true }
+    return {
+      props: { job: null, siteUrl: "https://www.freshjobs.store" },
+      revalidate: 600,
+    }
   }
 }
