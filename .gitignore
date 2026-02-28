@@ -32,6 +32,13 @@ Thumbs.db
 # ================================
 # Public folder (SEO safe)
 # ================================
+
+# Ignore everything inside public
 public/*
+
+# Allow sitemap and robots files
 !/public/sitemap.xml
+!/public/sitemap-*.xml
+!/public/sitemap-categories.xml
+!/public/sitemap-pages.xml
 !/public/robots.txt
