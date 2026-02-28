@@ -10,10 +10,10 @@ const nextConfig = {
 
   async redirects() {
     return [
-      // ✅ Redirect old /job URLs to /jobs (FIX 404 ISSUE)
+      // ✅ Redirect wrong /jobs URLs to correct /job route
       {
-        source: "/job/:slug*",
-        destination: "/jobs/:slug*",
+        source: "/jobs/:slug*",
+        destination: "/job/:slug*",
         permanent: true, // 301 redirect
       },
 
