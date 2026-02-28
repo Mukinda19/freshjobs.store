@@ -26,6 +26,11 @@ const config = {
         allow: "/",
       },
     ],
+
+    // 🔥 ADD THIS
+    additionalSitemaps: [
+      `${BASE_URL}/sitemap-categories.xml`,
+    ],
   },
 
   additionalPaths: async () => {
@@ -42,9 +47,6 @@ const config = {
           changefreq: "daily",
           priority: 0.8,
         })) || []
-
-      // 🔥 IMPORTANT: Ab categories yaha se remove kar diye
-      // Only dynamic job URLs return karenge
 
       return jobPaths
     } catch (e) {
