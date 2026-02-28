@@ -8,9 +8,16 @@ const nextConfig = {
 
   trailingSlash: true,
 
-  // ✅ FORCE REDIRECT: vercel.app → freshjobs.store
   async redirects() {
     return [
+      // ✅ Redirect old /job URLs to /jobs (FIX 404 ISSUE)
+      {
+        source: "/job/:slug*",
+        destination: "/jobs/:slug*",
+        permanent: true, // 301 redirect
+      },
+
+      // ✅ FORCE REDIRECT: vercel.app → freshjobs.store
       {
         source: "/:path*",
         has: [
@@ -20,7 +27,7 @@ const nextConfig = {
           },
         ],
         destination: "https://freshjobs.store/:path*",
-        permanent: true, // 301 redirect (SEO best practice)
+        permanent: true, // 301 redirect
       },
     ];
   },
