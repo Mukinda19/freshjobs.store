@@ -9,7 +9,7 @@ const normalizeSlug = (text = "") =>
     .replace(/(^-|-$)/g, "")
 
 export default function JobDetailPage({ job, siteUrl }) {
-  /* ✅ EXPIRED HANDLING (NEW ADDITION) */
+  /* ✅ EXPIRED HANDLING */
   if (!job) {
     return (
       <div className="max-w-3xl mx-auto p-6 text-center">
@@ -27,7 +27,7 @@ export default function JobDetailPage({ job, siteUrl }) {
         </p>
 
         <Link
-          href="/jobs"
+          href="/"
           className="inline-block bg-blue-600 text-white px-6 py-3 rounded font-bold hover:bg-blue-700"
         >
           Browse Latest Jobs
