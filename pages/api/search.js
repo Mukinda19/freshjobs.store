@@ -27,6 +27,7 @@ export default async function handler(req, res) {
     const page = Number(req.query.page) || 1
     const limit = Math.min(Number(req.query.limit) || 10, 20)
 
+    /* ========= LOAD CACHE ========= */
     if (!cachedJobs || Date.now() - lastFetchTime > CACHE_DURATION) {
       const response = await fetch(`${SHEET_URL}?limit=1000`)
       const data = await response.json()
@@ -53,7 +54,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ job })
     }
 
-    /* ========= CATEGORY FILTER (RESTORED WORKING LOGIC) ========= */
+    /* ========= CATEGORY FILTER (FINAL CONTROL FLOW FIX) ========= */
 
     const keywordsMap = {
       "ai-jobs": ["ai","artificial intelligence","machine learning","ml","data"],
@@ -69,7 +70,26 @@ export default async function handler(req, res) {
     if (category) {
       const cat = category.toLowerCase()
 
-      if (keywordsMap[cat]) {
+      // INTERNATIONAL (exclude govt)
+      if (cat === "international-jobs") {
+        jobs = jobs.filter((job) =>
+          !buildText(job, ["title","description","snippet","company"]).includes("government")
+        )
+      }
+
+      // HIGH PAYING WFH
+      else if (cat === "high-paying-wfh") {
+        jobs = jobs.filter((job) => {
+          const text = buildText(job, ["title","description","snippet","company"])
+          return (
+            ["remote","work from home","wfh"].some(k => text.includes(k)) &&
+            (text.includes("salary") || text.includes("₹") || text.includes("lpa"))
+          )
+        })
+      }
+
+      // NORMAL KEYWORD CATEGORIES
+      else if (keywordsMap[cat]) {
         const keywords = keywordsMap[cat]
 
         jobs = jobs.filter((job) =>
@@ -79,18 +99,9 @@ export default async function handler(req, res) {
         )
       }
 
-      // International = remove govt jobs
-      if (cat === "international-jobs") {
-        jobs = jobs.filter((job) =>
-          !buildText(job, ["title","description"]).includes("government")
-        )
-      }
-
-      // High Paying WFH
-      if (cat === "high-paying-wfh") {
-        jobs = jobs.filter((job) =>
-          buildText(job, ["title","description"]).includes("salary")
-        )
+      // UNKNOWN CATEGORY → return empty
+      else {
+        jobs = []
       }
     }
 
