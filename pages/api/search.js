@@ -61,42 +61,62 @@ export default async function handler(req, res) {
     const buildText = (job, fields) =>
       fields.map((f) => job[f] || "").join(" ").toLowerCase()
 
-    const aiKeywords = [
-      "ai","artificial intelligence","machine learning",
-      "ml","deep learning","data scientist","nlp"
-    ]
+    const keywordsMap = {
+      "ai": ["ai","artificial intelligence","machine learning","ml","deep learning","data scientist","nlp"],
+      "ai-jobs": ["ai","artificial intelligence","machine learning","ml","deep learning","data scientist","nlp"],
 
-    const wfhKeywords = [
-      "work from home","remote","wfh","anywhere","worldwide"
-    ]
+      "work-from-home": ["work from home","remote","wfh","anywhere","worldwide"],
 
-    const govtKeywords = [
-      "government","govt","sarkari","railway","ssc","upsc"
-    ]
+      "government-jobs": ["government","govt","sarkari","railway","ssc","upsc"],
+
+      "it-jobs": ["software","developer","it","programmer","web","app","tech","engineer"],
+
+      "banking-jobs": ["bank","banking","finance","loan","credit","branch"],
+
+      "bpo-jobs": ["bpo","call center","customer support","telecaller","voice process"],
+
+      "sales-jobs": ["sales","business development","field sales","marketing executive"],
+
+      "engineering-jobs": ["engineer","mechanical","civil","electrical","production","manufacturing"]
+    }
 
     if (category) {
       const cat = category.toLowerCase()
 
-      if (cat === "ai" || cat === "ai-jobs") {
+      // International = Non Govt
+      if (cat === "international" || cat === "international-jobs") {
+        const govtKeywords = ["government","govt","sarkari","railway","ssc","upsc"]
+
         jobs = jobs.filter((job) =>
-          aiKeywords.some((kw) =>
+          !govtKeywords.some((kw) =>
             buildText(job, ["title","description","snippet"]).includes(kw)
           )
         )
       }
 
-      else if (cat === "work-from-home") {
-        jobs = jobs.filter((job) =>
-          wfhKeywords.some((kw) =>
-            buildText(job, ["title","description","snippet","location"]).includes(kw)
-          )
-        )
+      // High Paying WFH
+      else if (cat === "high-paying-wfh") {
+        jobs = jobs.filter((job) => {
+          const text = buildText(job, ["title","description","snippet","location","company"])
+          const isRemote = ["work from home","remote","wfh"].some(k => text.includes(k))
+          const isHighPay =
+            text.includes("salary") ||
+            text.includes("lpa") ||
+            text.includes("per month") ||
+            text.includes("₹") ||
+            text.includes("$")
+
+          return isRemote && isHighPay
+        })
       }
 
-      else if (cat === "international" || cat === "international-jobs") {
+      // Normal Category Filters
+      else if (keywordsMap[cat]) {
+        const keywords = keywordsMap[cat]
+
         jobs = jobs.filter((job) =>
-          !govtKeywords.some((kw) =>
-            buildText(job, ["title","description"]).includes(kw)
+          keywords.some((kw) =>
+            buildText(job, ["title","description","snippet","location","company"]).includes(kw)
           )
         )
       }
