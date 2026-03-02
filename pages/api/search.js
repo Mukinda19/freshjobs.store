@@ -13,47 +13,8 @@ const generateSlug = (text = "", fallback = "") => {
     .replace(/(^-|-$)/g, "")
 }
 
-const buildText = (job) =>
-  [
-    job.title,
-    job.description,
-    job.snippet,
-    job.location,
-    job.company,
-  ]
-    .join(" ")
-    .toLowerCase()
-
-// 🔥 Category detection engine
-const detectCategory = (job) => {
-  const text = buildText(job)
-
-  if (text.includes("artificial intelligence") || text.includes("machine learning") || text.includes("data scientist") || text.includes("ai "))
-    return "ai-jobs"
-
-  if (text.includes("work from home") || text.includes("remote") || text.includes("wfh"))
-    return "work-from-home"
-
-  if (text.includes("government") || text.includes("govt") || text.includes("sarkari") || text.includes("railway") || text.includes("ssc") || text.includes("upsc"))
-    return "government-jobs"
-
-  if (text.includes("bank") || text.includes("finance") || text.includes("loan") || text.includes("credit"))
-    return "banking-jobs"
-
-  if (text.includes("bpo") || text.includes("call center") || text.includes("customer support"))
-    return "bpo-jobs"
-
-  if (text.includes("sales") || text.includes("business development") || text.includes("marketing"))
-    return "sales-jobs"
-
-  if (text.includes("engineer") || text.includes("mechanical") || text.includes("civil") || text.includes("electrical"))
-    return "engineering-jobs"
-
-  if (text.includes("developer") || text.includes("software") || text.includes("programmer") || text.includes("web"))
-    return "it-jobs"
-
-  return "general"
-}
+const buildText = (job, fields) =>
+  fields.map((f) => job[f] || "").join(" ").toLowerCase()
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate")
@@ -74,8 +35,9 @@ export default async function handler(req, res) {
 
       jobs = jobs.map((job, index) => ({
         ...job,
-        slug: job.slug || generateSlug(job.title, job.link) + "-" + index,
-        detectedCategory: detectCategory(job), // 🔥 assign category
+        slug:
+          job.slug ||
+          generateSlug(job.title, job.link) + "-" + index,
       }))
 
       cachedJobs = jobs
@@ -84,34 +46,63 @@ export default async function handler(req, res) {
 
     let jobs = [...cachedJobs]
 
+    /* ========= SLUG ========= */
     if (slug) {
       const job = jobs.find((j) => j.slug === slug)
       if (!job) return res.status(404).json({ job: null })
       return res.status(200).json({ job })
     }
 
-    // 🔥 CATEGORY FILTER (guaranteed working)
+    /* ========= CATEGORY FILTER (RESTORED WORKING LOGIC) ========= */
+
+    const keywordsMap = {
+      "ai-jobs": ["ai","artificial intelligence","machine learning","ml","data"],
+      "work-from-home": ["work from home","remote","wfh"],
+      "government-jobs": ["government","govt","sarkari","railway","ssc","upsc"],
+      "it-jobs": ["developer","software","it","programmer","web","tech","react","node"],
+      "banking-jobs": ["bank","finance","loan","credit"],
+      "bpo-jobs": ["bpo","call center","customer support"],
+      "sales-jobs": ["sales","marketing","business development"],
+      "engineering-jobs": ["engineer","mechanical","civil","electrical"]
+    }
+
     if (category) {
       const cat = category.toLowerCase()
 
-      if (cat === "international-jobs") {
-        jobs = jobs.filter((job) => job.detectedCategory !== "government-jobs")
-      } else if (cat === "high-paying-wfh") {
-        jobs = jobs.filter(
-          (job) =>
-            job.detectedCategory === "work-from-home" &&
-            buildText(job).includes("salary")
+      if (keywordsMap[cat]) {
+        const keywords = keywordsMap[cat]
+
+        jobs = jobs.filter((job) =>
+          keywords.some((kw) =>
+            buildText(job, ["title","description","snippet","location","company"]).includes(kw)
+          )
         )
-      } else {
-        jobs = jobs.filter((job) => job.detectedCategory === cat)
+      }
+
+      // International = remove govt jobs
+      if (cat === "international-jobs") {
+        jobs = jobs.filter((job) =>
+          !buildText(job, ["title","description"]).includes("government")
+        )
+      }
+
+      // High Paying WFH
+      if (cat === "high-paying-wfh") {
+        jobs = jobs.filter((job) =>
+          buildText(job, ["title","description"]).includes("salary")
+        )
       }
     }
 
+    /* ========= SEARCH ========= */
     if (q && q.trim() !== "") {
       const keyword = q.toLowerCase()
-      jobs = jobs.filter((job) => buildText(job).includes(keyword))
+      jobs = jobs.filter((job) =>
+        buildText(job, ["title","description","company"]).includes(keyword)
+      )
     }
 
+    /* ========= PAGINATION ========= */
     const start = (page - 1) * limit
     const totalPages = Math.ceil(jobs.length / limit)
 
