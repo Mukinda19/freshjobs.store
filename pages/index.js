@@ -19,15 +19,18 @@ export default function Home({ initialJobs }) {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const finalCategory = category || "";
+    const finalCategory = category || "all";
     const finalLocation = location || "india";
 
     router.push(
-      `/jobs/${finalCategory || "all"}/${finalLocation}?q=${encodeURIComponent(keyword)}`
+      `/jobs/${finalCategory}/${finalLocation}?q=${encodeURIComponent(keyword)}`
     );
   };
 
+  /* ✅ FIXED: Only fetch when user actually filters */
   useEffect(() => {
+    if (!category && !keyword) return;
+
     const fetchFilteredJobs = async () => {
       try {
         const qParam = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
@@ -80,8 +83,10 @@ export default function Home({ initialJobs }) {
         <link rel="canonical" href="https://www.freshjobs.store/" />
       </Head>
 
-      {/* ===== Rest of your structure SAME ===== */}
+      {/* ✅ Popular Categories RESTORED */}
+      <CategoryGrid />
 
+      {/* ===== Search Section SAME ===== */}
       <section className="my-8">
         <form
           onSubmit={handleSearch}
@@ -132,7 +137,6 @@ export default function Home({ initialJobs }) {
       </section>
 
       {/* ===== Latest Jobs Section SAME ===== */}
-
       <section className="my-12">
         <h2 className="text-2xl font-semibold mb-6">Latest Job Openings</h2>
 
@@ -176,7 +180,7 @@ export async function getStaticProps() {
       },
       revalidate: 3600,
     };
-  } catch (error) {
+  } catch {
     return {
       props: {
         initialJobs: [],
