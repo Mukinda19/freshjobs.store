@@ -54,31 +54,32 @@ export default async function handler(req, res) {
       return res.status(200).json({ job })
     }
 
-    /* ========= CATEGORY FILTER (FINAL CONTROL FLOW FIX) ========= */
+    /* ========= CATEGORY FILTER (FINAL STABLE VERSION) ========= */
 
     const keywordsMap = {
+      "ai": ["ai","artificial intelligence","machine learning","ml","data"],
       "ai-jobs": ["ai","artificial intelligence","machine learning","ml","data"],
+
       "work-from-home": ["work from home","remote","wfh"],
+
+      "govt-jobs": ["government","govt","sarkari","railway","ssc","upsc"],
       "government-jobs": ["government","govt","sarkari","railway","ssc","upsc"],
+
       "it-jobs": ["developer","software","it","programmer","web","tech","react","node"],
       "banking-jobs": ["bank","finance","loan","credit"],
       "bpo-jobs": ["bpo","call center","customer support"],
       "sales-jobs": ["sales","marketing","business development"],
-      "engineering-jobs": ["engineer","mechanical","civil","electrical"]
+      "engineering-jobs": ["engineer","mechanical","civil","electrical"],
+
+      "international": ["abroad","overseas","international","gulf","usa","uk","canada"],
+      "international-jobs": ["abroad","overseas","international","gulf","usa","uk","canada"]
     }
 
-    if (category) {
+    if (category && category !== "all") {
       const cat = category.toLowerCase()
 
-      // INTERNATIONAL (exclude govt)
-      if (cat === "international-jobs") {
-        jobs = jobs.filter((job) =>
-          !buildText(job, ["title","description","snippet","company"]).includes("government")
-        )
-      }
-
       // HIGH PAYING WFH
-      else if (cat === "high-paying-wfh") {
+      if (cat === "high-paying-wfh") {
         jobs = jobs.filter((job) => {
           const text = buildText(job, ["title","description","snippet","company"])
           return (
@@ -88,7 +89,7 @@ export default async function handler(req, res) {
         })
       }
 
-      // NORMAL KEYWORD CATEGORIES
+      // NORMAL CATEGORY FILTER
       else if (keywordsMap[cat]) {
         const keywords = keywordsMap[cat]
 
@@ -99,10 +100,7 @@ export default async function handler(req, res) {
         )
       }
 
-      // UNKNOWN CATEGORY → return empty
-      else {
-        jobs = []
-      }
+      // UNKNOWN CATEGORY → DO NOTHING (return all jobs instead of empty)
     }
 
     /* ========= SEARCH ========= */
