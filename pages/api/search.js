@@ -36,6 +36,27 @@ const dedupeJobs = (jobs) => {
   })
 }
 
+/* ---------------- GOVT CHECK ---------------- */
+
+const isGovtJob = (text) => {
+  const govtKeywords = [
+    "government",
+    "govt",
+    "sarkari",
+    "railway",
+    "ssc",
+    "upsc",
+    "public sector",
+    "psu",
+    "defence",
+    "army",
+    "navy",
+    "air force",
+  ]
+
+  return govtKeywords.some((kw) => text.includes(kw))
+}
+
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate")
 
@@ -106,7 +127,8 @@ export default async function handler(req, res) {
         "remote job",
         "remote work",
         "wfh",
-        "home based"
+        "home based",
+        "remote"
       ],
 
       "govt-jobs": [
@@ -134,7 +156,7 @@ export default async function handler(req, res) {
         "react",
         "node",
         "javascript",
-        "python developer"
+        "python"
       ],
 
       banking: [
@@ -156,10 +178,9 @@ export default async function handler(req, res) {
       ],
 
       sales: [
-        "sales executive",
-        "sales manager",
+        "sales",
         "business development",
-        "marketing executive",
+        "marketing",
         "field sales"
       ],
 
@@ -182,14 +203,18 @@ export default async function handler(req, res) {
         "qatar",
         "canada",
         "usa",
-        "uk"
+        "uk",
+        "remote",
+        "work from home"
       ]
     }
 
     if (category && category !== "all") {
+
       const cat = category.toLowerCase()
 
       if (keywordsMap[cat]) {
+
         const keywords = keywordsMap[cat]
 
         jobs = jobs.filter((job) => {
@@ -201,6 +226,12 @@ export default async function handler(req, res) {
             "location",
             "company",
           ])
+
+          /* govt jobs only in govt category */
+
+          if (cat !== "govt-jobs" && isGovtJob(text)) {
+            return false
+          }
 
           return keywords.some((kw) => text.includes(kw))
         })

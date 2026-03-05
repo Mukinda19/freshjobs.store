@@ -2,6 +2,7 @@ import Head from "next/head"
 import Link from "next/link"
 
 /* ---------------- Helper ---------------- */
+
 const normalizeSlug = (text = "") =>
   String(text)
     .toLowerCase()
@@ -9,12 +10,17 @@ const normalizeSlug = (text = "") =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
 
+const cleanNumber = (value = "") =>
+  String(value).replace(/[^\d]/g, "")
+
 export default function JobDetailPage({ job, siteUrl }) {
 
   /* ---------------- EXPIRED JOB ---------------- */
+
   if (!job) {
     return (
       <div className="max-w-3xl mx-auto p-6 text-center">
+
         <Head>
           <title>Job Expired | FreshJobs</title>
           <meta name="robots" content="noindex, follow" />
@@ -34,6 +40,7 @@ export default function JobDetailPage({ job, siteUrl }) {
         >
           Browse Latest Jobs
         </Link>
+
       </div>
     )
   }
@@ -44,9 +51,9 @@ export default function JobDetailPage({ job, siteUrl }) {
   const salary = job.salary || ""
 
   const description =
-    job.snippet ||
     job.description ||
-    "Check job eligibility, salary details and apply using the official link."
+    job.snippet ||
+    `Apply for ${title} at ${company}. Check eligibility, job location, salary details and official application process.`
 
   const canonicalSlug =
     job.slug ||
@@ -55,9 +62,16 @@ export default function JobDetailPage({ job, siteUrl }) {
   const canonicalUrl = `${siteUrl}/job/${canonicalSlug}`
 
   const categorySlug = normalizeSlug(job.category || "jobs")
-  const applyLink = job.url || job.link || job.applyLink || ""
+
+  const applyLink =
+    job.url || job.link || job.applyLink || ""
 
   const lowerLocation = location.toLowerCase()
+
+  const isRemote =
+    lowerLocation.includes("remote") ||
+    lowerLocation.includes("work from home") ||
+    lowerLocation.includes("wfh")
 
   const isInternational =
     lowerLocation.includes("usa") ||
@@ -69,24 +83,31 @@ export default function JobDetailPage({ job, siteUrl }) {
   const countryCode = isInternational ? "US" : "IN"
   const currency = isInternational ? "USD" : "INR"
 
+  const employmentType =
+    job.employmentType?.toUpperCase() || "FULL_TIME"
+
   /* ---------------- Breadcrumb Schema ---------------- */
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
+
     itemListElement: [
+
       {
         "@type": "ListItem",
         position: 1,
         name: "Home",
         item: siteUrl,
       },
+
       {
         "@type": "ListItem",
         position: 2,
         name: job.category || "Jobs",
         item: `${siteUrl}/jobs/${categorySlug}/india`,
       },
+
       {
         "@type": "ListItem",
         position: 3,
@@ -99,10 +120,13 @@ export default function JobDetailPage({ job, siteUrl }) {
   /* ---------------- JobPosting Schema ---------------- */
 
   const jobPostingSchema = {
+
     "@context": "https://schema.org",
     "@type": "JobPosting",
+
     title: title,
     description: description,
+
     url: canonicalUrl,
 
     identifier: {
@@ -118,7 +142,9 @@ export default function JobDetailPage({ job, siteUrl }) {
     },
 
     jobLocation: {
+
       "@type": "Place",
+
       address: {
         "@type": "PostalAddress",
         addressLocality: location,
@@ -126,25 +152,32 @@ export default function JobDetailPage({ job, siteUrl }) {
       },
     },
 
+    ...(isRemote && {
+      jobLocationType: "TELECOMMUTE",
+    }),
+
     applicantLocationRequirements: {
       "@type": "Country",
       name: countryCode,
     },
 
-    employmentType: job.employmentType || "FULL_TIME",
+    employmentType: employmentType,
 
     directApply: true,
 
-    baseSalary: salary
-      ? {
-          "@type": "MonetaryAmount",
-          currency: currency,
-          value: {
-            "@type": "QuantitativeValue",
-            value: salary.replace(/[^\d]/g, "") || salary,
-          },
-        }
-      : undefined,
+    ...(salary && {
+      baseSalary: {
+
+        "@type": "MonetaryAmount",
+        currency: currency,
+
+        value: {
+          "@type": "QuantitativeValue",
+          value: cleanNumber(salary),
+          unitText: "MONTH",
+        },
+      },
+    }),
 
     datePosted:
       job.date && !isNaN(new Date(job.date))
@@ -161,6 +194,7 @@ export default function JobDetailPage({ job, siteUrl }) {
   }
 
   return (
+
     <div className="max-w-4xl mx-auto p-4">
 
       <Head>
@@ -203,25 +237,44 @@ export default function JobDetailPage({ job, siteUrl }) {
       </Head>
 
       {/* Breadcrumb */}
+
       <div className="text-sm mb-5 text-gray-600">
-        <Link href="/" prefetch={false}>Home</Link> ›{" "}
-        <Link href={`/jobs/${categorySlug}/india`} prefetch={false}>
+
+        <Link href="/" prefetch={false}>
+          Home
+        </Link>
+
+        {" › "}
+
+        <Link
+          href={`/jobs/${categorySlug}/india`}
+          prefetch={false}
+        >
           {job.category || "Jobs"}
-        </Link>{" "}
-        › <span className="font-medium">{title}</span>
+        </Link>
+
+        {" › "}
+
+        <span className="font-medium">
+          {title}
+        </span>
+
       </div>
 
-      {/* Job Title */}
+      {/* Title */}
+
       <h1 className="text-2xl md:text-3xl font-bold mb-2">
         {title}
       </h1>
 
       {/* Company */}
+
       <p className="text-gray-700 mb-3">
         {company} • {location}
       </p>
 
       {/* Salary */}
+
       {salary && (
         <p className="text-green-700 font-semibold mb-4">
           💰 Salary: {salary}
@@ -229,7 +282,9 @@ export default function JobDetailPage({ job, siteUrl }) {
       )}
 
       {/* Description */}
+
       <div className="bg-white border rounded-lg p-5 mb-6">
+
         <h2 className="font-semibold mb-3 text-lg">
           Job Description
         </h2>
@@ -237,10 +292,13 @@ export default function JobDetailPage({ job, siteUrl }) {
         <p className="text-gray-700 whitespace-pre-line leading-relaxed">
           {description}
         </p>
+
       </div>
 
-      {/* Apply Button */}
+      {/* Apply */}
+
       {applyLink && (
+
         <a
           href={applyLink}
           target="_blank"
@@ -249,9 +307,11 @@ export default function JobDetailPage({ job, siteUrl }) {
         >
           Apply on Official Website →
         </a>
+
       )}
 
-      {/* Internal SEO Links */}
+      {/* Internal SEO */}
+
       <div className="mt-12 border-t pt-6">
 
         <h3 className="font-semibold mb-3 text-lg">
@@ -296,11 +356,12 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  try {
 
-    const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-      "https://www.freshjobs.store"
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+    "https://www.freshjobs.store"
+
+  try {
 
     const res = await fetch(
       `${siteUrl}/api/search?slug=${params.slug}`
@@ -315,30 +376,21 @@ export async function getStaticProps({ params }) {
 
     const data = await res.json()
 
-    if (!data.job) {
-      return {
-        props: { job: null, siteUrl },
-        revalidate: 600,
-      }
-    }
-
     return {
       props: {
-        job: data.job,
+        job: data.job || null,
         siteUrl,
       },
-      revalidate: 1800,
+      revalidate: 600,
     }
 
   } catch {
 
     return {
-      props: {
-        job: null,
-        siteUrl: "https://www.freshjobs.store",
-      },
+      props: { job: null, siteUrl },
       revalidate: 600,
     }
 
   }
+
 }
