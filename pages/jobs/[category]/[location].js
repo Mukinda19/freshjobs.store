@@ -31,25 +31,25 @@ export default function CategoryLocationPage({
 
   const pageDescription = isWFH
     ? `Find latest verified work from home jobs in ${readableLocation}. Apply online for remote and genuine WFH job opportunities.`
-    : `Latest ${readableCategory} jobs in ${readableLocation}. Browse verified government and private job vacancies and apply online.`;
+    : `Latest ${readableCategory} jobs in ${readableLocation}. Browse verified job vacancies and apply online.`;
 
   const canonicalUrl =
     currentPage > 1
-      ? `${baseUrl}/category/${category}/${location}?page=${currentPage}`
-      : `${baseUrl}/category/${category}/${location}`;
+      ? `${baseUrl}/jobs/${category}/${location}?page=${currentPage}`
+      : `${baseUrl}/jobs/${category}/${location}`;
 
   const prevUrl =
     currentPage > 1
-      ? `${baseUrl}/category/${category}/${location}?page=${currentPage - 1}`
+      ? `${baseUrl}/jobs/${category}/${location}?page=${currentPage - 1}`
       : null;
 
   const nextUrl =
     currentPage < totalPages
-      ? `${baseUrl}/category/${category}/${location}?page=${currentPage + 1}`
+      ? `${baseUrl}/jobs/${category}/${location}?page=${currentPage + 1}`
       : null;
 
   const goToPage = (page) => {
-    router.push(`/category/${category}/${location}?page=${page}`);
+    router.push(`/jobs/${category}/${location}?page=${page}`);
   };
 
   /* ================= SCHEMA ================= */
@@ -68,7 +68,7 @@ export default function CategoryLocationPage({
         "@type": "ListItem",
         position: 2,
         name: readableCategory + " Jobs",
-        item: `${baseUrl}/category/${category}`,
+        item: `${baseUrl}/jobs/${category}/india`,
       },
       {
         "@type": "ListItem",
@@ -85,7 +85,7 @@ export default function CategoryLocationPage({
     itemListElement: jobs.map((job, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: `${baseUrl}/jobs/${job.slug || job.id}`,
+      url: `${baseUrl}/job/${job.slug}`,
       name: job.title,
     })),
   };
@@ -98,6 +98,7 @@ export default function CategoryLocationPage({
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
         <link rel="canonical" href={canonicalUrl} />
+
         {prevUrl && <link rel="prev" href={prevUrl} />}
         {nextUrl && <link rel="next" href={nextUrl} />}
 
@@ -108,6 +109,7 @@ export default function CategoryLocationPage({
             __html: JSON.stringify(breadcrumbSchema),
           }}
         />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -116,43 +118,49 @@ export default function CategoryLocationPage({
         />
       </Head>
 
-      {/* ================= BREADCRUMB UI ================= */}
+      {/* ================= BREADCRUMB ================= */}
+
       <div className="text-sm mb-4 text-gray-600">
         <Link href="/">Home</Link> ›{" "}
-        <Link href={`/category/${category}`}>
+        <Link href={`/jobs/${category}/india`}>
           {readableCategory}
         </Link>{" "}
         › <span className="font-medium">{readableLocation}</span>
       </div>
 
-      {/* ================= HEADING ================= */}
+      {/* ================= PAGE TITLE ================= */}
+
       <h1 className="text-2xl md:text-3xl font-bold mb-4">
         {isWFH
           ? `Work From Home Jobs in ${readableLocation}`
           : `${readableCategory} Jobs in ${readableLocation}`}
       </h1>
 
-      {/* ================= SEO PARAGRAPH ================= */}
+      {/* ================= SEO TEXT ================= */}
+
       <p className="text-gray-600 mb-6">
         Explore latest {readableCategory} job openings in{" "}
         {readableLocation}. Find verified job listings with official
         application links. Updated daily with fresh opportunities.
       </p>
 
-      {/* ================= JOB LIST ================= */}
+      {/* ================= JOB GRID ================= */}
+
       {jobs.length === 0 ? (
         <p>No jobs found for this category and location.</p>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {jobs.map((job, index) => (
-            <JobCard key={job.id || index} job={job} />
+            <JobCard key={job.slug || index} job={job} />
           ))}
         </div>
       )}
 
       {/* ================= PAGINATION ================= */}
+
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-10">
+
           {currentPage > 1 && (
             <button
               onClick={() => goToPage(currentPage - 1)}
@@ -174,6 +182,7 @@ export default function CategoryLocationPage({
               Next →
             </button>
           )}
+
         </div>
       )}
     </div>
@@ -187,28 +196,18 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params, query }) {
+
   const { category, location } = params;
   const currentPage = parseInt(query?.page || "1");
 
-  const categoryMap = {
-    government: "govt-jobs",
-    "work-from-home": "work-from-home",
-    "high-paying": "high-paying",
-    international: "international",
-  };
-
-  const normalizedCategory =
-    categoryMap[category?.toLowerCase()] || category;
-
-  const normalizedLocation = location?.toLowerCase();
-
   const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
     "https://www.freshjobs.store";
 
   try {
+
     const res = await fetch(
-      `${baseUrl}/api/search?category=${normalizedCategory}&location=${normalizedLocation}&page=${currentPage}&limit=10`
+      `${baseUrl}/api/search?category=${category}&page=${currentPage}&limit=10`
     );
 
     const data = await res.json();
@@ -223,7 +222,9 @@ export async function getStaticProps({ params, query }) {
       },
       revalidate: 1800,
     };
+
   } catch {
+
     return {
       props: {
         jobs: [],
@@ -234,5 +235,6 @@ export async function getStaticProps({ params, query }) {
       },
       revalidate: 1800,
     };
+
   }
 }

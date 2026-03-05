@@ -1,77 +1,129 @@
 import Link from "next/link";
 
 /* ---------------- Helper: SEO Safe Slug ---------------- */
+
 const generateSlug = (job = {}) => {
+
   const base =
     job.slug ||
-    `${job.title || "job"} ${job.company || ""}`;
+    `${job.title || "job"} ${job.company || ""} ${job.location || ""}`;
 
   return String(base)
     .toLowerCase()
     .trim()
+    .replace(/<[^>]*>?/gm, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 };
 
 export default function JobCard({ job }) {
+
   if (!job) return null;
 
-  const applyLink = job.url || job.link || job.applyLink || "";
+  const title = job.title || "Latest Job Opening";
+  const company = job.company || "Company";
+  const location = job.location || "";
+  const salary = job.salary || "";
+  const snippet = job.snippet || job.description || "";
+
+  const applyLink =
+    job.url ||
+    job.link ||
+    job.applyLink ||
+    "";
+
   const slug = generateSlug(job);
 
   return (
+
     <div className="bg-white border rounded-xl p-4 hover:shadow-lg transition duration-200 flex flex-col justify-between h-full">
-      
-      {/* 🔹 Clickable Job Info */}
-      <Link href={`/job/${slug}`} className="block">
+
+      {/* Job Info */}
+
+      <Link
+        href={`/job/${slug}`}
+        className="block group"
+        prefetch={false}
+      >
+
         <div>
 
           {/* Job Title */}
-          <h3 className="text-sm md:text-base font-semibold text-blue-700 leading-snug hover:underline">
-            {job.title || "Job Opening"}
+
+          <h3 className="text-sm md:text-base font-semibold text-blue-700 leading-snug group-hover:underline">
+
+            {title}
+
           </h3>
 
           {/* Company + Location */}
-          {(job.company || job.location) && (
+
+          {(company || location) && (
+
             <p className="text-xs text-gray-600 mt-1">
+
               <span className="font-medium">
-                {job.company || "Company"}
+
+                {company}
+
               </span>
-              {job.location && ` • ${job.location}`}
+
+              {location && ` • ${location}`}
+
             </p>
+
           )}
 
           {/* Salary */}
-          {job.salary && (
+
+          {salary && (
+
             <p className="text-xs text-green-600 font-medium mt-1">
-              💰 {job.salary}
+
+              💰 {salary}
+
             </p>
+
           )}
 
-          {/* Description Snippet */}
-          {job.snippet && (
+          {/* Snippet */}
+
+          {snippet && (
+
             <p className="text-xs text-gray-700 mt-2 line-clamp-2 leading-relaxed">
-              {job.snippet}
+
+              {snippet}
+
             </p>
+
           )}
 
         </div>
+
       </Link>
 
-      {/* 🔹 Apply Button */}
+      {/* Apply Button */}
+
       {applyLink && (
+
         <div className="mt-4">
+
           <a
             href={applyLink}
             target="_blank"
             rel="noopener noreferrer nofollow"
             className="inline-block text-xs md:text-sm px-4 py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition"
           >
+
             Apply Now →
+
           </a>
+
         </div>
+
       )}
 
     </div>
+
   );
 }
