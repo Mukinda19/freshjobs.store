@@ -1,11 +1,13 @@
-// pages/api/search.js
-
 let cachedJobs = null
 let lastFetchTime = 0
+
 const CACHE_DURATION = 5 * 60 * 1000
+
+/* ---------------- SLUG GENERATOR ---------------- */
 
 const generateSlug = (text = "", fallback = "") => {
   const base = text || fallback || "job-opening"
+
   return base
     .toLowerCase()
     .replace(/<[^>]*>?/gm, "")
@@ -13,8 +15,26 @@ const generateSlug = (text = "", fallback = "") => {
     .replace(/(^-|-$)/g, "")
 }
 
-const buildText = (job, fields) =>
-  fields.map((f) => job[f] || "").join(" ").toLowerCase()
+/* ---------------- TEXT BUILDER ---------------- */
+
+const buildText = (job, fields) => {
+  return fields.map((f) => job[f] || "").join(" ").toLowerCase()
+}
+
+/* ---------------- REMOVE DUPLICATES ---------------- */
+
+const dedupeJobs = (jobs) => {
+  const seen = new Set()
+
+  return jobs.filter((job) => {
+    const key = `${job.title}-${job.company}-${job.location}`
+
+    if (seen.has(key)) return false
+
+    seen.add(key)
+    return true
+  })
+}
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate")
@@ -24,10 +44,12 @@ export default async function handler(req, res) {
       "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
     const { category, q, slug } = req.query
-    const page = Number(req.query.page) || 1
+
+    const page = Math.max(Number(req.query.page) || 1, 1)
     const limit = Math.min(Number(req.query.limit) || 10, 20)
 
-    /* ========= LOAD CACHE ========= */
+    /* ================= CACHE LOAD ================= */
+
     if (!cachedJobs || Date.now() - lastFetchTime > CACHE_DURATION) {
       const response = await fetch(`${SHEET_URL}?limit=1000`)
       const data = await response.json()
@@ -38,8 +60,14 @@ export default async function handler(req, res) {
         ...job,
         slug:
           job.slug ||
-          generateSlug(job.title, job.link) + "-" + index,
+          `${generateSlug(job.title, job.link)}-${index}`,
+        description:
+          job.description ||
+          job.snippet ||
+          "Check job details and apply using the official link.",
       }))
+
+      jobs = dedupeJobs(jobs)
 
       cachedJobs = jobs
       lastFetchTime = Date.now()
@@ -47,14 +75,19 @@ export default async function handler(req, res) {
 
     let jobs = [...cachedJobs]
 
-    /* ========= SLUG ========= */
+    /* ================= SLUG DETAIL ================= */
+
     if (slug) {
       const job = jobs.find((j) => j.slug === slug)
-      if (!job) return res.status(404).json({ job: null })
+
+      if (!job) {
+        return res.status(404).json({ job: null })
+      }
+
       return res.status(200).json({ job })
     }
 
-    /* ========= CATEGORY FILTER (FINAL STABLE VERSION) ========= */
+    /* ================= CATEGORY FILTER ================= */
 
     const keywordsMap = {
       "ai": ["ai","artificial intelligence","machine learning","ml","data"],
@@ -65,7 +98,7 @@ export default async function handler(req, res) {
       "govt-jobs": ["government","govt","sarkari","railway","ssc","upsc"],
       "government-jobs": ["government","govt","sarkari","railway","ssc","upsc"],
 
-      "it-jobs": ["developer","software","it","programmer","web","tech","react","node"],
+      "it-jobs": ["developer","software","it","programmer","web","react","node","tech"],
       "banking-jobs": ["bank","finance","loan","credit"],
       "bpo-jobs": ["bpo","call center","customer support"],
       "sales-jobs": ["sales","marketing","business development"],
@@ -78,40 +111,39 @@ export default async function handler(req, res) {
     if (category && category !== "all") {
       const cat = category.toLowerCase()
 
-      // HIGH PAYING WFH
-      if (cat === "high-paying-wfh") {
-        jobs = jobs.filter((job) => {
-          const text = buildText(job, ["title","description","snippet","company"])
-          return (
-            ["remote","work from home","wfh"].some(k => text.includes(k)) &&
-            (text.includes("salary") || text.includes("₹") || text.includes("lpa"))
-          )
-        })
-      }
-
-      // NORMAL CATEGORY FILTER
-      else if (keywordsMap[cat]) {
+      if (keywordsMap[cat]) {
         const keywords = keywordsMap[cat]
 
-        jobs = jobs.filter((job) =>
-          keywords.some((kw) =>
-            buildText(job, ["title","description","snippet","location","company"]).includes(kw)
-          )
-        )
-      }
+        jobs = jobs.filter((job) => {
+          const text = buildText(job, [
+            "title",
+            "description",
+            "snippet",
+            "location",
+            "company",
+          ])
 
-      // UNKNOWN CATEGORY → DO NOTHING (return all jobs instead of empty)
+          return keywords.some((kw) => text.includes(kw))
+        })
+      }
     }
 
-    /* ========= SEARCH ========= */
+    /* ================= SEARCH ================= */
+
     if (q && q.trim() !== "") {
       const keyword = q.toLowerCase()
+
       jobs = jobs.filter((job) =>
-        buildText(job, ["title","description","company"]).includes(keyword)
+        buildText(job, [
+          "title",
+          "description",
+          "company",
+        ]).includes(keyword)
       )
     }
 
-    /* ========= PAGINATION ========= */
+    /* ================= PAGINATION ================= */
+
     const start = (page - 1) * limit
     const totalPages = Math.ceil(jobs.length / limit)
 
@@ -123,6 +155,7 @@ export default async function handler(req, res) {
     })
   } catch (err) {
     console.error("API error:", err)
+
     return res.status(500).json({
       jobs: [],
       total: 0,
