@@ -5,11 +5,13 @@ import Link from "next/link"
 const normalizeSlug = (text = "") =>
   String(text)
     .toLowerCase()
+    .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
 
 export default function JobDetailPage({ job, siteUrl }) {
-  /* ✅ EXPIRED HANDLING */
+
+  /* ---------------- EXPIRED JOB ---------------- */
   if (!job) {
     return (
       <div className="max-w-3xl mx-auto p-6 text-center">
@@ -23,12 +25,12 @@ export default function JobDetailPage({ job, siteUrl }) {
         </h1>
 
         <p className="mb-6">
-          This job is no longer available. Please explore our latest openings.
+          This job listing is no longer available. Explore the latest job openings below.
         </p>
 
         <Link
           href="/"
-          className="inline-block bg-blue-600 text-white px-6 py-3 rounded font-bold hover:bg-blue-700"
+          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
         >
           Browse Latest Jobs
         </Link>
@@ -38,18 +40,19 @@ export default function JobDetailPage({ job, siteUrl }) {
 
   const title = job.title || "Latest Job Opening"
   const company = job.company || "Company"
-  const location = job.location || "Worldwide"
+  const location = job.location || "India"
   const salary = job.salary || ""
   const description =
     job.snippet ||
     job.description ||
-    "Check eligibility, job details, and apply using the official link."
+    "Check job eligibility, salary details and apply using the official link."
 
   const canonicalSlug =
     job.slug ||
     normalizeSlug(`${job.title || ""} ${job.company || ""}`)
 
-  const canonicalUrl = `${siteUrl}/jobs/${canonicalSlug}`
+  /* ⭐ IMPORTANT FIX */
+  const canonicalUrl = `${siteUrl}/job/${canonicalSlug}`
 
   const categorySlug = normalizeSlug(job.category || "jobs")
   const applyLink = job.url || job.link || job.applyLink || ""
@@ -66,6 +69,8 @@ export default function JobDetailPage({ job, siteUrl }) {
   const countryCode = isInternational ? "US" : "IN"
   const currency = isInternational ? "USD" : "INR"
 
+  /* ---------------- Breadcrumb Schema ---------------- */
+
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -80,7 +85,7 @@ export default function JobDetailPage({ job, siteUrl }) {
         "@type": "ListItem",
         position: 2,
         name: job.category || "Jobs",
-        item: `${siteUrl}/${categorySlug}`,
+        item: `${siteUrl}/jobs/${categorySlug}/india`,
       },
       {
         "@type": "ListItem",
@@ -90,6 +95,8 @@ export default function JobDetailPage({ job, siteUrl }) {
       },
     ],
   }
+
+  /* ---------------- JobPosting Schema ---------------- */
 
   const jobPostingSchema = {
     "@context": "https://schema.org",
@@ -110,6 +117,7 @@ export default function JobDetailPage({ job, siteUrl }) {
     },
     employmentType: job.employmentType || "FULL_TIME",
     directApply: true,
+
     baseSalary: salary
       ? {
           "@type": "MonetaryAmount",
@@ -120,26 +128,33 @@ export default function JobDetailPage({ job, siteUrl }) {
           },
         }
       : undefined,
+
     datePosted: job.date || new Date().toISOString(),
     dateModified: new Date().toISOString(),
+
     validThrough:
       job.validThrough ||
-      new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(),
+      new Date(
+        new Date().setMonth(new Date().getMonth() + 1)
+      ).toISOString(),
   }
 
   return (
     <div className="max-w-4xl mx-auto p-4">
+
       <Head>
+
         <title>
           {title} at {company} ({location}) | FreshJobs
         </title>
 
         <meta
           name="description"
-          content={`Apply for ${title} at ${company} in ${location}. Check eligibility, salary details and official apply link.`}
+          content={`Apply for ${title} job at ${company} in ${location}. Check eligibility, salary details and official apply link.`}
         />
 
         <meta name="robots" content="index, follow" />
+
         <link rel="canonical" href={canonicalUrl} />
 
         <meta property="og:title" content={`${title} at ${company}`} />
@@ -156,60 +171,96 @@ export default function JobDetailPage({ job, siteUrl }) {
             __html: JSON.stringify(breadcrumbSchema),
           }}
         />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(jobPostingSchema),
           }}
         />
+
       </Head>
 
-      <div className="text-sm mb-4 text-gray-600">
+      {/* Breadcrumb */}
+      <div className="text-sm mb-5 text-gray-600">
         <Link href="/" prefetch={false}>Home</Link> ›{" "}
-        <Link href={`/${categorySlug}`} prefetch={false}>
+        <Link href={`/jobs/${categorySlug}/india`} prefetch={false}>
           {job.category || "Jobs"}
         </Link>{" "}
         › <span className="font-medium">{title}</span>
       </div>
 
-      <h1 className="text-3xl font-bold mb-2">{title}</h1>
+      {/* Job Title */}
+      <h1 className="text-2xl md:text-3xl font-bold mb-2">
+        {title}
+      </h1>
 
+      {/* Company */}
       <p className="text-gray-700 mb-3">
         {company} • {location}
       </p>
 
+      {/* Salary */}
       {salary && (
         <p className="text-green-700 font-semibold mb-4">
-          Salary: {salary}
+          💰 Salary: {salary}
         </p>
       )}
 
-      <div className="bg-white border rounded p-4 mb-6">
-        <h2 className="font-semibold mb-2">Job Description</h2>
-        <p className="text-gray-700 whitespace-pre-line">
+      {/* Description */}
+      <div className="bg-white border rounded-lg p-5 mb-6">
+        <h2 className="font-semibold mb-3 text-lg">
+          Job Description
+        </h2>
+
+        <p className="text-gray-700 whitespace-pre-line leading-relaxed">
           {description}
         </p>
       </div>
 
+      {/* Apply Button */}
       {applyLink && (
         <a
           href={applyLink}
           target="_blank"
           rel="noopener noreferrer nofollow"
-          className="inline-block bg-blue-600 text-white px-6 py-3 rounded font-bold hover:bg-blue-700"
+          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
         >
-          Apply on Official Website
+          Apply on Official Website →
         </a>
       )}
 
-      <div className="mt-10 border-t pt-6">
-        <h3 className="font-semibold mb-3">Explore More Jobs</h3>
+      {/* Internal SEO Links */}
+      <div className="mt-12 border-t pt-6">
+
+        <h3 className="font-semibold mb-3 text-lg">
+          Explore More Jobs
+        </h3>
+
         <ul className="list-disc pl-5 text-blue-700 space-y-2">
-          <li><Link href="/government-jobs">Government Jobs</Link></li>
-          <li><Link href="/work-from-home">Work From Home Jobs</Link></li>
-          <li><Link href="/international-jobs">International Jobs</Link></li>
+
+          <li>
+            <Link href="/jobs/govt-jobs/india">
+              Government Jobs
+            </Link>
+          </li>
+
+          <li>
+            <Link href="/jobs/work-from-home/india">
+              Work From Home Jobs
+            </Link>
+          </li>
+
+          <li>
+            <Link href="/jobs/it/india">
+              IT Jobs
+            </Link>
+          </li>
+
         </ul>
+
       </div>
+
     </div>
   )
 }
@@ -225,6 +276,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   try {
+
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
@@ -256,10 +308,16 @@ export async function getStaticProps({ params }) {
       },
       revalidate: 1800,
     }
+
   } catch {
+
     return {
-      props: { job: null, siteUrl: "https://www.freshjobs.store" },
+      props: {
+        job: null,
+        siteUrl: "https://www.freshjobs.store",
+      },
       revalidate: 600,
     }
+
   }
 }
