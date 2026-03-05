@@ -42,6 +42,7 @@ export default function JobDetailPage({ job, siteUrl }) {
   const company = job.company || "Company"
   const location = job.location || "India"
   const salary = job.salary || ""
+
   const description =
     job.snippet ||
     job.description ||
@@ -51,7 +52,6 @@ export default function JobDetailPage({ job, siteUrl }) {
     job.slug ||
     normalizeSlug(`${job.title || ""} ${job.company || ""}`)
 
-  /* ⭐ IMPORTANT FIX */
   const canonicalUrl = `${siteUrl}/job/${canonicalSlug}`
 
   const categorySlug = normalizeSlug(job.category || "jobs")
@@ -103,10 +103,20 @@ export default function JobDetailPage({ job, siteUrl }) {
     "@type": "JobPosting",
     title: title,
     description: description,
+    url: canonicalUrl,
+
+    identifier: {
+      "@type": "PropertyValue",
+      name: "FreshJobs",
+      value: canonicalSlug,
+    },
+
     hiringOrganization: {
       "@type": "Organization",
       name: company,
+      sameAs: siteUrl,
     },
+
     jobLocation: {
       "@type": "Place",
       address: {
@@ -115,7 +125,14 @@ export default function JobDetailPage({ job, siteUrl }) {
         addressCountry: countryCode,
       },
     },
+
+    applicantLocationRequirements: {
+      "@type": "Country",
+      name: countryCode,
+    },
+
     employmentType: job.employmentType || "FULL_TIME",
+
     directApply: true,
 
     baseSalary: salary
@@ -124,12 +141,16 @@ export default function JobDetailPage({ job, siteUrl }) {
           currency: currency,
           value: {
             "@type": "QuantitativeValue",
-            value: salary,
+            value: salary.replace(/[^\d]/g, "") || salary,
           },
         }
       : undefined,
 
-    datePosted: job.date || new Date().toISOString(),
+    datePosted:
+      job.date && !isNaN(new Date(job.date))
+        ? new Date(job.date).toISOString()
+        : new Date().toISOString(),
+
     dateModified: new Date().toISOString(),
 
     validThrough:
