@@ -90,22 +90,100 @@ export default async function handler(req, res) {
     /* ================= CATEGORY FILTER ================= */
 
     const keywordsMap = {
-      "ai": ["ai","artificial intelligence","machine learning","ml","data"],
-      "ai-jobs": ["ai","artificial intelligence","machine learning","ml","data"],
 
-      "work-from-home": ["work from home","remote","wfh"],
+      ai: [
+        "artificial intelligence",
+        "machine learning",
+        "deep learning",
+        "ai engineer",
+        "ai developer",
+        "ml engineer",
+        "nlp"
+      ],
 
-      "govt-jobs": ["government","govt","sarkari","railway","ssc","upsc"],
-      "government-jobs": ["government","govt","sarkari","railway","ssc","upsc"],
+      "work-from-home": [
+        "work from home",
+        "remote job",
+        "remote work",
+        "wfh",
+        "home based"
+      ],
 
-      "it-jobs": ["developer","software","it","programmer","web","react","node","tech"],
-      "banking-jobs": ["bank","finance","loan","credit"],
-      "bpo-jobs": ["bpo","call center","customer support"],
-      "sales-jobs": ["sales","marketing","business development"],
-      "engineering-jobs": ["engineer","mechanical","civil","electrical"],
+      "govt-jobs": [
+        "government",
+        "govt",
+        "sarkari",
+        "railway",
+        "ssc",
+        "upsc",
+        "public sector",
+        "psu",
+        "defence",
+        "army",
+        "navy",
+        "air force"
+      ],
 
-      "international": ["abroad","overseas","international","gulf","usa","uk","canada"],
-      "international-jobs": ["abroad","overseas","international","gulf","usa","uk","canada"]
+      it: [
+        "software developer",
+        "software engineer",
+        "web developer",
+        "frontend developer",
+        "backend developer",
+        "full stack developer",
+        "react",
+        "node",
+        "javascript",
+        "python developer"
+      ],
+
+      banking: [
+        "bank",
+        "banking",
+        "loan officer",
+        "relationship manager",
+        "credit analyst",
+        "financial advisor"
+      ],
+
+      bpo: [
+        "bpo",
+        "call center",
+        "customer support",
+        "customer service",
+        "voice process",
+        "non voice"
+      ],
+
+      sales: [
+        "sales executive",
+        "sales manager",
+        "business development",
+        "marketing executive",
+        "field sales"
+      ],
+
+      engineering: [
+        "mechanical engineer",
+        "civil engineer",
+        "electrical engineer",
+        "site engineer",
+        "production engineer",
+        "design engineer"
+      ],
+
+      international: [
+        "abroad",
+        "overseas",
+        "international",
+        "gulf",
+        "uae",
+        "saudi",
+        "qatar",
+        "canada",
+        "usa",
+        "uk"
+      ]
     }
 
     if (category && category !== "all") {
@@ -115,6 +193,7 @@ export default async function handler(req, res) {
         const keywords = keywordsMap[cat]
 
         jobs = jobs.filter((job) => {
+
           const text = buildText(job, [
             "title",
             "description",
