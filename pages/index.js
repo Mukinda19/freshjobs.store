@@ -41,7 +41,11 @@ export default function Home({ initialJobs }) {
       try {
 
         const qParam = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
-        const categoryParam = category ? `&category=${category}` : "";
+
+        const categoryParam =
+          category && category !== "all"
+            ? `&category=${encodeURIComponent(category)}`
+            : "";
 
         const res = await fetch(
           `/api/search?page=1&limit=10${categoryParam}${qParam}`
@@ -77,7 +81,11 @@ export default function Home({ initialJobs }) {
     try {
 
       const qParam = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
-      const categoryParam = category ? `&category=${category}` : "";
+
+      const categoryParam =
+        category && category !== "all"
+          ? `&category=${encodeURIComponent(category)}`
+          : "";
 
       const res = await fetch(
         `/api/search?page=${nextPage}&limit=10${categoryParam}${qParam}`
