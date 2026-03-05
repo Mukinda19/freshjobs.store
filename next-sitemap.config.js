@@ -6,7 +6,7 @@ const config = {
   siteUrl: BASE_URL,
   generateRobotsTxt: true,
 
-  sitemapSize: 5000, // auto split after 5000 URLs
+  sitemapSize: 5000,
 
   changefreq: "daily",
   priority: 0.7,
@@ -16,7 +16,7 @@ const config = {
     "/500",
     "/api/*",
     "/admin/*",
-    "/**/page/*", // exclude pagination
+    "/**/page/*",
   ],
 
   robotsTxtOptions: {
@@ -25,11 +25,20 @@ const config = {
         userAgent: "*",
         allow: "/",
       },
+      {
+        userAgent: "Googlebot",
+        allow: "/",
+      },
+      {
+        userAgent: "Googlebot-News",
+        allow: "/",
+      },
     ],
 
     additionalSitemaps: [
+      `${BASE_URL}/sitemap.xml`,
+      `${BASE_URL}/sitemap-pages.xml`,
       `${BASE_URL}/sitemap-categories.xml`,
-      `${BASE_URL}/sitemap-pages.xml`,   // ✅ added
     ],
   },
 
@@ -43,9 +52,10 @@ const config = {
 
       const jobPaths =
         data.jobs?.map((job) => ({
-          loc: `/jobs/${job.slug}`,
+          loc: `/job/${job.slug}`, // ✅ FIXED PATH
           changefreq: "daily",
-          priority: 0.8,
+          priority: 0.9,
+          lastmod: new Date().toISOString(),
         })) || []
 
       return jobPaths
