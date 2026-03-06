@@ -7,11 +7,15 @@ const normalizeSlug = (text = "") =>
   String(text)
     .toLowerCase()
     .trim()
+    .replace(/<[^>]*>?/gm, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
 
 const cleanNumber = (value = "") =>
   String(value).replace(/[^\d]/g, "")
+
+const stripHtml = (text = "") =>
+  String(text).replace(/<[^>]*>?/gm, "")
 
 export default function JobDetailPage({ job, siteUrl }) {
 
@@ -50,16 +54,17 @@ export default function JobDetailPage({ job, siteUrl }) {
   const location = job.location || "India"
   const salary = job.salary || ""
 
-  const description =
+  const description = stripHtml(
     job.description ||
-    job.snippet ||
-    `Apply for ${title} at ${company}. Check eligibility, job location, salary details and official application process.`
+      job.snippet ||
+      `Apply for ${title} at ${company}. Check eligibility, job location, salary details and official application process.`
+  )
 
   const canonicalSlug =
     job.slug ||
     normalizeSlug(`${job.title || ""} ${job.company || ""}`)
 
-  const canonicalUrl = `${siteUrl}/job/${canonicalSlug}`
+  const canonicalUrl = `${siteUrl}/jobs/${canonicalSlug}`
 
   const categorySlug = normalizeSlug(job.category || "jobs")
 
@@ -91,23 +96,19 @@ export default function JobDetailPage({ job, siteUrl }) {
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-
     itemListElement: [
-
       {
         "@type": "ListItem",
         position: 1,
         name: "Home",
         item: siteUrl,
       },
-
       {
         "@type": "ListItem",
         position: 2,
         name: job.category || "Jobs",
         item: `${siteUrl}/jobs/${categorySlug}/india`,
       },
-
       {
         "@type": "ListItem",
         position: 3,
@@ -120,7 +121,6 @@ export default function JobDetailPage({ job, siteUrl }) {
   /* ---------------- JobPosting Schema ---------------- */
 
   const jobPostingSchema = {
-
     "@context": "https://schema.org",
     "@type": "JobPosting",
 
@@ -142,9 +142,7 @@ export default function JobDetailPage({ job, siteUrl }) {
     },
 
     jobLocation: {
-
       "@type": "Place",
-
       address: {
         "@type": "PostalAddress",
         addressLocality: location,
@@ -165,23 +163,22 @@ export default function JobDetailPage({ job, siteUrl }) {
 
     directApply: true,
 
-    ...(salary && {
-      baseSalary: {
-
-        "@type": "MonetaryAmount",
-        currency: currency,
-
-        value: {
-          "@type": "QuantitativeValue",
-          value: cleanNumber(salary),
-          unitText: "MONTH",
+    ...(salary &&
+      cleanNumber(salary) && {
+        baseSalary: {
+          "@type": "MonetaryAmount",
+          currency: currency,
+          value: {
+            "@type": "QuantitativeValue",
+            value: cleanNumber(salary),
+            unitText: "MONTH",
+          },
         },
-      },
-    }),
+      }),
 
     datePosted:
-      job.date && !isNaN(new Date(job.date))
-        ? new Date(job.date).toISOString()
+      job.datePosted && !isNaN(new Date(job.datePosted))
+        ? new Date(job.datePosted).toISOString()
         : new Date().toISOString(),
 
     dateModified: new Date().toISOString(),
@@ -261,27 +258,19 @@ export default function JobDetailPage({ job, siteUrl }) {
 
       </div>
 
-      {/* Title */}
-
       <h1 className="text-2xl md:text-3xl font-bold mb-2">
         {title}
       </h1>
 
-      {/* Company */}
-
       <p className="text-gray-700 mb-3">
         {company} • {location}
       </p>
-
-      {/* Salary */}
 
       {salary && (
         <p className="text-green-700 font-semibold mb-4">
           💰 Salary: {salary}
         </p>
       )}
-
-      {/* Description */}
 
       <div className="bg-white border rounded-lg p-5 mb-6">
 
@@ -295,8 +284,6 @@ export default function JobDetailPage({ job, siteUrl }) {
 
       </div>
 
-      {/* Apply */}
-
       {applyLink && (
 
         <a
@@ -309,8 +296,6 @@ export default function JobDetailPage({ job, siteUrl }) {
         </a>
 
       )}
-
-      {/* Internal SEO */}
 
       <div className="mt-12 border-t pt-6">
 
@@ -344,53 +329,4 @@ export default function JobDetailPage({ job, siteUrl }) {
 
     </div>
   )
-}
-
-/* ---------------- STATIC GENERATION ---------------- */
-
-export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: "blocking",
-  }
-}
-
-export async function getStaticProps({ params }) {
-
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "https://www.freshjobs.store"
-
-  try {
-
-    const res = await fetch(
-      `${siteUrl}/api/search?slug=${params.slug}`
-    )
-
-    if (!res.ok) {
-      return {
-        props: { job: null, siteUrl },
-        revalidate: 600,
-      }
-    }
-
-    const data = await res.json()
-
-    return {
-      props: {
-        job: data.job || null,
-        siteUrl,
-      },
-      revalidate: 600,
-    }
-
-  } catch {
-
-    return {
-      props: { job: null, siteUrl },
-      revalidate: 600,
-    }
-
-  }
-
 }
