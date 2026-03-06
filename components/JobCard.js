@@ -1,54 +1,61 @@
 import Link from "next/link";
 
-/* ---------------- Helper: SEO Safe Slug ---------------- */
+/* ---------------- HELPER: SEO SAFE SLUG ---------------- */
 
 const generateSlug = (job = {}) => {
 
-  const base =
-    job.slug ||
-    `${job.title || "job"} ${job.company || ""} ${job.location || ""}`;
+  if (job.slug) return job.slug
+
+  const base = `${job.title || "job"} ${job.company || ""} ${job.location || ""}`
 
   return String(base)
     .toLowerCase()
     .trim()
     .replace(/<[^>]*>?/gm, "")
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-};
+    .replace(/(^-|-$)/g, "")
+}
+
+/* ---------------- HELPER: SAFE TEXT ---------------- */
+
+const safeText = (value, fallback = "") => {
+  if (!value) return fallback
+  return String(value).replace(/<[^>]*>?/gm, "").trim()
+}
 
 export default function JobCard({ job }) {
 
-  if (!job) return null;
+  if (!job) return null
 
-  const title = job.title || "Latest Job Opening";
-  const company = job.company || "Company";
-  const location = job.location || "";
-  const salary = job.salary || "";
-  const snippet = job.snippet || job.description || "";
+  const title = safeText(job.title, "Latest Job Opening")
+  const company = safeText(job.company, "Company")
+  const location = safeText(job.location)
+  const salary = safeText(job.salary)
+  const snippet = safeText(job.snippet || job.description)
 
   const applyLink =
+    job.applyLink ||
     job.url ||
     job.link ||
-    job.applyLink ||
-    "";
+    ""
 
-  const slug = generateSlug(job);
+  const slug = generateSlug(job)
 
   return (
 
-    <div className="bg-white border rounded-xl p-4 hover:shadow-lg transition duration-200 flex flex-col justify-between h-full">
+    <div className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-lg transition duration-200 flex flex-col justify-between h-full">
 
-      {/* Job Info */}
+      {/* JOB INFO */}
 
       <Link
         href={`/job/${slug}`}
-        className="block group"
         prefetch={false}
+        className="block group"
       >
 
         <div>
 
-          {/* Job Title */}
+          {/* JOB TITLE */}
 
           <h3 className="text-sm md:text-base font-semibold text-blue-700 leading-snug group-hover:underline">
 
@@ -56,7 +63,7 @@ export default function JobCard({ job }) {
 
           </h3>
 
-          {/* Company + Location */}
+          {/* COMPANY + LOCATION */}
 
           {(company || location) && (
 
@@ -74,7 +81,7 @@ export default function JobCard({ job }) {
 
           )}
 
-          {/* Salary */}
+          {/* SALARY */}
 
           {salary && (
 
@@ -86,7 +93,7 @@ export default function JobCard({ job }) {
 
           )}
 
-          {/* Snippet */}
+          {/* DESCRIPTION SNIPPET */}
 
           {snippet && (
 
@@ -102,7 +109,7 @@ export default function JobCard({ job }) {
 
       </Link>
 
-      {/* Apply Button */}
+      {/* APPLY BUTTON */}
 
       {applyLink && (
 
@@ -125,5 +132,5 @@ export default function JobCard({ job }) {
 
     </div>
 
-  );
+  )
 }
