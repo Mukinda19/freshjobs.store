@@ -1,17 +1,12 @@
-// scripts/fetch-jobs.js
 import fs from "fs";
 import path from "path";
 import Parser from "rss-parser";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
 
-// ✅ Node 18+ / 20 me fetch built-in hota hai
-// ❌ node-fetch import HATA DIYA
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Apps Script Web App URL
 const APPSCRIPT_POST_URL =
   "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec";
 
@@ -23,8 +18,15 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-const parser = new Parser();
+const parser = new Parser({
+  timeout: 15000,
+  headers: {
+    "User-Agent": "Mozilla/5.0 FreshJobsBot"
+  }
+});
+
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
 const hash = (s) =>
   crypto.createHash("sha256").update(s || "").digest("hex");
 
@@ -38,6 +40,49 @@ function loadSeen() {
 
 function saveSeen(data) {
   fs.writeFileSync(SEEN_FILE, JSON.stringify(data, null, 2));
+}
+
+function detectCategory(feedCategory, title) {
+  const t = (title || "").toLowerCase();
+
+  if (feedCategory === "govt") return "government";
+
+  if (feedCategory === "wfh") return "workfromhome";
+
+  if (
+    t.includes("ai") ||
+    t.includes("machine learning") ||
+    t.includes("artificial intelligence")
+  ) {
+    return "ai";
+  }
+
+  if (
+    t.includes("remote") ||
+    t.includes("work from home")
+  ) {
+    return "workfromhome";
+  }
+
+  return "general";
+}
+
+function isNews(title) {
+  const t = (title || "").toLowerCase();
+
+  const badWords = [
+    "tension",
+    "war",
+    "missile",
+    "attack",
+    "politics",
+    "news",
+    "conflict",
+    "students",
+    "college"
+  ];
+
+  return badWords.some((w) => t.includes(w));
 }
 
 async function main() {
@@ -60,10 +105,20 @@ async function main() {
 
         if (!link || seen[id]) continue;
 
+        const title = item.title || "";
+
+        if (isNews(title)) continue;
+
+        const category = detectCategory(f.category, title);
+
         const job = {
-          title: item.title || "",
+          title,
+          company: item.creator || "",
+          location: "",
+          category,
           source: f.source,
           link,
+          description: "Check job details and apply using the official link.",
           datePosted: item.pubDate || new Date().toISOString()
         };
 
@@ -79,7 +134,7 @@ async function main() {
           console.log("✅ Posted:", job.title);
         }
 
-        await wait(300);
+        await wait(400);
       }
     } catch (err) {
       console.log("⚠️ Feed error:", f.source, err.message);
