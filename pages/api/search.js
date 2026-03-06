@@ -6,6 +6,7 @@ const CACHE_DURATION = 5 * 60 * 1000
 /* ---------------- SLUG GENERATOR ---------------- */
 const generateSlug = (text = "", fallback = "") => {
   const base = text || fallback || "job-opening"
+
   return base
     .toLowerCase()
     .replace(/<[^>]*>?/gm, "")
@@ -30,59 +31,78 @@ const dedupeJobs = (jobs) => {
 }
 
 /* ---------------- GOVT CHECK ---------------- */
-const isGovtJob = (text) => {
+const isGovtJob = (job) => {
+
+  if (job.category === "government") return true
+
+  const text = buildText(job, ["title","description","company"])
+
   const govtKeywords = [
     "government","govt","sarkari","railway","ssc","upsc",
-    "public sector","psu","defence","army","navy","air force",
-    "bank recruitment","state government","central government"
+    "psu","defence","army","navy","air force","bank recruitment"
   ]
 
   return govtKeywords.some((kw) => text.includes(kw))
 }
 
-/* ---------------- WFH SOURCE CHECK ---------------- */
-const isWFHSource = (source = "") => {
-  const wfhSources = [
-    "RemoteOK",
-    "WeWorkRemotely",
-    "Remotive",
-    "Jobicy"
+/* ---------------- WFH CHECK ---------------- */
+const isWFHJob = (job) => {
+
+  if (job.category === "workfromhome") return true
+
+  const text = buildText(job, ["title","description"])
+
+  const keywords = [
+    "remote",
+    "work from home",
+    "wfh",
+    "home based",
+    "remote job",
+    "virtual assistant",
+    "freelance"
   ]
 
-  return wfhSources.includes(source)
+  return keywords.some((kw) => text.includes(kw))
 }
 
-/* ---------------- KEYWORDS MAP ---------------- */
-const keywordsMap = {
+/* ---------------- AI CHECK ---------------- */
+const isAIJob = (job) => {
 
-  ai: [
-    "artificial intelligence","machine learning","deep learning",
-    "ai engineer","ai developer","ml engineer","nlp engineer",
-    "ai research","computer vision","generative ai","prompt engineer"
-  ],
+  const text = buildText(job, ["title","description"])
 
-  "work-from-home": [
-    "work from home","remote job","remote work","wfh",
-    "home based","online job","freelance","virtual assistant",
-    "remote support","remote customer service","data entry remote"
-  ],
+  const keywords = [
+    "artificial intelligence",
+    "machine learning",
+    "deep learning",
+    "ai engineer",
+    "ml engineer",
+    "computer vision",
+    "generative ai",
+    "prompt engineer",
+    "data scientist"
+  ]
 
-  "govt-jobs": [
-    "government","govt","sarkari","railway","ssc","upsc",
-    "public sector","psu","defence","army","navy","air force"
-  ],
+  return keywords.some((kw) => text.includes(kw))
+}
 
-  international: [
+/* ---------------- INTERNATIONAL CHECK ---------------- */
+const isInternational = (job) => {
+
+  const text = buildText(job, ["title","description","location"])
+
+  const keywords = [
     "abroad","overseas","international","gulf",
     "uae","saudi","qatar","oman","kuwait",
     "canada","usa","uk","australia","europe"
   ]
+
+  return keywords.some((kw) => text.includes(kw))
 }
 
 /* ---------------- API HANDLER ---------------- */
 export default async function handler(req, res) {
 
-  res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate")
+  res.setHeader("Cache-Control","s-maxage=600, stale-while-revalidate")
 
   try {
 
@@ -90,6 +110,7 @@ export default async function handler(req, res) {
       "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
     const { category, q, slug } = req.query
+
     const page = Math.max(Number(req.query.page) || 1, 1)
     const limit = Math.min(Number(req.query.limit) || 10, 20)
 
@@ -137,57 +158,109 @@ export default async function handler(req, res) {
       const cat = category.toLowerCase()
 
       if (cat === "govt-jobs") {
-
-        jobs = jobs.filter((job) => {
-          const text = buildText(job, ["title","description","company"])
-          return isGovtJob(text)
-        })
-
+        jobs = jobs.filter((job) => isGovtJob(job))
       }
 
       else if (cat === "work-from-home") {
-
-        jobs = jobs.filter((job) => {
-
-          const text = buildText(job, ["title","description","company"])
-
-          return (
-            isWFHSource(job.source) ||
-            keywordsMap["work-from-home"].some((kw) => text.includes(kw))
-          ) && !isGovtJob(text)
-
-        })
-
+        jobs = jobs.filter(
+          (job) => isWFHJob(job) && !isGovtJob(job)
+        )
       }
 
       else if (cat === "ai") {
-
-        jobs = jobs.filter((job) => {
-
-          const text = buildText(job, ["title","description","company"])
-
-          return (
-            keywordsMap.ai.some((kw) => text.includes(kw))
-          ) && !isGovtJob(text)
-
-        })
-
+        jobs = jobs.filter(
+          (job) => isAIJob(job) && !isGovtJob(job)
+        )
       }
 
       else if (cat === "international") {
+        jobs = jobs.filter(
+          (job) => isInternational(job)
+        )
+      }
+
+      else if (cat === "it") {
 
         jobs = jobs.filter((job) => {
 
-          const text = buildText(job, ["title","description","location"])
+          const text = buildText(job, ["title","description"])
 
           return (
-            keywordsMap.international.some((kw) => text.includes(kw)) ||
-            isWFHSource(job.source)
-          )
+            text.includes("developer") ||
+            text.includes("software") ||
+            text.includes("programmer") ||
+            text.includes("react") ||
+            text.includes("node") ||
+            text.includes("python") ||
+            text.includes("java")
+          ) && !isGovtJob(job)
 
         })
-
       }
+
+      else if (cat === "banking") {
+
+        jobs = jobs.filter((job) => {
+
+          const text = buildText(job, ["title","description"])
+
+          return (
+            text.includes("bank") ||
+            text.includes("banking") ||
+            text.includes("loan officer") ||
+            text.includes("credit officer")
+          ) && !isGovtJob(job)
+
+        })
+      }
+
+      else if (cat === "bpo") {
+
+        jobs = jobs.filter((job) => {
+
+          const text = buildText(job, ["title","description"])
+
+          return (
+            text.includes("bpo") ||
+            text.includes("call center") ||
+            text.includes("customer support") ||
+            text.includes("customer service")
+          ) && !isGovtJob(job)
+
+        })
+      }
+
+      else if (cat === "sales") {
+
+        jobs = jobs.filter((job) => {
+
+          const text = buildText(job, ["title","description"])
+
+          return (
+            text.includes("sales") ||
+            text.includes("business development") ||
+            text.includes("marketing")
+          ) && !isGovtJob(job)
+
+        })
+      }
+
+      else if (cat === "engineering") {
+
+        jobs = jobs.filter((job) => {
+
+          const text = buildText(job, ["title","description"])
+
+          return (
+            text.includes("engineer") ||
+            text.includes("mechanical") ||
+            text.includes("civil engineer") ||
+            text.includes("electrical engineer")
+          ) && !isGovtJob(job)
+
+        })
+      }
+
     }
 
     /* ================= SEARCH ================= */

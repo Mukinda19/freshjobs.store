@@ -42,33 +42,46 @@ function saveSeen(data) {
   fs.writeFileSync(SEEN_FILE, JSON.stringify(data, null, 2));
 }
 
+/* ---------------- CATEGORY DETECTOR ---------------- */
+
 function detectCategory(feedCategory, title) {
-  const t = (title || "").toLowerCase();
 
-  if (feedCategory === "govt") return "government";
+  const t = (title || "").toLowerCase()
 
-  if (feedCategory === "wfh") return "workfromhome";
+  /* GOVT FEEDS */
+  if (feedCategory === "govt") return "govt-jobs"
 
+  /* WFH FEEDS */
+  if (feedCategory === "wfh") return "work-from-home"
+
+  /* AI JOBS */
   if (
     t.includes("ai") ||
+    t.includes("artificial intelligence") ||
     t.includes("machine learning") ||
-    t.includes("artificial intelligence")
+    t.includes("deep learning") ||
+    t.includes("ml engineer")
   ) {
-    return "ai";
+    return "ai"
   }
 
+  /* REMOTE JOB DETECT */
   if (
     t.includes("remote") ||
-    t.includes("work from home")
+    t.includes("work from home") ||
+    t.includes("wfh")
   ) {
-    return "workfromhome";
+    return "work-from-home"
   }
 
-  return "general";
+  return "general"
 }
 
+/* ---------------- NEWS FILTER ---------------- */
+
 function isNews(title) {
-  const t = (title || "").toLowerCase();
+
+  const t = (title || "").toLowerCase()
 
   const badWords = [
     "tension",
@@ -79,72 +92,97 @@ function isNews(title) {
     "news",
     "conflict",
     "students",
-    "college"
-  ];
+    "college",
+    "exam result",
+    "admit card"
+  ]
 
-  return badWords.some((w) => t.includes(w));
+  return badWords.some((w) => t.includes(w))
 }
 
-async function main() {
-  console.log("🚀 Fetch started");
+/* ---------------- MAIN FETCH ---------------- */
 
-  const feeds = JSON.parse(fs.readFileSync(FEEDS_PATH, "utf8"));
-  const seen = loadSeen();
+async function main() {
+
+  console.log("🚀 Fetch started")
+
+  const feeds = JSON.parse(fs.readFileSync(FEEDS_PATH, "utf8"))
+  const seen = loadSeen()
 
   for (const f of feeds) {
+
     try {
-      console.log(`🔎 Reading feed: ${f.source}`);
 
-      const res = await fetch(f.url);
-      const xml = await res.text();
-      const feed = await parser.parseString(xml);
+      console.log(`🔎 Reading feed: ${f.source}`)
 
-      for (const item of feed.items.slice(0, 20)) {
-        const link = item.link || "";
-        const id = hash(link);
+      const res = await fetch(f.url)
+      const xml = await res.text()
+      const feed = await parser.parseString(xml)
 
-        if (!link || seen[id]) continue;
+      for (const item of feed.items.slice(0, 25)) {
 
-        const title = item.title || "";
+        const link = item.link || ""
+        const id = hash(link)
 
-        if (isNews(title)) continue;
+        if (!link || seen[id]) continue
 
-        const category = detectCategory(f.category, title);
+        const title = item.title || ""
+
+        if (isNews(title)) continue
+
+        const category = detectCategory(f.category, title)
 
         const job = {
           title,
-          company: item.creator || "",
+          company: item.creator || item.author || "",
           location: "",
           category,
           source: f.source,
           link,
-          description: "Check job details and apply using the official link.",
+          description:
+            item.contentSnippet ||
+            item.summary ||
+            "Check job details and apply using the official link.",
           datePosted: item.pubDate || new Date().toISOString()
-        };
+        }
 
         const post = await fetch(APPSCRIPT_POST_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify(job)
-        });
+        })
 
         if (post.ok) {
-          seen[id] = true;
-          saveSeen(seen);
-          console.log("✅ Posted:", job.title);
+
+          seen[id] = true
+          saveSeen(seen)
+
+          console.log("✅ Posted:", job.title)
+
         }
 
-        await wait(400);
+        await wait(400)
+
       }
+
     } catch (err) {
-      console.log("⚠️ Feed error:", f.source, err.message);
+
+      console.log("⚠️ Feed error:", f.source, err.message)
+
     }
+
   }
 
-  console.log("✅ Fetch completed");
+  console.log("✅ Fetch completed")
+
 }
 
 main().catch((err) => {
-  console.error("❌ Fatal error:", err);
-  process.exit(1);
-});
+
+  console.error("❌ Fatal error:", err)
+
+  process.exit(1)
+
+})

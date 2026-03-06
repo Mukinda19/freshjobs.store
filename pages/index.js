@@ -115,7 +115,7 @@ export default function Home({ initialJobs }) {
 
         <meta
           name="description"
-          content="Find the latest jobs in India including IT jobs, banking jobs, BPO jobs, engineering jobs, government jobs and work from home jobs. Apply directly on official company websites."
+          content="Find the latest jobs in India including IT jobs, banking jobs, BPO jobs, engineering jobs, government jobs and work from home jobs."
         />
 
         <meta name="robots" content="index, follow" />
@@ -132,7 +132,7 @@ export default function Home({ initialJobs }) {
 
       </Head>
 
-      {/* -------- HERO / INTRO -------- */}
+      {/* -------- HERO -------- */}
 
       <section className="text-center my-8">
 
@@ -142,8 +142,7 @@ export default function Home({ initialJobs }) {
 
         <p className="text-gray-600 max-w-2xl mx-auto">
           Discover the newest job openings across IT, banking, BPO, engineering,
-          government and work from home categories. Apply directly on official
-          company websites.
+          government and work from home categories.
         </p>
 
       </section>
@@ -151,11 +150,13 @@ export default function Home({ initialJobs }) {
       {/* -------- Categories -------- */}
 
       <section className="my-10">
+
         <h2 className="text-xl font-semibold mb-5 text-center">
           Popular Job Categories
         </h2>
 
         <CategoryGrid />
+
       </section>
 
       {/* -------- Search -------- */}
@@ -182,21 +183,13 @@ export default function Home({ initialJobs }) {
           >
 
             <option value="">All Categories</option>
-
             <option value="it">IT Jobs</option>
-
             <option value="banking">Banking Jobs</option>
-
             <option value="bpo">BPO Jobs</option>
-
             <option value="sales">Sales Jobs</option>
-
             <option value="engineering">Engineering Jobs</option>
-
             <option value="govt-jobs">Government Jobs</option>
-
             <option value="work-from-home">Work From Home</option>
-
             <option value="ai">AI Jobs</option>
 
           </select>
@@ -208,15 +201,10 @@ export default function Home({ initialJobs }) {
           >
 
             <option value="">All India</option>
-
             <option value="mumbai">Mumbai</option>
-
             <option value="delhi">Delhi</option>
-
             <option value="pune">Pune</option>
-
             <option value="bangalore">Bangalore</option>
-
             <option value="hyderabad">Hyderabad</option>
 
           </select>
@@ -241,9 +229,9 @@ export default function Home({ initialJobs }) {
 
           {filteredJobs.length > 0 ? (
 
-            filteredJobs.map((job, index) => (
+            filteredJobs.map((job) => (
 
-              <JobCard key={job.id || index} job={job} />
+              <JobCard key={job.slug || job.link} job={job} />
 
             ))
 
