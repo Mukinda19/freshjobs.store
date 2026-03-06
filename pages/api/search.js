@@ -30,10 +30,20 @@ const dedupeJobs = (jobs) => {
   })
 }
 
-/* ---------------- GOVT CHECK ---------------- */
+/* ---------------- GOVT CHECK (FIXED) ---------------- */
 const isGovtJob = (job) => {
 
-  if (job.category === "government") return true
+  if (!job) return false
+
+  const category = (job.category || "").toLowerCase()
+
+  if (
+    category === "govt" ||
+    category === "govt-jobs" ||
+    category === "government"
+  ) {
+    return true
+  }
 
   const text = buildText(job, ["title","description","company"])
 
@@ -48,7 +58,13 @@ const isGovtJob = (job) => {
 /* ---------------- WFH CHECK ---------------- */
 const isWFHJob = (job) => {
 
-  if (job.category === "workfromhome") return true
+  const category = (job.category || "").toLowerCase()
+
+  if (
+    category === "work-from-home" ||
+    category === "workfromhome" ||
+    category === "wfh"
+  ) return true
 
   const text = buildText(job, ["title","description"])
 
@@ -65,12 +81,13 @@ const isWFHJob = (job) => {
   return keywords.some((kw) => text.includes(kw))
 }
 
-/* ---------------- AI CHECK ---------------- */
+/* ---------------- AI CHECK (IMPROVED) ---------------- */
 const isAIJob = (job) => {
 
   const text = buildText(job, ["title","description"])
 
   const keywords = [
+    "ai",
     "artificial intelligence",
     "machine learning",
     "deep learning",
