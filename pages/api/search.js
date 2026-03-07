@@ -4,7 +4,9 @@ let lastFetchTime = 0
 const CACHE_DURATION = 5 * 60 * 1000
 
 /* ---------------- SLUG GENERATOR ---------------- */
+
 const generateSlug = (text = "", fallback = "") => {
+
   const base = text || fallback || "job-opening"
 
   return base
@@ -15,25 +17,32 @@ const generateSlug = (text = "", fallback = "") => {
 }
 
 /* ---------------- TEXT BUILDER ---------------- */
+
 const buildText = (job, fields) =>
   fields.map((f) => job[f] || "").join(" ").toLowerCase()
 
 /* ---------------- REMOVE DUPLICATES ---------------- */
+
 const dedupeJobs = (jobs) => {
+
   const seen = new Set()
 
   return jobs.filter((job) => {
+
     const key = `${job.title}-${job.link}`
+
     if (seen.has(key)) return false
+
     seen.add(key)
+
     return true
+
   })
 }
 
-/* ---------------- GOVT CHECK (FIXED) ---------------- */
-const isGovtJob = (job) => {
+/* ---------------- GOVT CHECK ---------------- */
 
-  if (!job) return false
+const isGovtJob = (job) => {
 
   const category = (job.category || "").toLowerCase()
 
@@ -41,21 +50,23 @@ const isGovtJob = (job) => {
     category === "govt" ||
     category === "govt-jobs" ||
     category === "government"
-  ) {
-    return true
-  }
+  ) return true
 
   const text = buildText(job, ["title","description","company"])
 
-  const govtKeywords = [
-    "government","govt","sarkari","railway","ssc","upsc",
-    "psu","defence","army","navy","air force","bank recruitment"
+  const keywords = [
+    "government","govt","sarkari",
+    "railway","ssc","upsc","psu",
+    "defence","army","navy","air force",
+    "bank recruitment"
   ]
 
-  return govtKeywords.some((kw) => text.includes(kw))
+  return keywords.some((k)=>text.includes(k))
+
 }
 
 /* ---------------- WFH CHECK ---------------- */
+
 const isWFHJob = (job) => {
 
   const category = (job.category || "").toLowerCase()
@@ -73,21 +84,21 @@ const isWFHJob = (job) => {
     "work from home",
     "wfh",
     "home based",
-    "remote job",
     "virtual assistant",
     "freelance"
   ]
 
-  return keywords.some((kw) => text.includes(kw))
+  return keywords.some((k)=>text.includes(k))
+
 }
 
-/* ---------------- AI CHECK (IMPROVED) ---------------- */
+/* ---------------- AI CHECK (SAFE) ---------------- */
+
 const isAIJob = (job) => {
 
   const text = buildText(job, ["title","description"])
 
   const keywords = [
-    "ai",
     "artificial intelligence",
     "machine learning",
     "deep learning",
@@ -96,27 +107,33 @@ const isAIJob = (job) => {
     "computer vision",
     "generative ai",
     "prompt engineer",
-    "data scientist"
+    "data scientist",
+    "nlp engineer"
   ]
 
-  return keywords.some((kw) => text.includes(kw))
+  return keywords.some((k)=>text.includes(k))
+
 }
 
-/* ---------------- INTERNATIONAL CHECK ---------------- */
+/* ---------------- INTERNATIONAL ---------------- */
+
 const isInternational = (job) => {
 
   const text = buildText(job, ["title","description","location"])
 
   const keywords = [
-    "abroad","overseas","international","gulf",
-    "uae","saudi","qatar","oman","kuwait",
-    "canada","usa","uk","australia","europe"
+    "abroad","overseas","international",
+    "uae","saudi","qatar","oman",
+    "kuwait","canada","usa","uk",
+    "australia","europe"
   ]
 
-  return keywords.some((kw) => text.includes(kw))
+  return keywords.some((k)=>text.includes(k))
+
 }
 
 /* ---------------- API HANDLER ---------------- */
+
 export default async function handler(req, res) {
 
   res.setHeader("Cache-Control","s-maxage=600, stale-while-revalidate")
@@ -149,10 +166,9 @@ export default async function handler(req, res) {
           "Check job details and apply using the official link."
       }))
 
-      jobs = dedupeJobs(jobs)
-
-      cachedJobs = jobs
+      cachedJobs = dedupeJobs(jobs)
       lastFetchTime = Date.now()
+
     }
 
     let jobs = [...cachedJobs]
@@ -161,11 +177,12 @@ export default async function handler(req, res) {
 
     if (slug) {
 
-      const job = jobs.find((j) => j.slug === slug)
+      const job = jobs.find((j)=>j.slug === slug)
 
-      if (!job) return res.status(404).json({ job: null })
+      if (!job) return res.status(404).json({ job:null })
 
       return res.status(200).json({ job })
+
     }
 
     /* ================= CATEGORY FILTER ================= */
@@ -175,149 +192,68 @@ export default async function handler(req, res) {
       const cat = category.toLowerCase()
 
       if (cat === "govt-jobs") {
-        jobs = jobs.filter((job) => isGovtJob(job))
+        jobs = jobs.filter(isGovtJob)
       }
 
       else if (cat === "work-from-home") {
-        jobs = jobs.filter(
-          (job) => isWFHJob(job) && !isGovtJob(job)
-        )
+        jobs = jobs.filter(j => isWFHJob(j) && !isGovtJob(j))
       }
 
       else if (cat === "ai") {
-        jobs = jobs.filter(
-          (job) => isAIJob(job) && !isGovtJob(job)
-        )
+        jobs = jobs.filter(j => isAIJob(j) && !isGovtJob(j))
       }
 
       else if (cat === "international") {
-        jobs = jobs.filter(
-          (job) => isInternational(job)
-        )
-      }
-
-      else if (cat === "it") {
-
-        jobs = jobs.filter((job) => {
-
-          const text = buildText(job, ["title","description"])
-
-          return (
-            text.includes("developer") ||
-            text.includes("software") ||
-            text.includes("programmer") ||
-            text.includes("react") ||
-            text.includes("node") ||
-            text.includes("python") ||
-            text.includes("java")
-          ) && !isGovtJob(job)
-
-        })
-      }
-
-      else if (cat === "banking") {
-
-        jobs = jobs.filter((job) => {
-
-          const text = buildText(job, ["title","description"])
-
-          return (
-            text.includes("bank") ||
-            text.includes("banking") ||
-            text.includes("loan officer") ||
-            text.includes("credit officer")
-          ) && !isGovtJob(job)
-
-        })
-      }
-
-      else if (cat === "bpo") {
-
-        jobs = jobs.filter((job) => {
-
-          const text = buildText(job, ["title","description"])
-
-          return (
-            text.includes("bpo") ||
-            text.includes("call center") ||
-            text.includes("customer support") ||
-            text.includes("customer service")
-          ) && !isGovtJob(job)
-
-        })
-      }
-
-      else if (cat === "sales") {
-
-        jobs = jobs.filter((job) => {
-
-          const text = buildText(job, ["title","description"])
-
-          return (
-            text.includes("sales") ||
-            text.includes("business development") ||
-            text.includes("marketing")
-          ) && !isGovtJob(job)
-
-        })
-      }
-
-      else if (cat === "engineering") {
-
-        jobs = jobs.filter((job) => {
-
-          const text = buildText(job, ["title","description"])
-
-          return (
-            text.includes("engineer") ||
-            text.includes("mechanical") ||
-            text.includes("civil engineer") ||
-            text.includes("electrical engineer")
-          ) && !isGovtJob(job)
-
-        })
+        jobs = jobs.filter(isInternational)
       }
 
     }
 
     /* ================= SEARCH ================= */
 
-    if (q && q.trim() !== "") {
+    if (q && q.trim()) {
 
       const keyword = q.toLowerCase()
 
-      jobs = jobs.filter((job) =>
-        buildText(job, ["title","description","company"]).includes(keyword)
+      jobs = jobs.filter((job)=>
+        buildText(job,["title","description","company"]).includes(keyword)
       )
+
     }
 
     /* ================= SORT ================= */
 
-    jobs.sort((a, b) => new Date(b.datePosted) - new Date(a.datePosted))
+    jobs.sort((a,b)=>new Date(b.datePosted)-new Date(a.datePosted))
 
     /* ================= PAGINATION ================= */
 
-    const start = (page - 1) * limit
-    const totalPages = Math.ceil(jobs.length / limit)
+    const start = (page-1)*limit
+    const totalPages = Math.ceil(jobs.length/limit)
 
     return res.status(200).json({
-      jobs: jobs.slice(start, start + limit),
+
+      jobs: jobs.slice(start,start+limit),
       total: jobs.length,
       page,
       totalPages
+
     })
 
   }
 
-  catch (err) {
+  catch(err){
 
-    console.error("API error:", err)
+    console.error("API error:",err)
 
     return res.status(500).json({
-      jobs: [],
-      total: 0,
-      page: 1,
-      totalPages: 1
+
+      jobs:[],
+      total:0,
+      page:1,
+      totalPages:1
+
     })
+
   }
+
 }

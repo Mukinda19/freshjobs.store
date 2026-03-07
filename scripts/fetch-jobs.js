@@ -48,29 +48,43 @@ function detectCategory(feedCategory, title) {
 
   const t = (title || "").toLowerCase()
 
-  /* GOVT FEEDS */
-  if (feedCategory === "govt") return "govt-jobs"
+  /* GOVT JOBS */
+  if (feedCategory === "govt") {
+    return "govt-jobs"
+  }
 
-  /* WFH FEEDS */
-  if (feedCategory === "wfh") return "work-from-home"
+  /* WFH / REMOTE FEEDS */
+  if (feedCategory === "wfh") {
+    return "work-from-home"
+  }
 
   /* AI JOBS */
-  if (
-    t.includes("ai") ||
-    t.includes("artificial intelligence") ||
-    t.includes("machine learning") ||
-    t.includes("deep learning") ||
-    t.includes("ml engineer")
-  ) {
+  const aiWords = [
+    "artificial intelligence",
+    "machine learning",
+    "deep learning",
+    "ml engineer",
+    "ai engineer",
+    "ai developer",
+    "data scientist",
+    "nlp",
+    "computer vision"
+  ]
+
+  if (aiWords.some(w => t.includes(w))) {
     return "ai"
   }
 
-  /* REMOTE JOB DETECT */
-  if (
-    t.includes("remote") ||
-    t.includes("work from home") ||
-    t.includes("wfh")
-  ) {
+  /* REMOTE DETECTION */
+  const remoteWords = [
+    "remote",
+    "work from home",
+    "wfh",
+    "anywhere",
+    "distributed"
+  ]
+
+  if (remoteWords.some(w => t.includes(w))) {
     return "work-from-home"
   }
 
@@ -94,7 +108,10 @@ function isNews(title) {
     "students",
     "college",
     "exam result",
-    "admit card"
+    "admit card",
+    "answer key",
+    "cut off",
+    "syllabus"
   ]
 
   return badWords.some((w) => t.includes(w))
@@ -104,7 +121,7 @@ function isNews(title) {
 
 async function main() {
 
-  console.log("🚀 Fetch started")
+  console.log("🚀 Job fetch started")
 
   const feeds = JSON.parse(fs.readFileSync(FEEDS_PATH, "utf8"))
   const seen = loadSeen()
@@ -134,7 +151,7 @@ async function main() {
 
         const job = {
           title,
-          company: item.creator || item.author || "",
+          company: item.creator || item.author || f.source,
           location: "",
           category,
           source: f.source,
@@ -159,7 +176,7 @@ async function main() {
           seen[id] = true
           saveSeen(seen)
 
-          console.log("✅ Posted:", job.title)
+          console.log(`✅ Posted: ${title}`)
 
         }
 
@@ -169,7 +186,7 @@ async function main() {
 
     } catch (err) {
 
-      console.log("⚠️ Feed error:", f.source, err.message)
+      console.log(`⚠️ Feed error (${f.source}):`, err.message)
 
     }
 
