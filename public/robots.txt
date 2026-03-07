@@ -1,18 +1,19 @@
+# *
 User-agent: *
 Allow: /
 
-# Block unnecessary paths
-Disallow: /api/
-Disallow: /admin/
-Disallow: /404
-Disallow: /500
+# Googlebot
+User-agent: Googlebot
+Allow: /
+
+# Googlebot-News
+User-agent: Googlebot-News
+Allow: /
 
 # Host
 Host: https://www.freshjobs.store
 
-# Main Sitemap
+# Sitemaps
 Sitemap: https://www.freshjobs.store/sitemap.xml
-
-# Additional Sitemaps
-Sitemap: https://www.freshjobs.store/sitemap-categories.xml
 Sitemap: https://www.freshjobs.store/sitemap-pages.xml
+Sitemap: https://www.freshjobs.store/sitemap-categories.xml

@@ -14,11 +14,10 @@ export default function CategoryLocationPage({
 }) {
   const router = useRouter();
 
-  const readableCategory = String(category || "").replace(/-/g, " ");
-  const readableLocation = String(location || "").replace(/-/g, " ");
+  const readableCategory = decodeURIComponent(String(category || "")).replace(/-/g, " ");
+  const readableLocation = decodeURIComponent(String(location || "")).replace(/-/g, " ");
 
-  const isWFH =
-    String(category || "").toLowerCase() === "work-from-home";
+  const isWFH = String(category || "").toLowerCase() === "work-from-home";
 
   const baseUrl = "https://www.freshjobs.store";
 
@@ -30,8 +29,8 @@ export default function CategoryLocationPage({
     " | FreshJobs";
 
   const pageDescription = isWFH
-    ? `Find latest verified work from home jobs in ${readableLocation}. Apply online for remote and genuine WFH job opportunities.`
-    : `Latest ${readableCategory} jobs in ${readableLocation}. Browse verified job vacancies and apply online.`;
+    ? `Find latest verified work from home jobs in ${readableLocation}. Apply online for remote and genuine WFH job opportunities updated daily.`
+    : `Latest ${readableCategory} jobs in ${readableLocation}. Browse verified job vacancies with direct apply links. Updated daily with fresh opportunities.`;
 
   const canonicalUrl =
     currentPage > 1
@@ -67,7 +66,7 @@ export default function CategoryLocationPage({
       {
         "@type": "ListItem",
         position: 2,
-        name: readableCategory + " Jobs",
+        name: `${readableCategory} Jobs`,
         item: `${baseUrl}/jobs/${category}/india`,
       },
       {
@@ -94,15 +93,17 @@ export default function CategoryLocationPage({
     <div className="max-w-6xl mx-auto p-4">
 
       {/* ================= SEO ================= */}
+
       <Head>
         <title>{pageTitle}</title>
+
         <meta name="description" content={pageDescription} />
+
         <link rel="canonical" href={canonicalUrl} />
 
         {prevUrl && <link rel="prev" href={prevUrl} />}
         {nextUrl && <link rel="next" href={nextUrl} />}
 
-        {/* Schema */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -128,7 +129,7 @@ export default function CategoryLocationPage({
         › <span className="font-medium">{readableLocation}</span>
       </div>
 
-      {/* ================= PAGE TITLE ================= */}
+      {/* ================= TITLE ================= */}
 
       <h1 className="text-2xl md:text-3xl font-bold mb-4">
         {isWFH
@@ -139,9 +140,9 @@ export default function CategoryLocationPage({
       {/* ================= SEO TEXT ================= */}
 
       <p className="text-gray-600 mb-6">
-        Explore latest {readableCategory} job openings in{" "}
-        {readableLocation}. Find verified job listings with official
-        application links. Updated daily with fresh opportunities.
+        Explore latest {readableCategory} job openings in {readableLocation}. 
+        Find verified job listings with official application links. 
+        Updated daily with fresh opportunities across India.
       </p>
 
       {/* ================= JOB GRID ================= */}
@@ -170,7 +171,7 @@ export default function CategoryLocationPage({
             </button>
           )}
 
-          <span>
+          <span className="text-sm">
             Page {currentPage} of {totalPages}
           </span>
 
@@ -192,12 +193,16 @@ export default function CategoryLocationPage({
 /* ================= STATIC GENERATION ================= */
 
 export async function getStaticPaths() {
-  return { paths: [], fallback: "blocking" };
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
 }
 
 export async function getStaticProps({ params, query }) {
 
   const { category, location } = params;
+
   const currentPage = parseInt(query?.page || "1");
 
   const baseUrl =
@@ -223,7 +228,9 @@ export async function getStaticProps({ params, query }) {
       revalidate: 1800,
     };
 
-  } catch {
+  } catch (error) {
+
+    console.error("Fetch error:", error);
 
     return {
       props: {
