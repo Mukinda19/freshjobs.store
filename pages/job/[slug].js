@@ -17,9 +17,9 @@ const cleanNumber = (value = "") =>
 const stripHtml = (text = "") =>
   String(text).replace(/<[^>]*>?/gm, "")
 
-export default function JobDetailPage({ job, siteUrl }) {
+/* ---------------- Page ---------------- */
 
-  /* ---------------- EXPIRED JOB ---------------- */
+export default function JobDetailPage({ job, siteUrl }) {
 
   if (!job) {
     return (
@@ -35,12 +35,12 @@ export default function JobDetailPage({ job, siteUrl }) {
         </h1>
 
         <p className="mb-6">
-          This job listing is no longer available. Explore the latest job openings below.
+          This job listing is no longer available.
         </p>
 
         <Link
           href="/"
-          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold"
         >
           Browse Latest Jobs
         </Link>
@@ -56,20 +56,19 @@ export default function JobDetailPage({ job, siteUrl }) {
 
   const description = stripHtml(
     job.description ||
-      job.snippet ||
-      `Apply for ${title} at ${company}. Check eligibility, job location, salary details and official application process.`
-  )
+      `Apply for ${title} at ${company}. Check eligibility, salary details and official application process.`
+  ).slice(0,800)
 
   const canonicalSlug =
     job.slug ||
     normalizeSlug(`${job.title || ""} ${job.company || ""}`)
 
-  const canonicalUrl = `${siteUrl}/jobs/${canonicalSlug}`
+  const canonicalUrl = `${siteUrl}/job/${canonicalSlug}`
 
   const categorySlug = normalizeSlug(job.category || "jobs")
 
   const applyLink =
-    job.url || job.link || job.applyLink || ""
+    job.link || job.applyLink || ""
 
   const lowerLocation = location.toLowerCase()
 
@@ -126,7 +125,6 @@ export default function JobDetailPage({ job, siteUrl }) {
 
     title: title,
     description: description,
-
     url: canonicalUrl,
 
     identifier: {
@@ -154,11 +152,6 @@ export default function JobDetailPage({ job, siteUrl }) {
       jobLocationType: "TELECOMMUTE",
     }),
 
-    applicantLocationRequirements: {
-      "@type": "Country",
-      name: countryCode,
-    },
-
     employmentType: employmentType,
 
     directApply: true,
@@ -180,8 +173,6 @@ export default function JobDetailPage({ job, siteUrl }) {
       job.datePosted && !isNaN(new Date(job.datePosted))
         ? new Date(job.datePosted).toISOString()
         : new Date().toISOString(),
-
-    dateModified: new Date().toISOString(),
 
     validThrough:
       job.validThrough ||
@@ -205,15 +196,12 @@ export default function JobDetailPage({ job, siteUrl }) {
           content={`Apply for ${title} job at ${company} in ${location}. Check eligibility, salary details and official apply link.`}
         />
 
-        <meta name="robots" content="index, follow" />
-
         <link rel="canonical" href={canonicalUrl} />
 
         <meta property="og:title" content={`${title} at ${company}`} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="article" />
-        <meta property="og:site_name" content="FreshJobs" />
 
         <meta name="twitter:card" content="summary_large_image" />
 
@@ -237,16 +225,11 @@ export default function JobDetailPage({ job, siteUrl }) {
 
       <div className="text-sm mb-5 text-gray-600">
 
-        <Link href="/" prefetch={false}>
-          Home
-        </Link>
+        <Link href="/">Home</Link>
 
         {" › "}
 
-        <Link
-          href={`/jobs/${categorySlug}/india`}
-          prefetch={false}
-        >
+        <Link href={`/jobs/${categorySlug}/india`}>
           {job.category || "Jobs"}
         </Link>
 
@@ -290,7 +273,7 @@ export default function JobDetailPage({ job, siteUrl }) {
           href={applyLink}
           target="_blank"
           rel="noopener noreferrer nofollow"
-          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold"
         >
           Apply on Official Website →
         </a>

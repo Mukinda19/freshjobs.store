@@ -1,205 +1,296 @@
-import fs from "fs";
-import path from "path";
-import Parser from "rss-parser";
-import crypto from "crypto";
-import { fileURLToPath } from "url";
+import fs from "fs"
+import path from "path"
+import Parser from "rss-parser"
+import crypto from "crypto"
+import { fileURLToPath } from "url"
+import { createJobSlug } from "../lib/slug.js"
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const APPSCRIPT_POST_URL =
-  "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec";
+"https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
-const FEEDS_PATH = path.join(__dirname, "feeds.json");
-const DATA_DIR = path.join(__dirname, "../data");
-const SEEN_FILE = path.join(DATA_DIR, "seen.json");
+const FEEDS_PATH = path.join(__dirname,"feeds.json")
+const DATA_DIR = path.join(__dirname,"../data")
+const SEEN_FILE = path.join(DATA_DIR,"seen.json")
 
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+if(!fs.existsSync(DATA_DIR)){
+fs.mkdirSync(DATA_DIR,{recursive:true})
 }
 
 const parser = new Parser({
-  timeout: 15000,
-  headers: {
-    "User-Agent": "Mozilla/5.0 FreshJobsBot"
-  }
-});
+timeout:20000,
+headers:{
+"User-Agent":"FreshJobsBot/3.0"
+}
+})
 
-const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const wait=(ms)=>new Promise(r=>setTimeout(r,ms))
 
-const hash = (s) =>
-  crypto.createHash("sha256").update(s || "").digest("hex");
+const hash=(s)=>
+crypto.createHash("sha256").update(s||"").digest("hex")
 
-function loadSeen() {
-  try {
-    return JSON.parse(fs.readFileSync(SEEN_FILE, "utf8"));
-  } catch {
-    return {};
-  }
+function loadSeen(){
+try{
+return JSON.parse(fs.readFileSync(SEEN_FILE,"utf8"))
+}catch{
+return{}
+}
 }
 
-function saveSeen(data) {
-  fs.writeFileSync(SEEN_FILE, JSON.stringify(data, null, 2));
+function saveSeen(data){
+fs.writeFileSync(SEEN_FILE,JSON.stringify(data,null,2))
 }
 
-/* ---------------- CATEGORY DETECTOR ---------------- */
+/* ---------------- CATEGORY ENGINE ---------------- */
 
-function detectCategory(feedCategory, title) {
+function detectCategory(feedCategory,title){
 
-  const t = (title || "").toLowerCase()
+const t=(title||"").toLowerCase()
 
-  /* GOVT JOBS */
-  if (feedCategory === "govt") {
-    return "govt-jobs"
-  }
+if(feedCategory==="govt") return "govt-jobs"
 
-  /* WFH / REMOTE FEEDS */
-  if (feedCategory === "wfh") {
-    return "work-from-home"
-  }
+if(feedCategory==="wfh") return "work-from-home"
 
-  /* AI JOBS */
-  const aiWords = [
-    "artificial intelligence",
-    "machine learning",
-    "deep learning",
-    "ml engineer",
-    "ai engineer",
-    "ai developer",
-    "data scientist",
-    "nlp",
-    "computer vision"
-  ]
+/* AI JOBS */
 
-  if (aiWords.some(w => t.includes(w))) {
-    return "ai"
-  }
+const aiWords=[
+"artificial intelligence",
+"machine learning",
+"deep learning",
+"ai engineer",
+"ml engineer",
+"nlp engineer",
+"computer vision",
+"data scientist"
+]
 
-  /* REMOTE DETECTION */
-  const remoteWords = [
-    "remote",
-    "work from home",
-    "wfh",
-    "anywhere",
-    "distributed"
-  ]
+if(aiWords.some(w=>t.includes(w))) return "ai"
 
-  if (remoteWords.some(w => t.includes(w))) {
-    return "work-from-home"
-  }
+/* IT */
 
-  return "general"
+const itWords=[
+"developer",
+"software engineer",
+"programmer",
+"full stack",
+"frontend",
+"backend",
+"react",
+"node",
+"python",
+"java"
+]
+
+if(itWords.some(w=>t.includes(w))) return "it"
+
+/* SALES */
+
+const salesWords=[
+"sales",
+"business development",
+"marketing",
+"digital marketing"
+]
+
+if(salesWords.some(w=>t.includes(w))) return "sales"
+
+/* BANKING */
+
+const bankWords=[
+"bank",
+"banking",
+"loan officer",
+"credit officer"
+]
+
+if(bankWords.some(w=>t.includes(w))) return "banking"
+
+/* INTERNATIONAL */
+
+const abroadWords=[
+"abroad",
+"overseas",
+"international",
+"uae",
+"saudi",
+"qatar",
+"canada",
+"usa",
+"uk",
+"australia",
+"singapore"
+]
+
+if(abroadWords.some(w=>t.includes(w))) return "international"
+
+/* REMOTE */
+
+const remoteWords=[
+"remote",
+"work from home",
+"wfh",
+"anywhere",
+"distributed",
+"freelance"
+]
+
+if(remoteWords.some(w=>t.includes(w))) return "work-from-home"
+
+return "general"
+
 }
 
 /* ---------------- NEWS FILTER ---------------- */
 
-function isNews(title) {
+function isNews(title){
 
-  const t = (title || "").toLowerCase()
+const t=(title||"").toLowerCase()
 
-  const badWords = [
-    "tension",
-    "war",
-    "missile",
-    "attack",
-    "politics",
-    "news",
-    "conflict",
-    "students",
-    "college",
-    "exam result",
-    "admit card",
-    "answer key",
-    "cut off",
-    "syllabus"
-  ]
+const badWords=[
+"tension",
+"war",
+"missile",
+"attack",
+"politics",
+"news",
+"students",
+"college",
+"exam result",
+"admit card",
+"answer key",
+"cut off",
+"syllabus",
+"results announced"
+]
 
-  return badWords.some((w) => t.includes(w))
+return badWords.some(w=>t.includes(w))
+
+}
+
+/* ---------------- SEO DESCRIPTION GENERATOR ---------------- */
+
+function buildDescription(title,category){
+
+const cat=category.replace(/-/g," ")
+
+return `Apply for the latest ${title}. Discover new ${cat} opportunities with leading companies worldwide. Check eligibility, salary details, application process and apply online through the official link. Stay updated with fresh job openings on FreshJobs.`
+
 }
 
 /* ---------------- MAIN FETCH ---------------- */
 
-async function main() {
+async function main(){
 
-  console.log("🚀 Job fetch started")
+console.log("🚀 Job fetch started")
 
-  const feeds = JSON.parse(fs.readFileSync(FEEDS_PATH, "utf8"))
-  const seen = loadSeen()
+const feeds=JSON.parse(fs.readFileSync(FEEDS_PATH,"utf8"))
+const seen=loadSeen()
 
-  for (const f of feeds) {
+let postedCount=0
 
-    try {
+for(const f of feeds){
 
-      console.log(`🔎 Reading feed: ${f.source}`)
+try{
 
-      const res = await fetch(f.url)
-      const xml = await res.text()
-      const feed = await parser.parseString(xml)
+console.log(`🔎 Reading feed: ${f.source}`)
 
-      for (const item of feed.items.slice(0, 25)) {
+const res=await fetch(f.url)
 
-        const link = item.link || ""
-        const id = hash(link)
+if(!res.ok){
+console.log(`⚠️ Feed failed: ${f.source}`)
+continue
+}
 
-        if (!link || seen[id]) continue
+const xml=await res.text()
 
-        const title = item.title || ""
+const feed=await parser.parseString(xml)
 
-        if (isNews(title)) continue
+for(const item of feed.items.slice(0,80)){
 
-        const category = detectCategory(f.category, title)
+const link=item.link||""
 
-        const job = {
-          title,
-          company: item.creator || item.author || f.source,
-          location: "",
-          category,
-          source: f.source,
-          link,
-          description:
-            item.contentSnippet ||
-            item.summary ||
-            "Check job details and apply using the official link.",
-          datePosted: item.pubDate || new Date().toISOString()
-        }
+const id=hash(link)
 
-        const post = await fetch(APPSCRIPT_POST_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(job)
-        })
+if(!link||seen[id]) continue
 
-        if (post.ok) {
+const title=item.title||""
 
-          seen[id] = true
-          saveSeen(seen)
+if(isNews(title)) continue
 
-          console.log(`✅ Posted: ${title}`)
+const category=detectCategory(f.category,title)
 
-        }
+const company=item.creator||item.author||f.source
 
-        await wait(400)
+const slug=createJobSlug(title,company)
 
-      }
+const job={
 
-    } catch (err) {
+title,
 
-      console.log(`⚠️ Feed error (${f.source}):`, err.message)
+slug,
 
-    }
+company,
 
-  }
+location:item.location||"Worldwide",
 
-  console.log("✅ Fetch completed")
+category,
+
+source:f.source,
+
+link,
+
+description:
+
+item.contentSnippet||
+item.summary||
+buildDescription(title,category),
+
+datePosted:item.pubDate||new Date().toISOString()
 
 }
 
-main().catch((err) => {
+const post=await fetch(APPSCRIPT_POST_URL,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(job)
+})
 
-  console.error("❌ Fatal error:", err)
+if(post.ok){
 
-  process.exit(1)
+seen[id]=true
+
+postedCount++
+
+console.log(`✅ Posted: ${title}`)
+
+}
+
+await wait(250)
+
+}
+
+}catch(err){
+
+console.log(`⚠️ Feed error (${f.source}):`,err.message)
+
+}
+
+}
+
+saveSeen(seen)
+
+console.log(`🎉 Fetch completed. Jobs posted: ${postedCount}`)
+
+}
+
+main().catch(err=>{
+
+console.error("❌ Fatal error:",err)
+
+process.exit(1)
 
 })

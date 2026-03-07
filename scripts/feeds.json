@@ -19,6 +19,7 @@
     "url": "https://www.naukrinama.com/feed/",
     "category": "govt"
   },
+
   {
     "source": "RemoteOK",
     "url": "https://remoteok.com/remote-jobs.rss",
@@ -37,6 +38,21 @@
   {
     "source": "Jobicy",
     "url": "https://jobicy.com/jobs-rss-feed",
+    "category": "wfh"
+  },
+  {
+    "source": "Remote.co",
+    "url": "https://remote.co/remote-jobs/feed/",
+    "category": "wfh"
+  },
+  {
+    "source": "Working Nomads",
+    "url": "https://www.workingnomads.com/jobs/feed",
+    "category": "wfh"
+  },
+  {
+    "source": "PowerToFly",
+    "url": "https://powertofly.com/jobs/feed",
     "category": "wfh"
   }
 ]
