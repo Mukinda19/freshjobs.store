@@ -18,14 +18,66 @@ if(!fs.existsSync(DATA_DIR)){
 fs.mkdirSync(DATA_DIR,{recursive:true})
 }
 
+/* ---------- RSS PARSER ---------- */
+
 const parser = new Parser({
-timeout:20000
+timeout:20000,
+headers:{
+"User-Agent":
+"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
+}
 })
 
 const wait=(ms)=>new Promise(r=>setTimeout(r,ms))
 
 const hash=(s)=>
 crypto.createHash("sha256").update(s||"").digest("hex")
+
+/* ---------- RETRY FETCH ---------- */
+
+async function fetchWithRetry(url,retries=3){
+
+try{
+
+const res=await fetch(url,{
+headers:{
+"User-Agent":
+"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+"Accept":"application/rss+xml, application/xml;q=0.9,*/*;q=0.8"
+}
+})
+
+if(!res.ok){
+
+if(retries>0){
+
+console.log(`🔁 Retry ${url} (${retries})`)
+await wait(2000)
+return fetchWithRetry(url,retries-1)
+
+}
+
+return res
+
+}
+
+return res
+
+}catch(err){
+
+if(retries>0){
+
+console.log(`🔁 Retry error ${url}`)
+await wait(2000)
+return fetchWithRetry(url,retries-1)
+
+}
+
+throw err
+
+}
+
+}
 
 /* ---------- SLUG ---------- */
 
@@ -70,8 +122,6 @@ const t=(title||"").toLowerCase()
 if(feedCategory==="govt") return "govt-jobs"
 if(feedCategory==="wfh") return "work-from-home"
 
-/* INTERNATIONAL */
-
 const abroadWords=[
 "abroad","overseas","international",
 "uae","saudi","qatar","oman",
@@ -81,16 +131,12 @@ const abroadWords=[
 
 if(abroadWords.some(w=>t.includes(w))) return "international"
 
-/* REMOTE */
-
 const remoteWords=[
 "remote","work from home","wfh",
 "anywhere","distributed","freelance"
 ]
 
 if(remoteWords.some(w=>t.includes(w))) return "work-from-home"
-
-/* AI */
 
 const aiWords=[
 "artificial intelligence",
@@ -105,8 +151,6 @@ const aiWords=[
 
 if(aiWords.some(w=>t.includes(w))) return "ai"
 
-/* IT */
-
 const itWords=[
 "developer","software engineer","programmer",
 "full stack","frontend","backend",
@@ -115,16 +159,12 @@ const itWords=[
 
 if(itWords.some(w=>t.includes(w))) return "it"
 
-/* SALES */
-
 const salesWords=[
 "sales","business development",
 "marketing","digital marketing"
 ]
 
 if(salesWords.some(w=>t.includes(w))) return "sales"
-
-/* BANKING */
 
 const bankWords=[
 "bank","banking",
@@ -165,21 +205,6 @@ return `Apply for the latest ${title}. Discover new ${cat} opportunities with le
 
 }
 
-/* ---------- FETCH HELPER ---------- */
-
-async function fetchFeed(url){
-
-const res=await fetch(url,{
-headers:{
-"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-"Accept":"application/rss+xml, application/xml;q=0.9,*/*;q=0.8"
-}
-})
-
-return res
-
-}
-
 /* ---------- MAIN ---------- */
 
 async function main(){
@@ -197,7 +222,7 @@ try{
 
 console.log(`🔎 Reading feed: ${f.source}`)
 
-const res=await fetchFeed(f.url)
+const res=await fetchWithRetry(f.url)
 
 if(!res.ok){
 
@@ -220,7 +245,6 @@ const feed=await parser.parseString(xml)
 for(const item of feed.items.slice(0,80)){
 
 const link=item.link||""
-
 const id=hash(link)
 
 if(!link||seen[id]) continue
@@ -290,7 +314,6 @@ console.log(`🎉 Fetch completed. Jobs posted: ${postedCount}`)
 main().catch(err=>{
 
 console.error("❌ Fatal error:",err)
-
 process.exit(1)
 
 })
