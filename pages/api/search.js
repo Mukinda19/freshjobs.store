@@ -3,257 +3,276 @@ let lastFetchTime = 0
 
 const CACHE_DURATION = 5 * 60 * 1000
 
-/* ---------------- SLUG GENERATOR ---------------- */
+/* ---------------- SLUG ---------------- */
 
-const generateSlug = (text = "", fallback = "") => {
+import crypto from "crypto"
 
-  const base = text || fallback || "job-opening"
+const generateSlug = (title="",link="") => {
 
-  return base
-    .toLowerCase()
-    .replace(/<[^>]*>?/gm, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-}
+const base=(title||"job-opening")
+.toLowerCase()
+.replace(/<[^>]*>?/gm,"")
+.replace(/[^a-z0-9]+/g,"-")
+.replace(/(^-|-$)/g,"")
 
-/* ---------------- TEXT BUILDER ---------------- */
+const hash=crypto
+.createHash("md5")
+.update(link||title)
+.digest("hex")
+.slice(0,6)
 
-const buildText = (job, fields) =>
-  fields.map((f) => job[f] || "").join(" ").toLowerCase()
-
-/* ---------------- REMOVE DUPLICATES ---------------- */
-
-const dedupeJobs = (jobs) => {
-
-  const seen = new Set()
-
-  return jobs.filter((job) => {
-
-    const key = `${job.title}-${job.link}`
-
-    if (seen.has(key)) return false
-
-    seen.add(key)
-
-    return true
-
-  })
-}
-
-/* ---------------- GOVT CHECK ---------------- */
-
-const isGovtJob = (job) => {
-
-  const category = (job.category || "").toLowerCase()
-
-  if (
-    category === "govt" ||
-    category === "govt-jobs" ||
-    category === "government"
-  ) return true
-
-  const text = buildText(job, ["title","description","company"])
-
-  const keywords = [
-    "government","govt","sarkari",
-    "railway","ssc","upsc","psu",
-    "defence","army","navy","air force",
-    "bank recruitment"
-  ]
-
-  return keywords.some((k)=>text.includes(k))
+return `${base}-${hash}`
 
 }
 
-/* ---------------- WFH CHECK ---------------- */
+/* ---------------- TEXT ---------------- */
 
-const isWFHJob = (job) => {
+const buildText=(job,fields)=>
+fields.map(f=>job[f]||"").join(" ").toLowerCase()
 
-  const category = (job.category || "").toLowerCase()
+/* ---------------- DEDUPE ---------------- */
 
-  if (
-    category === "work-from-home" ||
-    category === "workfromhome" ||
-    category === "wfh"
-  ) return true
+const dedupeJobs=(jobs)=>{
 
-  const text = buildText(job, ["title","description"])
+const seen=new Set()
 
-  const keywords = [
-    "remote",
-    "work from home",
-    "wfh",
-    "home based",
-    "virtual assistant",
-    "freelance"
-  ]
+return jobs.filter(job=>{
 
-  return keywords.some((k)=>text.includes(k))
+const key=`${job.title}-${job.link}`
+
+if(seen.has(key)) return false
+
+seen.add(key)
+
+return true
+
+})
 
 }
 
-/* ---------------- AI CHECK (SAFE) ---------------- */
+/* ---------------- GOVT ---------------- */
 
-const isAIJob = (job) => {
+const isGovtJob=(job)=>{
 
-  const text = buildText(job, ["title","description"])
+const category=(job.category||"").toLowerCase()
 
-  const keywords = [
-    "artificial intelligence",
-    "machine learning",
-    "deep learning",
-    "ai engineer",
-    "ml engineer",
-    "computer vision",
-    "generative ai",
-    "prompt engineer",
-    "data scientist",
-    "nlp engineer"
-  ]
+if(
+category==="govt"||
+category==="govt-jobs"||
+category==="government"
+) return true
 
-  return keywords.some((k)=>text.includes(k))
+const text=buildText(job,["title","description","company"])
+
+const keywords=[
+"government","govt","sarkari",
+"railway","ssc","upsc","psu",
+"defence","army","navy","air force",
+"bank recruitment"
+]
+
+return keywords.some(k=>text.includes(k))
+
+}
+
+/* ---------------- WFH ---------------- */
+
+const isWFHJob=(job)=>{
+
+const category=(job.category||"").toLowerCase()
+
+if(
+category==="work-from-home"||
+category==="workfromhome"||
+category==="wfh"
+) return true
+
+const text=buildText(job,["title","description"])
+
+const keywords=[
+"remote","work from home","wfh",
+"home based","virtual assistant",
+"freelance"
+]
+
+return keywords.some(k=>text.includes(k))
+
+}
+
+/* ---------------- AI ---------------- */
+
+const isAIJob=(job)=>{
+
+const text=buildText(job,["title","description"])
+
+const keywords=[
+"artificial intelligence",
+"machine learning",
+"deep learning",
+"ai engineer",
+"ml engineer",
+"computer vision",
+"generative ai",
+"prompt engineer",
+"data scientist",
+"nlp engineer"
+]
+
+return keywords.some(k=>text.includes(k))
 
 }
 
 /* ---------------- INTERNATIONAL ---------------- */
 
-const isInternational = (job) => {
+const isInternational=(job)=>{
 
-  const text = buildText(job, ["title","description","location"])
+const text=buildText(job,["title","description","location"])
 
-  const keywords = [
-    "abroad","overseas","international",
-    "uae","saudi","qatar","oman",
-    "kuwait","canada","usa","uk",
-    "australia","europe"
-  ]
+const keywords=[
+"abroad","overseas","international",
+"uae","saudi","qatar","oman",
+"kuwait","canada","usa","uk",
+"australia","europe"
+]
 
-  return keywords.some((k)=>text.includes(k))
+return keywords.some(k=>text.includes(k))
 
 }
 
-/* ---------------- API HANDLER ---------------- */
+/* ---------------- HANDLER ---------------- */
 
-export default async function handler(req, res) {
+export default async function handler(req,res){
 
-  res.setHeader("Cache-Control","s-maxage=600, stale-while-revalidate")
+res.setHeader("Cache-Control","s-maxage=600, stale-while-revalidate")
 
-  try {
+try{
 
-    const SHEET_URL =
-      "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
+const SHEET_URL="https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
-    const { category, q, slug } = req.query
+const {category,q,slug}=req.query
 
-    const page = Math.max(Number(req.query.page) || 1, 1)
-    const limit = Math.min(Number(req.query.limit) || 10, 20)
+const page=Math.max(Number(req.query.page)||1,1)
+const limit=Math.min(Number(req.query.limit)||10,20)
 
-    /* ================= CACHE ================= */
+/* ---------- CACHE ---------- */
 
-    if (!cachedJobs || Date.now() - lastFetchTime > CACHE_DURATION) {
+if(!cachedJobs||Date.now()-lastFetchTime>CACHE_DURATION){
 
-      const response = await fetch(`${SHEET_URL}?limit=1000`)
-      const data = await response.json()
+const response=await fetch(`${SHEET_URL}?limit=1000`)
+const data=await response.json()
 
-      let jobs = Array.isArray(data.jobs) ? data.jobs : []
+let jobs=Array.isArray(data.jobs)?data.jobs:[]
 
-      jobs = jobs.map((job, index) => ({
-        ...job,
-        slug: job.slug || `${generateSlug(job.title, job.link)}-${index}`,
-        description:
-          job.description ||
-          job.snippet ||
-          "Check job details and apply using the official link."
-      }))
+jobs=jobs.map(job=>({
 
-      cachedJobs = dedupeJobs(jobs)
-      lastFetchTime = Date.now()
+...job,
 
-    }
+slug:generateSlug(job.title,job.link),
 
-    let jobs = [...cachedJobs]
+description:
+job.description||
+job.snippet||
+"Check job details and apply using the official link."
 
-    /* ================= JOB DETAIL ================= */
+}))
 
-    if (slug) {
+cachedJobs=dedupeJobs(jobs)
 
-      const job = jobs.find((j)=>j.slug === slug)
+lastFetchTime=Date.now()
 
-      if (!job) return res.status(404).json({ job:null })
+}
 
-      return res.status(200).json({ job })
+let jobs=[...cachedJobs]
 
-    }
+/* ---------- JOB DETAIL ---------- */
 
-    /* ================= CATEGORY FILTER ================= */
+if(slug){
 
-    if (category && category !== "all") {
+const job=jobs.find(j=>j.slug===slug)
 
-      const cat = category.toLowerCase()
+if(!job) return res.status(404).json({job:null})
 
-      if (cat === "govt-jobs") {
-        jobs = jobs.filter(isGovtJob)
-      }
+return res.status(200).json({job})
 
-      else if (cat === "work-from-home") {
-        jobs = jobs.filter(j => isWFHJob(j) && !isGovtJob(j))
-      }
+}
 
-      else if (cat === "ai") {
-        jobs = jobs.filter(j => isAIJob(j) && !isGovtJob(j))
-      }
+/* ---------- CATEGORY ---------- */
 
-      else if (cat === "international") {
-        jobs = jobs.filter(isInternational)
-      }
+if(category&&category!=="all"){
 
-    }
+const cat=category.toLowerCase()
 
-    /* ================= SEARCH ================= */
+if(cat==="govt-jobs") jobs=jobs.filter(isGovtJob)
 
-    if (q && q.trim()) {
+else if(cat==="work-from-home")
+jobs=jobs.filter(j=>isWFHJob(j)&&!isGovtJob(j))
 
-      const keyword = q.toLowerCase()
+else if(cat==="ai")
+jobs=jobs.filter(j=>isAIJob(j)&&!isGovtJob(j))
 
-      jobs = jobs.filter((job)=>
-        buildText(job,["title","description","company"]).includes(keyword)
-      )
+else if(cat==="international")
+jobs=jobs.filter(isInternational)
 
-    }
+else
+jobs=jobs.filter(j=>
+(job.category||"").toLowerCase()===cat
+)
 
-    /* ================= SORT ================= */
+}
 
-    jobs.sort((a,b)=>new Date(b.datePosted)-new Date(a.datePosted))
+/* ---------- SEARCH ---------- */
 
-    /* ================= PAGINATION ================= */
+if(q&&q.trim()){
 
-    const start = (page-1)*limit
-    const totalPages = Math.ceil(jobs.length/limit)
+const keyword=q.toLowerCase()
 
-    return res.status(200).json({
+jobs=jobs.filter(job=>
+buildText(job,["title","description","company"])
+.includes(keyword)
+)
 
-      jobs: jobs.slice(start,start+limit),
-      total: jobs.length,
-      page,
-      totalPages
+}
 
-    })
+/* ---------- SORT ---------- */
 
-  }
+jobs.sort((a,b)=>new Date(b.datePosted)-new Date(a.datePosted))
 
-  catch(err){
+/* ---------- PAGINATION ---------- */
 
-    console.error("API error:",err)
+const start=(page-1)*limit
 
-    return res.status(500).json({
+const totalPages=Math.ceil(jobs.length/limit)
 
-      jobs:[],
-      total:0,
-      page:1,
-      totalPages:1
+return res.status(200).json({
 
-    })
+jobs:jobs.slice(start,start+limit),
 
-  }
+total:jobs.length,
+
+page,
+
+totalPages
+
+})
+
+}
+
+catch(err){
+
+console.error("API error:",err)
+
+return res.status(500).json({
+
+jobs:[],
+
+total:0,
+
+page:1,
+
+totalPages:1
+
+})
+
+}
 
 }

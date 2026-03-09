@@ -3,7 +3,6 @@ import path from "path"
 import Parser from "rss-parser"
 import crypto from "crypto"
 import { fileURLToPath } from "url"
-import { createJobSlug } from "../lib/slug.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -22,7 +21,7 @@ fs.mkdirSync(DATA_DIR,{recursive:true})
 const parser = new Parser({
 timeout:20000,
 headers:{
-"User-Agent":"FreshJobsBot/3.0"
+"User-Agent":"FreshJobsBot/4.0"
 }
 })
 
@@ -30,6 +29,28 @@ const wait=(ms)=>new Promise(r=>setTimeout(r,ms))
 
 const hash=(s)=>
 crypto.createHash("sha256").update(s||"").digest("hex")
+
+/* ---------- SLUG ---------- */
+
+function generateSlug(title,link){
+
+const base=(title||"job-opening")
+.toLowerCase()
+.replace(/<[^>]*>?/gm,"")
+.replace(/[^a-z0-9]+/g,"-")
+.replace(/(^-|-$)/g,"")
+
+const id=crypto
+.createHash("md5")
+.update(link||title)
+.digest("hex")
+.slice(0,6)
+
+return `${base}-${id}`
+
+}
+
+/* ---------- STORAGE ---------- */
 
 function loadSeen(){
 try{
@@ -43,17 +64,36 @@ function saveSeen(data){
 fs.writeFileSync(SEEN_FILE,JSON.stringify(data,null,2))
 }
 
-/* ---------------- CATEGORY ENGINE ---------------- */
+/* ---------- CATEGORY ENGINE ---------- */
 
 function detectCategory(feedCategory,title){
 
 const t=(title||"").toLowerCase()
 
 if(feedCategory==="govt") return "govt-jobs"
-
 if(feedCategory==="wfh") return "work-from-home"
 
-/* AI JOBS */
+/* INTERNATIONAL */
+
+const abroadWords=[
+"abroad","overseas","international",
+"uae","saudi","qatar","oman",
+"kuwait","canada","usa","uk",
+"australia","europe","singapore"
+]
+
+if(abroadWords.some(w=>t.includes(w))) return "international"
+
+/* REMOTE */
+
+const remoteWords=[
+"remote","work from home","wfh",
+"anywhere","distributed","freelance"
+]
+
+if(remoteWords.some(w=>t.includes(w))) return "work-from-home"
+
+/* AI */
 
 const aiWords=[
 "artificial intelligence",
@@ -71,16 +111,9 @@ if(aiWords.some(w=>t.includes(w))) return "ai"
 /* IT */
 
 const itWords=[
-"developer",
-"software engineer",
-"programmer",
-"full stack",
-"frontend",
-"backend",
-"react",
-"node",
-"python",
-"java"
+"developer","software engineer","programmer",
+"full stack","frontend","backend",
+"react","node","python","java"
 ]
 
 if(itWords.some(w=>t.includes(w))) return "it"
@@ -88,10 +121,8 @@ if(itWords.some(w=>t.includes(w))) return "it"
 /* SALES */
 
 const salesWords=[
-"sales",
-"business development",
-"marketing",
-"digital marketing"
+"sales","business development",
+"marketing","digital marketing"
 ]
 
 if(salesWords.some(w=>t.includes(w))) return "sales"
@@ -99,69 +130,27 @@ if(salesWords.some(w=>t.includes(w))) return "sales"
 /* BANKING */
 
 const bankWords=[
-"bank",
-"banking",
-"loan officer",
-"credit officer"
+"bank","banking",
+"loan officer","credit officer"
 ]
 
 if(bankWords.some(w=>t.includes(w))) return "banking"
-
-/* INTERNATIONAL */
-
-const abroadWords=[
-"abroad",
-"overseas",
-"international",
-"uae",
-"saudi",
-"qatar",
-"canada",
-"usa",
-"uk",
-"australia",
-"singapore"
-]
-
-if(abroadWords.some(w=>t.includes(w))) return "international"
-
-/* REMOTE */
-
-const remoteWords=[
-"remote",
-"work from home",
-"wfh",
-"anywhere",
-"distributed",
-"freelance"
-]
-
-if(remoteWords.some(w=>t.includes(w))) return "work-from-home"
 
 return "general"
 
 }
 
-/* ---------------- NEWS FILTER ---------------- */
+/* ---------- NEWS FILTER ---------- */
 
 function isNews(title){
 
 const t=(title||"").toLowerCase()
 
 const badWords=[
-"tension",
-"war",
-"missile",
-"attack",
-"politics",
-"news",
-"students",
-"college",
-"exam result",
-"admit card",
-"answer key",
-"cut off",
-"syllabus",
+"tension","war","missile","attack",
+"politics","news","students",
+"college","exam result","admit card",
+"answer key","cut off","syllabus",
 "results announced"
 ]
 
@@ -169,17 +158,17 @@ return badWords.some(w=>t.includes(w))
 
 }
 
-/* ---------------- SEO DESCRIPTION GENERATOR ---------------- */
+/* ---------- DESCRIPTION ---------- */
 
 function buildDescription(title,category){
 
 const cat=category.replace(/-/g," ")
 
-return `Apply for the latest ${title}. Discover new ${cat} opportunities with leading companies worldwide. Check eligibility, salary details, application process and apply online through the official link. Stay updated with fresh job openings on FreshJobs.`
+return `Apply for the latest ${title}. Discover new ${cat} opportunities with leading companies worldwide. Check eligibility, salary details, application process and apply online through the official link.`
 
 }
 
-/* ---------------- MAIN FETCH ---------------- */
+/* ---------- MAIN ---------- */
 
 async function main(){
 
@@ -221,9 +210,7 @@ if(isNews(title)) continue
 
 const category=detectCategory(f.category,title)
 
-const company=item.creator||item.author||f.source
-
-const slug=createJobSlug(title,company)
+const slug=generateSlug(title,link)
 
 const job={
 
@@ -231,7 +218,7 @@ title,
 
 slug,
 
-company,
+company:item.creator||item.author||f.source,
 
 location:item.location||"Worldwide",
 
@@ -242,7 +229,6 @@ source:f.source,
 link,
 
 description:
-
 item.contentSnippet||
 item.summary||
 buildDescription(title,category),
@@ -262,7 +248,6 @@ body:JSON.stringify(job)
 if(post.ok){
 
 seen[id]=true
-
 postedCount++
 
 console.log(`✅ Posted: ${title}`)
