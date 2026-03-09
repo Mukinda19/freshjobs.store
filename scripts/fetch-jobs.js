@@ -50,11 +50,9 @@ headers:{
 if(!res.ok){
 
 if(retries>0){
-
 console.log(`🔁 Retry ${url} (${retries})`)
 await wait(2000)
 return fetchWithRetry(url,retries-1)
-
 }
 
 return res
@@ -66,11 +64,9 @@ return res
 }catch(err){
 
 if(retries>0){
-
 console.log(`🔁 Retry error ${url}`)
 await wait(2000)
 return fetchWithRetry(url,retries-1)
-
 }
 
 throw err
@@ -184,11 +180,21 @@ function isNews(title){
 const t=(title||"").toLowerCase()
 
 const badWords=[
-"tension","war","missile","attack",
-"politics","news","students",
-"college","exam result","admit card",
-"answer key","cut off","syllabus",
-"results announced"
+"result",
+"exam result",
+"board result",
+"university result",
+"admit card",
+"answer key",
+"cut off",
+"syllabus",
+"timetable",
+"date sheet",
+"students",
+"college result",
+"school result",
+"announcement",
+"results declared"
 ]
 
 return badWords.some(w=>t.includes(w))
@@ -242,9 +248,9 @@ continue
 
 const feed=await parser.parseString(xml)
 
-for(const item of feed.items.slice(0,80)){
+for(const item of feed.items.slice(0,120)){
 
-const link=item.link||""
+const link=item.link || item.guid || ""
 const id=hash(link)
 
 if(!link||seen[id]) continue
