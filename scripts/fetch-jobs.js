@@ -118,56 +118,15 @@ const t=(title||"").toLowerCase()
 if(feedCategory==="govt") return "govt-jobs"
 if(feedCategory==="wfh") return "work-from-home"
 
-const abroadWords=[
-"abroad","overseas","international",
-"uae","saudi","qatar","oman",
-"kuwait","canada","usa","uk",
-"australia","europe","singapore"
-]
+if(t.includes("remote")) return "work-from-home"
 
-if(abroadWords.some(w=>t.includes(w))) return "international"
+if(t.includes("developer")||t.includes("software")) return "it"
 
-const remoteWords=[
-"remote","work from home","wfh",
-"anywhere","distributed","freelance"
-]
+if(t.includes("ai")||t.includes("machine learning")) return "ai"
 
-if(remoteWords.some(w=>t.includes(w))) return "work-from-home"
+if(t.includes("sales")||t.includes("marketing")) return "sales"
 
-const aiWords=[
-"artificial intelligence",
-"machine learning",
-"deep learning",
-"ai engineer",
-"ml engineer",
-"nlp engineer",
-"computer vision",
-"data scientist"
-]
-
-if(aiWords.some(w=>t.includes(w))) return "ai"
-
-const itWords=[
-"developer","software engineer","programmer",
-"full stack","frontend","backend",
-"react","node","python","java"
-]
-
-if(itWords.some(w=>t.includes(w))) return "it"
-
-const salesWords=[
-"sales","business development",
-"marketing","digital marketing"
-]
-
-if(salesWords.some(w=>t.includes(w))) return "sales"
-
-const bankWords=[
-"bank","banking",
-"loan officer","credit officer"
-]
-
-if(bankWords.some(w=>t.includes(w))) return "banking"
+if(t.includes("bank")) return "banking"
 
 return "general"
 
@@ -207,7 +166,7 @@ function buildDescription(title,category){
 
 const cat=category.replace(/-/g," ")
 
-return `Apply for the latest ${title}. Discover new ${cat} opportunities with leading companies worldwide. Check eligibility, salary details, application process and apply online through the official link.`
+return `Apply for the latest ${title}. Explore new ${cat} opportunities from trusted companies worldwide. Check eligibility, salary details and apply through the official job link.`
 
 }
 
@@ -248,14 +207,20 @@ continue
 
 const feed=await parser.parseString(xml)
 
-for(const item of feed.items.slice(0,120)){
+/* -------- JOB LIMIT INCREASED -------- */
+
+for(const item of feed.items.slice(0,300)){
 
 const link=item.link || item.guid || ""
 const id=hash(link)
 
 if(!link||seen[id]) continue
 
-const title=item.title||""
+/* -------- TITLE CLEAN -------- */
+
+const title=(item.title||"").replace(/\s+/g," ").trim()
+
+if(!title) continue
 
 if(isNews(title)) continue
 
@@ -299,7 +264,7 @@ console.log(`✅ Posted: ${title}`)
 
 }
 
-await wait(250)
+await wait(200)
 
 }
 
@@ -318,8 +283,6 @@ console.log(`🎉 Fetch completed. Jobs posted: ${postedCount}`)
 }
 
 main().catch(err=>{
-
 console.error("❌ Fatal error:",err)
 process.exit(1)
-
 })
