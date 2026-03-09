@@ -19,10 +19,7 @@ fs.mkdirSync(DATA_DIR,{recursive:true})
 }
 
 const parser = new Parser({
-timeout:20000,
-headers:{
-"User-Agent":"FreshJobsBot/4.0"
-}
+timeout:20000
 })
 
 const wait=(ms)=>new Promise(r=>setTimeout(r,ms))
@@ -168,6 +165,21 @@ return `Apply for the latest ${title}. Discover new ${cat} opportunities with le
 
 }
 
+/* ---------- FETCH HELPER ---------- */
+
+async function fetchFeed(url){
+
+const res=await fetch(url,{
+headers:{
+"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+"Accept":"application/rss+xml, application/xml;q=0.9,*/*;q=0.8"
+}
+})
+
+return res
+
+}
+
 /* ---------- MAIN ---------- */
 
 async function main(){
@@ -185,14 +197,23 @@ try{
 
 console.log(`🔎 Reading feed: ${f.source}`)
 
-const res=await fetch(f.url)
+const res=await fetchFeed(f.url)
 
 if(!res.ok){
-console.log(`⚠️ Feed failed: ${f.source}`)
+
+console.log(`⚠️ Feed failed: ${f.source} | Status: ${res.status}`)
 continue
+
 }
 
 const xml=await res.text()
+
+if(!xml.includes("<rss") && !xml.includes("<feed")){
+
+console.log(`⚠️ Invalid RSS: ${f.source}`)
+continue
+
+}
 
 const feed=await parser.parseString(xml)
 
@@ -215,17 +236,11 @@ const slug=generateSlug(title,link)
 const job={
 
 title,
-
 slug,
-
 company:item.creator||item.author||f.source,
-
 location:item.location||"Worldwide",
-
 category,
-
 source:f.source,
-
 link,
 
 description:
