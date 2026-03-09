@@ -5,11 +5,6 @@
     "category": "govt"
   },
   {
-    "source": "GovtJobsAlert",
-    "url": "https://www.govtjobsalert.in/feed/",
-    "category": "govt"
-  },
-  {
     "source": "FreshersNow",
     "url": "https://www.freshersnow.com/feed/",
     "category": "govt"
@@ -25,34 +20,32 @@
     "url": "https://remoteok.com/remote-jobs.rss",
     "category": "wfh"
   },
+
   {
-    "source": "WeWorkRemotely",
-    "url": "https://weworkremotely.com/remote-jobs.rss",
+    "source": "WeWorkRemotely Programming",
+    "url": "https://weworkremotely.com/categories/remote-programming-jobs.rss",
     "category": "wfh"
   },
   {
-    "source": "Remotive",
-    "url": "https://remotive.com/feed",
+    "source": "WeWorkRemotely Design",
+    "url": "https://weworkremotely.com/categories/remote-design-jobs.rss",
     "category": "wfh"
   },
+  {
+    "source": "WeWorkRemotely Customer Support",
+    "url": "https://weworkremotely.com/categories/remote-customer-support-jobs.rss",
+    "category": "wfh"
+  },
+
   {
     "source": "Jobicy",
-    "url": "https://jobicy.com/jobs-rss-feed",
+    "url": "https://jobicy.com/?feed=job_feed",
     "category": "wfh"
   },
+
   {
-    "source": "Remote.co",
-    "url": "https://remote.co/remote-jobs/feed/",
-    "category": "wfh"
-  },
-  {
-    "source": "Working Nomads",
-    "url": "https://www.workingnomads.com/jobs/feed",
-    "category": "wfh"
-  },
-  {
-    "source": "PowerToFly",
-    "url": "https://powertofly.com/jobs/feed",
-    "category": "wfh"
+    "source": "Arbeitnow",
+    "url": "https://www.arbeitnow.com/jobs/rss",
+    "category": "international"
   }
 ]
