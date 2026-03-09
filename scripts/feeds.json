@@ -41,11 +41,5 @@
     "source": "Jobicy",
     "url": "https://jobicy.com/?feed=job_feed",
     "category": "wfh"
-  },
-
-  {
-    "source": "Arbeitnow",
-    "url": "https://www.arbeitnow.com/jobs/rss",
-    "category": "international"
   }
 ]
