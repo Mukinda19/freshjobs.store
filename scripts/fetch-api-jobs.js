@@ -12,27 +12,21 @@ const SEEN_FILE = path.join(DATA_DIR,"seen.json")
 const APPSCRIPT_POST_URL =
 "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
-const wait=(ms)=>new Promise(r=>setTimeout(r,ms))
-
-const hash=(s)=>
-crypto.createHash("sha256").update(s||"").digest("hex")
+const hash = (s) =>
+crypto.createHash("sha256").update(s || "").digest("hex")
 
 /* ---------------- STORAGE ---------------- */
 
 function loadSeen(){
-
 try{
 return JSON.parse(fs.readFileSync(SEEN_FILE,"utf8"))
 }catch{
-return{}
+return {}
 }
-
 }
 
 function saveSeen(data){
-
 fs.writeFileSync(SEEN_FILE,JSON.stringify(data,null,2))
-
 }
 
 /* ---------------- SLUG ---------------- */
@@ -69,14 +63,67 @@ return "work-from-home"
 
 }
 
-/* ---------------- REMOTIVE API ---------------- */
+/* ---------------- SAFE FETCH ---------------- */
+
+async function safeFetch(url){
+
+const controller = new AbortController()
+
+const timeout = setTimeout(()=>{
+controller.abort()
+},10000)
+
+try{
+
+const res = await fetch(url,{signal:controller.signal})
+clearTimeout(timeout)
+
+return res
+
+}catch(err){
+
+console.log(`⚠️ Fetch failed: ${url}`)
+return null
+
+}
+
+}
+
+/* ---------------- POST JOB ---------------- */
+
+async function postJob(payload){
+
+try{
+
+const res = await fetch(APPSCRIPT_POST_URL,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(payload)
+})
+
+return res.ok
+
+}catch{
+
+return false
+
+}
+
+}
+
+/* ---------------- REMOTIVE ---------------- */
 
 async function fetchRemotive(seen){
 
 console.log("🔎 Fetching Remotive API")
 
-const res=await fetch("https://remotive.com/api/remote-jobs")
-const data=await res.json()
+const res = await safeFetch("https://remotive.com/api/remote-jobs")
+
+if(!res) return
+
+const data = await res.json()
 
 let count=0
 
@@ -88,7 +135,6 @@ const id=hash(link)
 if(seen[id]) continue
 
 const title=job.title
-
 const category=detectCategory(title)
 
 const payload={
@@ -105,15 +151,9 @@ datePosted:job.publication_date
 
 }
 
-const post=await fetch(APPSCRIPT_POST_URL,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(payload)
-})
+const ok = await postJob(payload)
 
-if(post.ok){
+if(ok){
 
 seen[id]=true
 count++
@@ -122,22 +162,23 @@ console.log(`✅ ${title}`)
 
 }
 
-await wait(200)
-
 }
 
 console.log(`🎉 Remotive jobs: ${count}`)
 
 }
 
-/* ---------------- ARBEITNOW API ---------------- */
+/* ---------------- ARBEITNOW ---------------- */
 
 async function fetchArbeitnow(seen){
 
 console.log("🔎 Fetching Arbeitnow API")
 
-const res=await fetch("https://www.arbeitnow.com/api/job-board-api")
-const data=await res.json()
+const res = await safeFetch("https://www.arbeitnow.com/api/job-board-api")
+
+if(!res) return
+
+const data = await res.json()
 
 let count=0
 
@@ -149,7 +190,6 @@ const id=hash(link)
 if(seen[id]) continue
 
 const title=job.title
-
 const category=detectCategory(title)
 
 const payload={
@@ -166,15 +206,9 @@ datePosted:new Date().toISOString()
 
 }
 
-const post=await fetch(APPSCRIPT_POST_URL,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(payload)
-})
+const ok = await postJob(payload)
 
-if(post.ok){
+if(ok){
 
 seen[id]=true
 count++
@@ -182,8 +216,6 @@ count++
 console.log(`✅ ${title}`)
 
 }
-
-await wait(200)
 
 }
 
@@ -199,8 +231,10 @@ console.log("🚀 API job fetch started")
 
 const seen=loadSeen()
 
-await fetchRemotive(seen)
-await fetchArbeitnow(seen)
+await Promise.all([
+fetchRemotive(seen),
+fetchArbeitnow(seen)
+])
 
 saveSeen(seen)
 
