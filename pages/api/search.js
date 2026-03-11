@@ -3,276 +3,361 @@ let lastFetchTime = 0
 
 const CACHE_DURATION = 5 * 60 * 1000
 
-/* ---------------- SLUG ---------------- */
-
 import crypto from "crypto"
 
-const generateSlug = (title="",link="") => {
+/* ---------------- SLUG ---------------- */
 
-const base=(title||"job-opening")
-.toLowerCase()
-.replace(/<[^>]*>?/gm,"")
-.replace(/[^a-z0-9]+/g,"-")
-.replace(/(^-|-$)/g,"")
+const generateSlug = (title = "", link = "") => {
 
-const hash=crypto
-.createHash("md5")
-.update(link||title)
-.digest("hex")
-.slice(0,6)
+  const base = (title || "job-opening")
+    .toLowerCase()
+    .replace(/<[^>]*>?/gm, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
 
-return `${base}-${hash}`
+  const hash = crypto
+    .createHash("md5")
+    .update(link || title)
+    .digest("hex")
+    .slice(0, 6)
+
+  return `${base}-${hash}`
 
 }
 
-/* ---------------- TEXT ---------------- */
+/* ---------------- TEXT BUILDER ---------------- */
 
-const buildText=(job,fields)=>
-fields.map(f=>job[f]||"").join(" ").toLowerCase()
+const buildText = (job, fields) =>
+  fields.map(f => job[f] || "").join(" ").toLowerCase()
 
 /* ---------------- DEDUPE ---------------- */
 
-const dedupeJobs=(jobs)=>{
+const dedupeJobs = (jobs) => {
 
-const seen=new Set()
+  const seen = new Set()
 
-return jobs.filter(job=>{
+  return jobs.filter(job => {
 
-const key=`${job.title}-${job.link}`
+    const key = `${job.title}-${job.link}`
 
-if(seen.has(key)) return false
+    if (seen.has(key)) return false
 
-seen.add(key)
+    seen.add(key)
 
-return true
+    return true
 
-})
-
-}
-
-/* ---------------- GOVT ---------------- */
-
-const isGovtJob=(job)=>{
-
-const category=(job.category||"").toLowerCase()
-
-if(
-category==="govt"||
-category==="govt-jobs"||
-category==="government"
-) return true
-
-const text=buildText(job,["title","description","company"])
-
-const keywords=[
-"government","govt","sarkari",
-"railway","ssc","upsc","psu",
-"defence","army","navy","air force",
-"bank recruitment"
-]
-
-return keywords.some(k=>text.includes(k))
+  })
 
 }
 
-/* ---------------- WFH ---------------- */
+/* ---------------- CATEGORY CLASSIFIERS ---------------- */
 
-const isWFHJob=(job)=>{
+const containsKeyword = (text, keywords) =>
+  keywords.some(k => text.includes(k))
 
-const category=(job.category||"").toLowerCase()
+/* GOVT */
 
-if(
-category==="work-from-home"||
-category==="workfromhome"||
-category==="wfh"
-) return true
+const isGovtJob = (job) => {
 
-const text=buildText(job,["title","description"])
+  const text = buildText(job, ["title", "description", "company"])
 
-const keywords=[
-"remote","work from home","wfh",
-"home based","virtual assistant",
-"freelance"
-]
+  const keywords = [
+    "government","govt","sarkari",
+    "railway","ssc","upsc","psu",
+    "defence","army","navy","air force"
+  ]
 
-return keywords.some(k=>text.includes(k))
+  return containsKeyword(text, keywords)
 
 }
 
-/* ---------------- AI ---------------- */
+/* WFH */
 
-const isAIJob=(job)=>{
+const isWFHJob = (job) => {
 
-const text=buildText(job,["title","description"])
+  const text = buildText(job, ["title","description"])
 
-const keywords=[
-"artificial intelligence",
-"machine learning",
-"deep learning",
-"ai engineer",
-"ml engineer",
-"computer vision",
-"generative ai",
-"prompt engineer",
-"data scientist",
-"nlp engineer"
-]
+  const keywords = [
+    "work from home","remote","wfh",
+    "home based","virtual assistant",
+    "freelance","remote job"
+  ]
 
-return keywords.some(k=>text.includes(k))
+  return containsKeyword(text, keywords)
 
 }
 
-/* ---------------- INTERNATIONAL ---------------- */
+/* AI */
 
-const isInternational=(job)=>{
+const isAIJob = (job) => {
 
-const text=buildText(job,["title","description","location"])
+  const text = buildText(job, ["title","description"])
 
-const keywords=[
-"abroad","overseas","international",
-"uae","saudi","qatar","oman",
-"kuwait","canada","usa","uk",
-"australia","europe"
-]
+  const keywords = [
+    "artificial intelligence",
+    "machine learning",
+    "deep learning",
+    "ai engineer",
+    "ml engineer",
+    "generative ai",
+    "prompt engineer",
+    "data scientist"
+  ]
 
-return keywords.some(k=>text.includes(k))
+  return containsKeyword(text, keywords)
+
+}
+
+/* IT */
+
+const isITJob = (job) => {
+
+  const text = buildText(job, ["title","description"])
+
+  const keywords = [
+    "developer","software","programmer",
+    "frontend","backend","react",
+    "node","python","java",
+    "it support","web developer"
+  ]
+
+  return containsKeyword(text, keywords)
+
+}
+
+/* BANKING */
+
+const isBankingJob = (job) => {
+
+  const text = buildText(job, ["title","description"])
+
+  const keywords = [
+    "bank","banking","loan officer",
+    "relationship manager","credit officer",
+    "finance executive"
+  ]
+
+  return containsKeyword(text, keywords)
+
+}
+
+/* BPO */
+
+const isBPOJob = (job) => {
+
+  const text = buildText(job, ["title","description"])
+
+  const keywords = [
+    "bpo","call center","customer support",
+    "telecaller","voice process",
+    "customer service"
+  ]
+
+  return containsKeyword(text, keywords)
+
+}
+
+/* SALES */
+
+const isSalesJob = (job) => {
+
+  const text = buildText(job, ["title","description"])
+
+  const keywords = [
+    "sales","sales executive",
+    "business development",
+    "field sales","marketing executive"
+  ]
+
+  return containsKeyword(text, keywords)
+
+}
+
+/* ENGINEERING */
+
+const isEngineeringJob = (job) => {
+
+  const text = buildText(job, ["title","description"])
+
+  const keywords = [
+    "engineer","mechanical engineer",
+    "civil engineer","electrical engineer",
+    "site engineer"
+  ]
+
+  return containsKeyword(text, keywords)
+
+}
+
+/* INTERNATIONAL */
+
+const isInternational = (job) => {
+
+  const text = buildText(job, ["title","description","location"])
+
+  const keywords = [
+    "abroad","overseas","international",
+    "uae","saudi","qatar","oman",
+    "kuwait","canada","usa","uk"
+  ]
+
+  return containsKeyword(text, keywords)
 
 }
 
 /* ---------------- HANDLER ---------------- */
 
-export default async function handler(req,res){
+export default async function handler(req, res) {
 
-res.setHeader("Cache-Control","s-maxage=600, stale-while-revalidate")
+  res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate")
 
-try{
+  try {
 
-const SHEET_URL="https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
-const {category,q,slug}=req.query
+    const { category, q, slug, location } = req.query
 
-const page=Math.max(Number(req.query.page)||1,1)
-const limit=Math.min(Number(req.query.limit)||10,20)
+    const page = Math.max(Number(req.query.page) || 1, 1)
+    const limit = Math.min(Number(req.query.limit) || 10, 20)
 
-/* ---------- CACHE ---------- */
+    /* ---------- CACHE ---------- */
 
-if(!cachedJobs||Date.now()-lastFetchTime>CACHE_DURATION){
+    if (!cachedJobs || Date.now() - lastFetchTime > CACHE_DURATION) {
 
-const response=await fetch(`${SHEET_URL}?limit=1000`)
-const data=await response.json()
+      const response = await fetch(`${SHEET_URL}?limit=1000`)
+      const data = await response.json()
 
-let jobs=Array.isArray(data.jobs)?data.jobs:[]
+      let jobs = Array.isArray(data.jobs) ? data.jobs : []
 
-jobs=jobs.map(job=>({
+      jobs = jobs.map(job => ({
 
-...job,
+        ...job,
 
-slug:generateSlug(job.title,job.link),
+        slug: generateSlug(job.title, job.link),
 
-description:
-job.description||
-job.snippet||
-"Check job details and apply using the official link."
+        description:
+          job.description ||
+          job.snippet ||
+          "Check job details and apply using the official link."
 
-}))
+      }))
 
-cachedJobs=dedupeJobs(jobs)
+      cachedJobs = dedupeJobs(jobs)
 
-lastFetchTime=Date.now()
+      lastFetchTime = Date.now()
 
-}
+    }
 
-let jobs=[...cachedJobs]
+    let jobs = [...cachedJobs]
 
-/* ---------- JOB DETAIL ---------- */
+    /* ---------- JOB DETAIL ---------- */
 
-if(slug){
+    if (slug) {
 
-const job=jobs.find(j=>j.slug===slug)
+      const job = jobs.find(j => j.slug === slug)
 
-if(!job) return res.status(404).json({job:null})
+      if (!job) return res.status(404).json({ job: null })
 
-return res.status(200).json({job})
+      return res.status(200).json({ job })
 
-}
+    }
 
-/* ---------- CATEGORY ---------- */
+    /* ---------- CATEGORY ---------- */
 
-if(category&&category!=="all"){
+    if (category && category !== "all") {
 
-const cat=category.toLowerCase()
+      const cat = category.toLowerCase()
 
-if(cat==="govt-jobs") jobs=jobs.filter(isGovtJob)
+      if (cat === "govt-jobs") jobs = jobs.filter(isGovtJob)
 
-else if(cat==="work-from-home")
-jobs=jobs.filter(j=>isWFHJob(j)&&!isGovtJob(j))
+      else if (cat === "work-from-home")
+        jobs = jobs.filter(j => isWFHJob(j) && !isGovtJob(j))
 
-else if(cat==="ai")
-jobs=jobs.filter(j=>isAIJob(j)&&!isGovtJob(j))
+      else if (cat === "ai")
+        jobs = jobs.filter(j => isAIJob(j) && !isGovtJob(j))
 
-else if(cat==="international")
-jobs=jobs.filter(isInternational)
+      else if (cat === "it")
+        jobs = jobs.filter(isITJob)
 
-else
-jobs=jobs.filter(j=>
-(job.category||"").toLowerCase()===cat
-)
+      else if (cat === "banking")
+        jobs = jobs.filter(isBankingJob)
 
-}
+      else if (cat === "bpo")
+        jobs = jobs.filter(isBPOJob)
 
-/* ---------- SEARCH ---------- */
+      else if (cat === "sales")
+        jobs = jobs.filter(isSalesJob)
 
-if(q&&q.trim()){
+      else if (cat === "engineering")
+        jobs = jobs.filter(isEngineeringJob)
 
-const keyword=q.toLowerCase()
+      else if (cat === "international")
+        jobs = jobs.filter(isInternational)
 
-jobs=jobs.filter(job=>
-buildText(job,["title","description","company"])
-.includes(keyword)
-)
+    }
 
-}
+    /* ---------- LOCATION FILTER ---------- */
 
-/* ---------- SORT ---------- */
+    if (location && location !== "india") {
 
-jobs.sort((a,b)=>new Date(b.datePosted)-new Date(a.datePosted))
+      const loc = location.toLowerCase()
 
-/* ---------- PAGINATION ---------- */
+      jobs = jobs.filter(job =>
+        buildText(job, ["location","title","description"]).includes(loc)
+      )
 
-const start=(page-1)*limit
+    }
 
-const totalPages=Math.ceil(jobs.length/limit)
+    /* ---------- SEARCH ---------- */
 
-return res.status(200).json({
+    if (q && q.trim()) {
 
-jobs:jobs.slice(start,start+limit),
+      const keyword = q.toLowerCase()
 
-total:jobs.length,
+      jobs = jobs.filter(job =>
+        buildText(job, ["title","description","company"])
+        .includes(keyword)
+      )
 
-page,
+    }
 
-totalPages
+    /* ---------- SORT ---------- */
 
-})
+    jobs.sort((a, b) => new Date(b.datePosted) - new Date(a.datePosted))
 
-}
+    /* ---------- PAGINATION ---------- */
 
-catch(err){
+    const start = (page - 1) * limit
 
-console.error("API error:",err)
+    const totalPages = Math.ceil(jobs.length / limit)
 
-return res.status(500).json({
+    return res.status(200).json({
 
-jobs:[],
+      jobs: jobs.slice(start, start + limit),
 
-total:0,
+      total: jobs.length,
 
-page:1,
+      page,
 
-totalPages:1
+      totalPages
 
-})
+    })
 
-}
+  }
+
+  catch (err) {
+
+    console.error("API error:", err)
+
+    return res.status(500).json({
+
+      jobs: [],
+      total: 0,
+      page: 1,
+      totalPages: 1
+
+    })
+
+  }
 
 }

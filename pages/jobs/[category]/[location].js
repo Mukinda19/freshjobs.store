@@ -12,12 +12,15 @@ export default function CategoryLocationPage({
   location,
   currentPage,
 }) {
+
   const router = useRouter();
 
   const readableCategory = decodeURIComponent(String(category || "")).replace(/-/g, " ");
   const readableLocation = decodeURIComponent(String(location || "")).replace(/-/g, " ");
 
-  const isWFH = String(category || "").toLowerCase() === "work-from-home";
+  const normalizedCategory = String(category || "").toLowerCase();
+
+  const isWFH = normalizedCategory === "work-from-home";
 
   const baseUrl = "https://www.freshjobs.store";
 
@@ -95,6 +98,7 @@ export default function CategoryLocationPage({
       {/* ================= SEO ================= */}
 
       <Head>
+
         <title>{pageTitle}</title>
 
         <meta name="description" content={pageDescription} />
@@ -117,32 +121,41 @@ export default function CategoryLocationPage({
             __html: JSON.stringify(itemListSchema),
           }}
         />
+
       </Head>
 
       {/* ================= BREADCRUMB ================= */}
 
       <div className="text-sm mb-4 text-gray-600">
+
         <Link href="/">Home</Link> ›{" "}
+
         <Link href={`/jobs/${category}/india`}>
           {readableCategory}
         </Link>{" "}
+
         › <span className="font-medium">{readableLocation}</span>
+
       </div>
 
       {/* ================= TITLE ================= */}
 
       <h1 className="text-2xl md:text-3xl font-bold mb-4">
+
         {isWFH
           ? `Work From Home Jobs in ${readableLocation}`
           : `${readableCategory} Jobs in ${readableLocation}`}
+
       </h1>
 
       {/* ================= SEO TEXT ================= */}
 
       <p className="text-gray-600 mb-6">
-        Explore latest {readableCategory} job openings in {readableLocation}. 
-        Find verified job listings with official application links. 
+
+        Explore latest {readableCategory} job openings in {readableLocation}.
+        Find verified job listings with official application links.
         Updated daily with fresh opportunities across India.
+
       </p>
 
       {/* ================= JOB GRID ================= */}
@@ -160,6 +173,7 @@ export default function CategoryLocationPage({
       {/* ================= PAGINATION ================= */}
 
       {totalPages > 1 && (
+
         <div className="flex justify-center items-center gap-4 mt-10">
 
           {currentPage > 1 && (
@@ -185,7 +199,9 @@ export default function CategoryLocationPage({
           )}
 
         </div>
+
       )}
+
     </div>
   );
 }
@@ -193,17 +209,17 @@ export default function CategoryLocationPage({
 /* ================= STATIC GENERATION ================= */
 
 export async function getStaticPaths() {
+
   return {
     paths: [],
     fallback: "blocking",
   };
+
 }
 
-export async function getStaticProps({ params, query }) {
+export async function getStaticProps({ params }) {
 
   const { category, location } = params;
-
-  const currentPage = parseInt(query?.page || "1");
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -212,7 +228,7 @@ export async function getStaticProps({ params, query }) {
   try {
 
     const res = await fetch(
-      `${baseUrl}/api/search?category=${category}&page=${currentPage}&limit=10`
+      `${baseUrl}/api/search?category=${category}&location=${location}&page=1&limit=10`
     );
 
     const data = await res.json();
@@ -223,7 +239,7 @@ export async function getStaticProps({ params, query }) {
         totalPages: data.totalPages || 1,
         category,
         location,
-        currentPage,
+        currentPage: 1,
       },
       revalidate: 1800,
     };
@@ -238,10 +254,11 @@ export async function getStaticProps({ params, query }) {
         totalPages: 1,
         category,
         location,
-        currentPage,
+        currentPage: 1,
       },
       revalidate: 1800,
     };
 
   }
+
 }

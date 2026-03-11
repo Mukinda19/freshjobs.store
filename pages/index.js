@@ -17,20 +17,24 @@ export default function Home({ initialJobs }) {
 
   const [filteredJobs, setFilteredJobs] = useState(initialJobs || []);
 
-  /* -------- Search Handler -------- */
+  /* -------- SEARCH -------- */
 
   const handleSearch = (e) => {
+
     e.preventDefault();
 
     const finalCategory = category || "all";
     const finalLocation = location || "india";
 
-    router.push(
-      `/jobs/${finalCategory}/${finalLocation}?q=${encodeURIComponent(keyword)}`
-    );
+    const qParam = keyword
+      ? `?q=${encodeURIComponent(keyword)}`
+      : "";
+
+    router.push(`/jobs/${finalCategory}/${finalLocation}${qParam}`);
+
   };
 
-  /* -------- Filter Fetch -------- */
+  /* -------- FILTER FETCH -------- */
 
   useEffect(() => {
 
@@ -51,13 +55,25 @@ export default function Home({ initialJobs }) {
           `/api/search?page=1&limit=10${categoryParam}${qParam}`
         );
 
+        if (!res.ok) throw new Error("API error");
+
         const data = await res.json();
 
-        setFilteredJobs(data.jobs || []);
+        const uniqueJobs = Array.from(
+          new Map(
+            (data.jobs || []).map(job => [
+              job.slug || job.link,
+              job
+            ])
+          ).values()
+        );
+
+        setFilteredJobs(uniqueJobs);
         setPage(1);
 
-      } catch {
+      } catch (error) {
 
+        console.error("Search error:", error);
         setFilteredJobs([]);
 
       }
@@ -68,7 +84,7 @@ export default function Home({ initialJobs }) {
 
   }, [category, keyword]);
 
-  /* -------- Load More -------- */
+  /* -------- LOAD MORE -------- */
 
   const loadMore = async () => {
 
@@ -91,11 +107,29 @@ export default function Home({ initialJobs }) {
         `/api/search?page=${nextPage}&limit=10${categoryParam}${qParam}`
       );
 
+      if (!res.ok) throw new Error("API error");
+
       const data = await res.json();
 
-      setFilteredJobs((prev) => [...prev, ...(data.jobs || [])]);
+      const newJobs = data.jobs || [];
 
+      const combined = [...filteredJobs, ...newJobs];
+
+      const uniqueJobs = Array.from(
+        new Map(
+          combined.map(job => [
+            job.slug || job.link,
+            job
+          ])
+        ).values()
+      );
+
+      setFilteredJobs(uniqueJobs);
       setPage(nextPage);
+
+    } catch (error) {
+
+      console.error("Load more error:", error);
 
     } finally {
 
@@ -115,51 +149,66 @@ export default function Home({ initialJobs }) {
 
         <meta
           name="description"
-          content="Find the latest jobs in India including IT jobs, banking jobs, BPO jobs, engineering jobs, government jobs and work from home jobs."
+          content="Find latest jobs in India including IT jobs, banking jobs, BPO jobs, engineering jobs, government jobs and work from home jobs."
         />
 
         <meta name="robots" content="index, follow" />
 
         <link rel="canonical" href="https://www.freshjobs.store/" />
 
+        {/* Open Graph */}
+
         <meta property="og:title" content="Latest Jobs in India | FreshJobs" />
-        <meta property="og:description" content="Explore thousands of latest job openings across IT, banking, BPO, engineering and government sectors." />
+
+        <meta
+          property="og:description"
+          content="Explore thousands of latest job openings across IT, banking, BPO, engineering and government sectors."
+        />
+
         <meta property="og:url" content="https://www.freshjobs.store/" />
+
         <meta property="og:type" content="website" />
+
         <meta property="og:site_name" content="FreshJobs" />
 
         <meta name="twitter:card" content="summary_large_image" />
 
       </Head>
 
-      {/* -------- HERO -------- */}
+      {/* HERO */}
 
-      <section className="text-center my-8">
+      <section className="text-center my-10">
 
         <h1 className="text-3xl md:text-4xl font-bold mb-3">
+
           Find Latest Jobs in India
+
         </h1>
 
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Discover the newest job openings across IT, banking, BPO, engineering,
-          government and work from home categories.
+
+          Discover the newest job openings across IT, banking, BPO,
+          engineering, government and work from home categories.
+
         </p>
 
       </section>
 
-      {/* -------- Categories -------- */}
+      {/* CATEGORY GRID */}
 
       <section className="my-10">
 
-        <h2 className="text-xl font-semibold mb-5 text-center">
+        <h2 className="text-xl font-semibold mb-6 text-center">
+
           Popular Job Categories
+
         </h2>
 
         <CategoryGrid />
 
       </section>
 
-      {/* -------- Search -------- */}
+      {/* SEARCH */}
 
       <section className="my-10">
 
@@ -210,26 +259,30 @@ export default function Home({ initialJobs }) {
           </select>
 
           <button className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 transition">
+
             Search Jobs
+
           </button>
 
         </form>
 
       </section>
 
-      {/* -------- Latest Jobs -------- */}
+      {/* JOB LIST */}
 
       <section className="my-12">
 
         <h2 className="text-2xl font-semibold mb-6">
+
           Latest Job Openings
+
         </h2>
 
         <div className="grid md:grid-cols-2 gap-4">
 
           {filteredJobs.length > 0 ? (
 
-            filteredJobs.map((job) => (
+            filteredJobs.map(job => (
 
               <JobCard key={job.slug || job.link} job={job} />
 
@@ -269,7 +322,7 @@ export default function Home({ initialJobs }) {
 
 }
 
-/* -------- Static Props -------- */
+/* -------- STATIC PROPS -------- */
 
 export async function getStaticProps() {
 
@@ -281,6 +334,8 @@ export async function getStaticProps() {
 
     const res = await fetch(`${baseUrl}/api/search?page=1&limit=10`);
 
+    if (!res.ok) throw new Error("API error");
+
     const data = await res.json();
 
     return {
@@ -289,7 +344,7 @@ export async function getStaticProps() {
         initialJobs: data.jobs || [],
       },
 
-      revalidate: 3600,
+      revalidate: 1800
 
     };
 
@@ -301,7 +356,7 @@ export async function getStaticProps() {
         initialJobs: [],
       },
 
-      revalidate: 3600,
+      revalidate: 600
 
     };
 
