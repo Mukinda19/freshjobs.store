@@ -17,9 +17,9 @@ const generateSlug = (title = "", link = "") => {
 
   const hash = crypto
     .createHash("md5")
-    .update(link || title)
+    .update(link || "")
     .digest("hex")
-    .slice(0, 6)
+    .slice(0, 8)
 
   return `${base}-${hash}`
 
@@ -57,9 +57,9 @@ const containsKeyword = (text, keywords) =>
 
 /* ---------------- CATEGORY CLASSIFIERS ---------------- */
 
-const isGovtJob = (job) => {
+const isGovtJob = job => {
 
-  const text = buildText(job, ["title","description","company"])
+  const text = buildText(job,["title","description","company"])
 
   const keywords = [
     "government","govt","sarkari",
@@ -67,27 +67,27 @@ const isGovtJob = (job) => {
     "defence","army","navy","air force"
   ]
 
-  return containsKeyword(text, keywords)
+  return containsKeyword(text,keywords)
 
 }
 
-const isWFHJob = (job) => {
+const isWFHJob = job => {
 
-  const text = buildText(job, ["title","description","location"])
+  const text = buildText(job,["title","description","location"])
 
   const keywords = [
     "work from home","remote","wfh",
     "home based","freelance",
-    "virtual assistant","remote job"
+    "virtual assistant"
   ]
 
-  return containsKeyword(text, keywords)
+  return containsKeyword(text,keywords)
 
 }
 
-const isAIJob = (job) => {
+const isAIJob = job => {
 
-  const text = buildText(job, ["title","description"])
+  const text = buildText(job,["title","description"])
 
   const keywords = [
     "artificial intelligence",
@@ -101,135 +101,148 @@ const isAIJob = (job) => {
     "nlp engineer"
   ]
 
-  return containsKeyword(text, keywords)
+  return containsKeyword(text,keywords)
 
 }
 
-const isITJob = (job) => {
+const isITJob = job => {
 
-  const text = buildText(job, ["title","description"])
+  const text = buildText(job,["title","description"])
 
   const keywords = [
     "developer","software","programmer",
     "frontend","backend","react",
     "node","python","java",
-    "it support","web developer"
+    "web developer"
   ]
 
-  return containsKeyword(text, keywords)
+  return containsKeyword(text,keywords)
 
 }
 
-const isBankingJob = (job) => {
+const isBankingJob = job => {
 
-  const text = buildText(job, ["title","description"])
+  const text = buildText(job,["title","description"])
 
   const keywords = [
-    "bank","banking","loan officer",
-    "relationship manager","credit officer",
-    "finance executive"
+    "bank","banking",
+    "loan officer",
+    "relationship manager",
+    "credit officer"
   ]
 
-  return containsKeyword(text, keywords)
+  return containsKeyword(text,keywords)
 
 }
 
-const isBPOJob = (job) => {
+const isBPOJob = job => {
 
-  const text = buildText(job, ["title","description"])
+  const text = buildText(job,["title","description"])
 
   const keywords = [
-    "bpo","call center","customer support",
-    "telecaller","voice process",
-    "customer service"
+    "bpo","call center",
+    "customer support",
+    "telecaller",
+    "voice process"
   ]
 
-  return containsKeyword(text, keywords)
+  return containsKeyword(text,keywords)
 
 }
 
-const isSalesJob = (job) => {
+const isSalesJob = job => {
 
-  const text = buildText(job, ["title","description"])
+  const text = buildText(job,["title","description"])
 
   const keywords = [
     "sales","sales executive",
     "business development",
-    "field sales","marketing executive"
+    "field sales",
+    "marketing executive"
   ]
 
-  return containsKeyword(text, keywords)
+  return containsKeyword(text,keywords)
 
 }
 
-const isEngineeringJob = (job) => {
+const isEngineeringJob = job => {
 
-  const text = buildText(job, ["title","description"])
+  const text = buildText(job,["title","description"])
 
   const keywords = [
-    "engineer","mechanical engineer",
-    "civil engineer","electrical engineer",
+    "engineer",
+    "mechanical engineer",
+    "civil engineer",
+    "electrical engineer",
     "site engineer"
   ]
 
-  return containsKeyword(text, keywords)
+  return containsKeyword(text,keywords)
 
 }
 
-const isInternational = (job) => {
+const isInternational = job => {
 
-  const text = buildText(job, ["title","description","location"])
+  const text = buildText(job,["title","description","location"])
 
   const keywords = [
     "abroad","overseas","international",
-    "uae","saudi","qatar","oman",
-    "kuwait","canada","usa","uk"
+    "uae","saudi","qatar",
+    "oman","kuwait",
+    "canada","usa","uk"
   ]
 
-  return containsKeyword(text, keywords)
+  return containsKeyword(text,keywords)
 
 }
 
 /* ---------------- HANDLER ---------------- */
 
-export default async function handler(req, res) {
+export default async function handler(req,res){
 
-  res.setHeader("Cache-Control","s-maxage=600, stale-while-revalidate")
+  res.setHeader(
+    "Cache-Control",
+    "s-maxage=600, stale-while-revalidate"
+  )
 
-  try {
+  try{
 
     const SHEET_URL =
-      "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
+      "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVq_R_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
-    const { category, q, slug, location } = req.query
+    const { category,q,slug,location } = req.query
 
-    const page = Math.max(Number(req.query.page) || 1, 1)
-    const limit = Math.min(Number(req.query.limit) || 10, 20)
+    const page = Math.max(Number(req.query.page)||1,1)
+    const limit = Math.min(Number(req.query.limit)||10,20)
 
     /* ---------- CACHE ---------- */
 
-    if (!cachedJobs || Date.now() - lastFetchTime > CACHE_DURATION) {
+    if(!cachedJobs || Date.now()-lastFetchTime > CACHE_DURATION){
 
-      const response = await fetch(`${SHEET_URL}?limit=1000`)
+      const response = await fetch(`${SHEET_URL}?limit=800`)
       const data = await response.json()
 
       let jobs = Array.isArray(data.jobs) ? data.jobs : []
 
-      jobs = jobs.map(job => ({
+      jobs = jobs.map(job=>({
 
         ...job,
 
-        slug: generateSlug(job.title, job.link),
+        slug:generateSlug(job.title,job.link),
 
         description:
           job.description ||
           job.snippet ||
-          "Click to view job details and apply using official link.",
+          "Click to view full job details and apply using official link.",
 
         datePosted:
           job.datePosted ||
           job.pubDate ||
-          new Date().toISOString()
+          new Date().toISOString(),
+
+        validThrough:new Date(
+          Date.now()+30*24*60*60*1000
+        ).toISOString()
 
       }))
 
@@ -239,61 +252,62 @@ export default async function handler(req, res) {
 
     }
 
-    let jobs = [...cachedJobs]
+    let jobs=[...cachedJobs]
 
     /* ---------- JOB DETAIL ---------- */
 
-    if (slug) {
+    if(slug){
 
-      const job = jobs.find(j => j.slug === slug)
+      const job=jobs.find(j=>j.slug===slug)
 
-      if (!job) return res.status(404).json({ job: null })
+      if(!job) return res.status(404).json({job:null})
 
-      return res.status(200).json({ job })
+      return res.status(200).json({job})
 
     }
 
     /* ---------- CATEGORY FILTER ---------- */
 
-    if (category && category !== "all") {
+    if(category && category!=="all"){
 
-      const cat = category.toLowerCase()
+      const cat=category.toLowerCase()
 
-      if (cat === "govt-jobs") jobs = jobs.filter(isGovtJob)
+      if(cat==="govt-jobs")
+        jobs=jobs.filter(isGovtJob)
 
-      else if (cat === "work-from-home")
-        jobs = jobs.filter(j => isWFHJob(j) && !isGovtJob(j))
+      else if(cat==="work-from-home")
+        jobs=jobs.filter(j=>isWFHJob(j) && !isGovtJob(j))
 
-      else if (cat === "ai")
-        jobs = jobs.filter(j => isAIJob(j) && !isGovtJob(j))
+      else if(cat==="ai")
+        jobs=jobs.filter(j=>isAIJob(j) && !isGovtJob(j))
 
-      else if (cat === "it")
-        jobs = jobs.filter(isITJob)
+      else if(cat==="it")
+        jobs=jobs.filter(isITJob)
 
-      else if (cat === "banking")
-        jobs = jobs.filter(isBankingJob)
+      else if(cat==="banking")
+        jobs=jobs.filter(isBankingJob)
 
-      else if (cat === "bpo")
-        jobs = jobs.filter(isBPOJob)
+      else if(cat==="bpo")
+        jobs=jobs.filter(isBPOJob)
 
-      else if (cat === "sales")
-        jobs = jobs.filter(isSalesJob)
+      else if(cat==="sales")
+        jobs=jobs.filter(isSalesJob)
 
-      else if (cat === "engineering")
-        jobs = jobs.filter(isEngineeringJob)
+      else if(cat==="engineering")
+        jobs=jobs.filter(isEngineeringJob)
 
-      else if (cat === "international")
-        jobs = jobs.filter(isInternational)
+      else if(cat==="international")
+        jobs=jobs.filter(isInternational)
 
     }
 
     /* ---------- LOCATION FILTER ---------- */
 
-    if (location && location !== "india") {
+    if(location && location!=="india"){
 
-      const loc = location.toLowerCase()
+      const loc=location.toLowerCase()
 
-      jobs = jobs.filter(job =>
+      jobs=jobs.filter(job =>
         buildText(job,["location","title","description"]).includes(loc)
       )
 
@@ -301,11 +315,11 @@ export default async function handler(req, res) {
 
     /* ---------- SEARCH ---------- */
 
-    if (q && q.trim()) {
+    if(q && q.trim()){
 
-      const keyword = q.toLowerCase()
+      const keyword=q.toLowerCase()
 
-      jobs = jobs.filter(job =>
+      jobs=jobs.filter(job =>
         buildText(job,["title","description","company"]).includes(keyword)
       )
 
@@ -313,19 +327,21 @@ export default async function handler(req, res) {
 
     /* ---------- SORT ---------- */
 
-    jobs.sort((a,b)=> new Date(b.datePosted) - new Date(a.datePosted))
+    jobs.sort(
+      (a,b)=>new Date(b.datePosted)-new Date(a.datePosted)
+    )
 
     /* ---------- PAGINATION ---------- */
 
-    const start = (page - 1) * limit
+    const start=(page-1)*limit
 
-    const totalPages = Math.ceil(jobs.length / limit)
+    const totalPages=Math.ceil(jobs.length/limit)
 
     return res.status(200).json({
 
-      jobs: jobs.slice(start, start + limit),
+      jobs:jobs.slice(start,start+limit),
 
-      total: jobs.length,
+      total:jobs.length,
       page,
       totalPages
 
@@ -333,16 +349,16 @@ export default async function handler(req, res) {
 
   }
 
-  catch (err) {
+  catch(err){
 
-    console.error("API error:", err)
+    console.error("API error:",err)
 
     return res.status(500).json({
 
-      jobs: [],
-      total: 0,
-      page: 1,
-      totalPages: 1
+      jobs:[],
+      total:0,
+      page:1,
+      totalPages:1
 
     })
 

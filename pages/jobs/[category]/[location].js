@@ -48,7 +48,12 @@ export default function CategoryLocationPage({
       : null;
 
   const goToPage = (page) => {
-    router.push(`/jobs/${category}/${location}?page=${page}`);
+
+    router.push({
+      pathname: `/jobs/${category}/${location}`,
+      query: { page },
+    });
+
   };
 
   const breadcrumbSchema = {

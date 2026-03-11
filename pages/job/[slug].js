@@ -1,7 +1,7 @@
 import Head from "next/head"
 import Link from "next/link"
 
-/* ---------------- Helper ---------------- */
+/* ---------------- Helper Functions ---------------- */
 
 const normalizeSlug = (text = "") =>
   String(text)
@@ -11,11 +11,11 @@ const normalizeSlug = (text = "") =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
 
-const cleanNumber = (value = "") =>
-  String(value).replace(/[^\d]/g, "")
-
 const stripHtml = (text = "") =>
   String(text).replace(/<[^>]*>?/gm, "")
+
+const extractSalaryNumber = (value = "") =>
+  String(value).replace(/[^\d]/g, "")
 
 /* ---------------- Page ---------------- */
 
@@ -49,6 +49,8 @@ export default function JobDetailPage({ job, siteUrl }) {
     )
   }
 
+  /* ---------------- Basic Data ---------------- */
+
   const title = job.title || "Latest Job Opening"
   const company = job.company || "Company"
   const location = job.location || "India"
@@ -56,19 +58,17 @@ export default function JobDetailPage({ job, siteUrl }) {
 
   const description = stripHtml(
     job.description ||
-    `Apply for ${title} at ${company}. Check eligibility, salary details and official application process.`
-  ).slice(0,800)
+      `Apply for ${title} job at ${company}. Check eligibility, salary details and official application process.`
+  ).slice(0, 500)
 
   const canonicalSlug =
-    job.slug ||
-    normalizeSlug(`${job.title || ""} ${job.company || ""}`)
+    job.slug || normalizeSlug(`${job.title} ${job.company}`)
 
   const canonicalUrl = `${siteUrl}/job/${canonicalSlug}`
 
   const categorySlug = normalizeSlug(job.category || "jobs")
 
-  const applyLink =
-    job.link || job.applyLink || ""
+  const applyLink = job.link || job.applyLink || ""
 
   const lowerLocation = location.toLowerCase()
 
@@ -79,9 +79,9 @@ export default function JobDetailPage({ job, siteUrl }) {
 
   const isInternational =
     lowerLocation.includes("usa") ||
+    lowerLocation.includes("uk") ||
     lowerLocation.includes("uae") ||
     lowerLocation.includes("canada") ||
-    lowerLocation.includes("uk") ||
     lowerLocation.includes("australia")
 
   const countryCode = isInternational ? "US" : "IN"
@@ -89,6 +89,8 @@ export default function JobDetailPage({ job, siteUrl }) {
 
   const employmentType =
     job.employmentType?.toUpperCase() || "FULL_TIME"
+
+  const salaryNumber = extractSalaryNumber(salary)
 
   /* ---------------- Breadcrumb Schema ---------------- */
 
@@ -156,18 +158,17 @@ export default function JobDetailPage({ job, siteUrl }) {
 
     directApply: true,
 
-    ...(salary &&
-      cleanNumber(salary) && {
-        baseSalary: {
-          "@type": "MonetaryAmount",
-          currency: currency,
-          value: {
-            "@type": "QuantitativeValue",
-            value: cleanNumber(salary),
-            unitText: "MONTH",
-          },
+    ...(salaryNumber && {
+      baseSalary: {
+        "@type": "MonetaryAmount",
+        currency: currency,
+        value: {
+          "@type": "QuantitativeValue",
+          value: salaryNumber,
+          unitText: "MONTH",
         },
-      }),
+      },
+    }),
 
     datePosted:
       job.datePosted && !isNaN(new Date(job.datePosted))
@@ -181,8 +182,9 @@ export default function JobDetailPage({ job, siteUrl }) {
       ).toISOString(),
   }
 
-  return (
+  /* ---------------- Page UI ---------------- */
 
+  return (
     <div className="max-w-4xl mx-auto p-4">
 
       <Head>
@@ -198,12 +200,18 @@ export default function JobDetailPage({ job, siteUrl }) {
 
         <link rel="canonical" href={canonicalUrl} />
 
+        {/* Open Graph */}
+
         <meta property="og:title" content={`${title} at ${company}`} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="article" />
 
+        {/* Twitter */}
+
         <meta name="twitter:card" content="summary_large_image" />
+
+        {/* Schema */}
 
         <script
           type="application/ld+json"
@@ -241,19 +249,27 @@ export default function JobDetailPage({ job, siteUrl }) {
 
       </div>
 
+      {/* Title */}
+
       <h1 className="text-2xl md:text-3xl font-bold mb-2">
         {title}
       </h1>
 
+      {/* Company */}
+
       <p className="text-gray-700 mb-3">
         {company} • {location}
       </p>
+
+      {/* Salary */}
 
       {salary && (
         <p className="text-green-700 font-semibold mb-4">
           💰 Salary: {salary}
         </p>
       )}
+
+      {/* Description */}
 
       <div className="bg-white border rounded-lg p-5 mb-6">
 
@@ -267,6 +283,8 @@ export default function JobDetailPage({ job, siteUrl }) {
 
       </div>
 
+      {/* Apply Button */}
+
       {applyLink && (
 
         <a
@@ -279,6 +297,8 @@ export default function JobDetailPage({ job, siteUrl }) {
         </a>
 
       )}
+
+      {/* Internal Links */}
 
       <div className="mt-12 border-t pt-6">
 

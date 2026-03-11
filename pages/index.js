@@ -1,145 +1,193 @@
-import { useState, useEffect } from "react";
-import Head from "next/head";
-import { useRouter } from "next/router";
-import CategoryGrid from "../components/CategoryGrid";
-import JobCard from "../components/JobCard";
+import { useState, useEffect } from "react"
+import Head from "next/head"
+import { useRouter } from "next/router"
+import CategoryGrid from "../components/CategoryGrid"
+import JobCard from "../components/JobCard"
 
 export default function Home({ initialJobs }) {
 
-  const router = useRouter();
+  const router = useRouter()
 
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [page,setPage] = useState(1)
+  const [loading,setLoading] = useState(false)
 
-  const [keyword, setKeyword] = useState("");
-  const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("");
+  const [keyword,setKeyword] = useState("")
+  const [category,setCategory] = useState("")
+  const [location,setLocation] = useState("")
 
-  const [filteredJobs, setFilteredJobs] = useState(initialJobs || []);
+  const [filteredJobs,setFilteredJobs] = useState(initialJobs || [])
 
   /* -------- SEARCH -------- */
 
   const handleSearch = (e) => {
 
-    e.preventDefault();
+    e.preventDefault()
 
-    const finalCategory = category || "all";
-    const finalLocation = location || "india";
+    const finalCategory = category || "all"
+    const finalLocation = location || "india"
 
     const qParam = keyword
       ? `?q=${encodeURIComponent(keyword)}`
-      : "";
+      : ""
 
-    router.push(`/jobs/${finalCategory}/${finalLocation}${qParam}`);
+    router.push(`/jobs/${finalCategory}/${finalLocation}${qParam}`)
 
-  };
+  }
+
+  /* -------- DEDUPE -------- */
+
+  const dedupeJobs = (jobs) => {
+
+    return Array.from(
+      new Map(
+        jobs.map(job => [
+          job.slug || job.link,
+          job
+        ])
+      ).values()
+    )
+
+  }
 
   /* -------- FILTER FETCH -------- */
 
-  useEffect(() => {
+  useEffect(()=>{
 
-    if (!category && !keyword) return;
+    if(!category && !keyword) return
 
-    const fetchFilteredJobs = async () => {
+    const controller = new AbortController()
 
-      try {
+    const fetchFilteredJobs = async ()=>{
 
-        const qParam = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
+      try{
+
+        const qParam = keyword
+          ? `&q=${encodeURIComponent(keyword)}`
+          : ""
 
         const categoryParam =
-          category && category !== "all"
+          category && category!=="all"
             ? `&category=${encodeURIComponent(category)}`
-            : "";
+            : ""
 
         const res = await fetch(
-          `/api/search?page=1&limit=10${categoryParam}${qParam}`
-        );
+          `/api/search?page=1&limit=10${categoryParam}${qParam}`,
+          { signal: controller.signal }
+        )
 
-        if (!res.ok) throw new Error("API error");
+        if(!res.ok) throw new Error("API error")
 
-        const data = await res.json();
+        const data = await res.json()
 
-        const uniqueJobs = Array.from(
-          new Map(
-            (data.jobs || []).map(job => [
-              job.slug || job.link,
-              job
-            ])
-          ).values()
-        );
+        setFilteredJobs(
+          dedupeJobs(data.jobs || [])
+        )
 
-        setFilteredJobs(uniqueJobs);
-        setPage(1);
-
-      } catch (error) {
-
-        console.error("Search error:", error);
-        setFilteredJobs([]);
+        setPage(1)
 
       }
 
-    };
+      catch(err){
 
-    fetchFilteredJobs();
+        if(err.name !== "AbortError"){
 
-  }, [category, keyword]);
+          console.error("Search error:",err)
 
-  /* -------- LOAD MORE -------- */
+          setFilteredJobs([])
 
-  const loadMore = async () => {
+        }
 
-    if (loading) return;
-
-    setLoading(true);
-
-    const nextPage = page + 1;
-
-    try {
-
-      const qParam = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
-
-      const categoryParam =
-        category && category !== "all"
-          ? `&category=${encodeURIComponent(category)}`
-          : "";
-
-      const res = await fetch(
-        `/api/search?page=${nextPage}&limit=10${categoryParam}${qParam}`
-      );
-
-      if (!res.ok) throw new Error("API error");
-
-      const data = await res.json();
-
-      const newJobs = data.jobs || [];
-
-      const combined = [...filteredJobs, ...newJobs];
-
-      const uniqueJobs = Array.from(
-        new Map(
-          combined.map(job => [
-            job.slug || job.link,
-            job
-          ])
-        ).values()
-      );
-
-      setFilteredJobs(uniqueJobs);
-      setPage(nextPage);
-
-    } catch (error) {
-
-      console.error("Load more error:", error);
-
-    } finally {
-
-      setLoading(false);
+      }
 
     }
 
-  };
+    fetchFilteredJobs()
 
-  return (
+    return ()=>controller.abort()
+
+  },[category,keyword])
+
+  /* -------- LOAD MORE -------- */
+
+  const loadMore = async ()=>{
+
+    if(loading) return
+
+    setLoading(true)
+
+    const nextPage = page + 1
+
+    try{
+
+      const qParam = keyword
+        ? `&q=${encodeURIComponent(keyword)}`
+        : ""
+
+      const categoryParam =
+        category && category!=="all"
+          ? `&category=${encodeURIComponent(category)}`
+          : ""
+
+      const res = await fetch(
+        `/api/search?page=${nextPage}&limit=10${categoryParam}${qParam}`
+      )
+
+      if(!res.ok) throw new Error("API error")
+
+      const data = await res.json()
+
+      const combined = [
+        ...filteredJobs,
+        ...(data.jobs || [])
+      ]
+
+      setFilteredJobs(
+        dedupeJobs(combined)
+      )
+
+      setPage(nextPage)
+
+    }
+
+    catch(err){
+
+      console.error("Load more error:",err)
+
+    }
+
+    finally{
+
+      setLoading(false)
+
+    }
+
+  }
+
+  /* -------- STRUCTURED DATA -------- */
+
+  const structuredData = {
+
+    "@context":"https://schema.org",
+
+    "@type":"WebSite",
+
+    "name":"FreshJobs",
+
+    "url":"https://www.freshjobs.store",
+
+    "potentialAction":{
+
+      "@type":"SearchAction",
+
+      "target":"https://www.freshjobs.store/jobs/all/india?q={search_term_string}",
+
+      "query-input":"required name=search_term_string"
+
+    }
+
+  }
+
+  return(
 
     <>
 
@@ -152,26 +200,44 @@ export default function Home({ initialJobs }) {
           content="Find latest jobs in India including IT jobs, banking jobs, BPO jobs, engineering jobs, government jobs and work from home jobs."
         />
 
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="index,follow"/>
 
-        <link rel="canonical" href="https://www.freshjobs.store/" />
+        <link
+          rel="canonical"
+          href="https://www.freshjobs.store/"
+        />
 
         {/* Open Graph */}
 
-        <meta property="og:title" content="Latest Jobs in India | FreshJobs" />
+        <meta
+          property="og:title"
+          content="Latest Jobs in India | FreshJobs"
+        />
 
         <meta
           property="og:description"
           content="Explore thousands of latest job openings across IT, banking, BPO, engineering and government sectors."
         />
 
-        <meta property="og:url" content="https://www.freshjobs.store/" />
+        <meta
+          property="og:url"
+          content="https://www.freshjobs.store/"
+        />
 
-        <meta property="og:type" content="website" />
+        <meta property="og:type" content="website"/>
 
-        <meta property="og:site_name" content="FreshJobs" />
+        <meta property="og:site_name" content="FreshJobs"/>
 
-        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:card" content="summary_large_image"/>
+
+        {/* Schema */}
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html:JSON.stringify(structuredData)
+          }}
+        />
 
       </Head>
 
@@ -187,8 +253,8 @@ export default function Home({ initialJobs }) {
 
         <p className="text-gray-600 max-w-2xl mx-auto">
 
-          Discover the newest job openings across IT, banking, BPO,
-          engineering, government and work from home categories.
+          Discover the newest job openings across IT, banking,
+          BPO, engineering, government and work from home categories.
 
         </p>
 
@@ -204,7 +270,7 @@ export default function Home({ initialJobs }) {
 
         </h2>
 
-        <CategoryGrid />
+        <CategoryGrid/>
 
       </section>
 
@@ -221,13 +287,13 @@ export default function Home({ initialJobs }) {
             type="text"
             placeholder="Job title, skills or company"
             value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            onChange={e=>setKeyword(e.target.value)}
             className="border px-3 py-2 rounded w-full"
           />
 
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={e=>setCategory(e.target.value)}
             className="border px-3 py-2 rounded w-full"
           >
 
@@ -245,7 +311,7 @@ export default function Home({ initialJobs }) {
 
           <select
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            onChange={e=>setLocation(e.target.value)}
             className="border px-3 py-2 rounded w-full"
           >
 
@@ -282,15 +348,20 @@ export default function Home({ initialJobs }) {
 
           {filteredJobs.length > 0 ? (
 
-            filteredJobs.map(job => (
-
-              <JobCard key={job.slug || job.link} job={job} />
-
+            filteredJobs.map(job=>(
+              <JobCard
+                key={job.slug || job.link}
+                job={job}
+              />
             ))
 
           ) : (
 
-            <p className="text-gray-500">No jobs found.</p>
+            <p className="text-gray-500">
+
+              No jobs found.
+
+            </p>
 
           )}
 
@@ -318,47 +389,51 @@ export default function Home({ initialJobs }) {
 
     </>
 
-  );
+  )
 
 }
 
 /* -------- STATIC PROPS -------- */
 
-export async function getStaticProps() {
+export async function getStaticProps(){
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://www.freshjobs.store";
+    "https://www.freshjobs.store"
 
-  try {
+  try{
 
-    const res = await fetch(`${baseUrl}/api/search?page=1&limit=10`);
+    const res = await fetch(
+      `${baseUrl}/api/search?page=1&limit=10`
+    )
 
-    if (!res.ok) throw new Error("API error");
+    if(!res.ok) throw new Error("API error")
 
-    const data = await res.json();
+    const data = await res.json()
 
-    return {
+    return{
 
-      props: {
-        initialJobs: data.jobs || [],
+      props:{
+        initialJobs:data.jobs || []
       },
 
-      revalidate: 1800
+      revalidate:1800
 
-    };
+    }
 
-  } catch {
+  }
 
-    return {
+  catch{
 
-      props: {
-        initialJobs: [],
+    return{
+
+      props:{
+        initialJobs:[]
       },
 
-      revalidate: 600
+      revalidate:600
 
-    };
+    }
 
   }
 
