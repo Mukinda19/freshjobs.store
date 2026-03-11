@@ -203,11 +203,13 @@ export async function getStaticPaths() {
 
 }
 
-export async function getStaticProps({ params, previewData }) {
+export async function getStaticProps(context) {
+
+  const { params, query } = context;
 
   const { category, location } = params;
 
-  const page = previewData?.page || 1;
+  const page = Number(query?.page) || 1;
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
