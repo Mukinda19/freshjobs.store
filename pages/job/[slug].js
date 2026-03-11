@@ -31,11 +31,11 @@ export default function JobDetailPage({ job, siteUrl }) {
         </Head>
 
         <h1 className="text-2xl font-bold mb-4">
-          This Job Has Expired
+          This Job Is No Longer Available
         </h1>
 
         <p className="mb-6">
-          This job listing is no longer available.
+          This job listing may have expired or been removed by the employer.
         </p>
 
         <Link
@@ -56,7 +56,7 @@ export default function JobDetailPage({ job, siteUrl }) {
 
   const description = stripHtml(
     job.description ||
-      `Apply for ${title} at ${company}. Check eligibility, salary details and official application process.`
+    `Apply for ${title} at ${company}. Check eligibility, salary details and official application process.`
   ).slice(0,800)
 
   const canonicalSlug =

@@ -50,16 +50,16 @@ const dedupeJobs = (jobs) => {
 
 }
 
-/* ---------------- CATEGORY CLASSIFIERS ---------------- */
+/* ---------------- KEYWORD CHECK ---------------- */
 
 const containsKeyword = (text, keywords) =>
   keywords.some(k => text.includes(k))
 
-/* GOVT */
+/* ---------------- CATEGORY CLASSIFIERS ---------------- */
 
 const isGovtJob = (job) => {
 
-  const text = buildText(job, ["title", "description", "company"])
+  const text = buildText(job, ["title","description","company"])
 
   const keywords = [
     "government","govt","sarkari",
@@ -71,23 +71,19 @@ const isGovtJob = (job) => {
 
 }
 
-/* WFH */
-
 const isWFHJob = (job) => {
 
-  const text = buildText(job, ["title","description"])
+  const text = buildText(job, ["title","description","location"])
 
   const keywords = [
     "work from home","remote","wfh",
-    "home based","virtual assistant",
-    "freelance","remote job"
+    "home based","freelance",
+    "virtual assistant","remote job"
   ]
 
   return containsKeyword(text, keywords)
 
 }
-
-/* AI */
 
 const isAIJob = (job) => {
 
@@ -101,14 +97,13 @@ const isAIJob = (job) => {
     "ml engineer",
     "generative ai",
     "prompt engineer",
-    "data scientist"
+    "data scientist",
+    "nlp engineer"
   ]
 
   return containsKeyword(text, keywords)
 
 }
-
-/* IT */
 
 const isITJob = (job) => {
 
@@ -125,8 +120,6 @@ const isITJob = (job) => {
 
 }
 
-/* BANKING */
-
 const isBankingJob = (job) => {
 
   const text = buildText(job, ["title","description"])
@@ -140,8 +133,6 @@ const isBankingJob = (job) => {
   return containsKeyword(text, keywords)
 
 }
-
-/* BPO */
 
 const isBPOJob = (job) => {
 
@@ -157,8 +148,6 @@ const isBPOJob = (job) => {
 
 }
 
-/* SALES */
-
 const isSalesJob = (job) => {
 
   const text = buildText(job, ["title","description"])
@@ -173,8 +162,6 @@ const isSalesJob = (job) => {
 
 }
 
-/* ENGINEERING */
-
 const isEngineeringJob = (job) => {
 
   const text = buildText(job, ["title","description"])
@@ -188,8 +175,6 @@ const isEngineeringJob = (job) => {
   return containsKeyword(text, keywords)
 
 }
-
-/* INTERNATIONAL */
 
 const isInternational = (job) => {
 
@@ -209,11 +194,12 @@ const isInternational = (job) => {
 
 export default async function handler(req, res) {
 
-  res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate")
+  res.setHeader("Cache-Control","s-maxage=600, stale-while-revalidate")
 
   try {
 
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
+    const SHEET_URL =
+      "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
     const { category, q, slug, location } = req.query
 
@@ -238,7 +224,12 @@ export default async function handler(req, res) {
         description:
           job.description ||
           job.snippet ||
-          "Check job details and apply using the official link."
+          "Click to view job details and apply using official link.",
+
+        datePosted:
+          job.datePosted ||
+          job.pubDate ||
+          new Date().toISOString()
 
       }))
 
@@ -262,7 +253,7 @@ export default async function handler(req, res) {
 
     }
 
-    /* ---------- CATEGORY ---------- */
+    /* ---------- CATEGORY FILTER ---------- */
 
     if (category && category !== "all") {
 
@@ -303,7 +294,7 @@ export default async function handler(req, res) {
       const loc = location.toLowerCase()
 
       jobs = jobs.filter(job =>
-        buildText(job, ["location","title","description"]).includes(loc)
+        buildText(job,["location","title","description"]).includes(loc)
       )
 
     }
@@ -315,15 +306,14 @@ export default async function handler(req, res) {
       const keyword = q.toLowerCase()
 
       jobs = jobs.filter(job =>
-        buildText(job, ["title","description","company"])
-        .includes(keyword)
+        buildText(job,["title","description","company"]).includes(keyword)
       )
 
     }
 
     /* ---------- SORT ---------- */
 
-    jobs.sort((a, b) => new Date(b.datePosted) - new Date(a.datePosted))
+    jobs.sort((a,b)=> new Date(b.datePosted) - new Date(a.datePosted))
 
     /* ---------- PAGINATION ---------- */
 
@@ -336,9 +326,7 @@ export default async function handler(req, res) {
       jobs: jobs.slice(start, start + limit),
 
       total: jobs.length,
-
       page,
-
       totalPages
 
     })

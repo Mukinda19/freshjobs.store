@@ -3,8 +3,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import JobCard from "../../../components/JobCard";
 
-/* ================= PAGE COMPONENT ================= */
-
 export default function CategoryLocationPage({
   jobs,
   totalPages,
@@ -19,7 +17,6 @@ export default function CategoryLocationPage({
   const readableLocation = decodeURIComponent(String(location || "")).replace(/-/g, " ");
 
   const normalizedCategory = String(category || "").toLowerCase();
-
   const isWFH = normalizedCategory === "work-from-home";
 
   const baseUrl = "https://www.freshjobs.store";
@@ -53,8 +50,6 @@ export default function CategoryLocationPage({
   const goToPage = (page) => {
     router.push(`/jobs/${category}/${location}?page=${page}`);
   };
-
-  /* ================= SCHEMA ================= */
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -95,16 +90,12 @@ export default function CategoryLocationPage({
   return (
     <div className="max-w-6xl mx-auto p-4">
 
-      {/* ================= SEO ================= */}
-
       <Head>
 
         <title>{pageTitle}</title>
-
         <meta name="description" content={pageDescription} />
 
         <link rel="canonical" href={canonicalUrl} />
-
         {prevUrl && <link rel="prev" href={prevUrl} />}
         {nextUrl && <link rel="next" href={nextUrl} />}
 
@@ -124,8 +115,6 @@ export default function CategoryLocationPage({
 
       </Head>
 
-      {/* ================= BREADCRUMB ================= */}
-
       <div className="text-sm mb-4 text-gray-600">
 
         <Link href="/">Home</Link> ›{" "}
@@ -138,8 +127,6 @@ export default function CategoryLocationPage({
 
       </div>
 
-      {/* ================= TITLE ================= */}
-
       <h1 className="text-2xl md:text-3xl font-bold mb-4">
 
         {isWFH
@@ -148,8 +135,6 @@ export default function CategoryLocationPage({
 
       </h1>
 
-      {/* ================= SEO TEXT ================= */}
-
       <p className="text-gray-600 mb-6">
 
         Explore latest {readableCategory} job openings in {readableLocation}.
@@ -157,8 +142,6 @@ export default function CategoryLocationPage({
         Updated daily with fresh opportunities across India.
 
       </p>
-
-      {/* ================= JOB GRID ================= */}
 
       {jobs.length === 0 ? (
         <p>No jobs found for this category and location.</p>
@@ -169,8 +152,6 @@ export default function CategoryLocationPage({
           ))}
         </div>
       )}
-
-      {/* ================= PAGINATION ================= */}
 
       {totalPages > 1 && (
 
@@ -217,9 +198,11 @@ export async function getStaticPaths() {
 
 }
 
-export async function getStaticProps({ params }) {
+export async function getStaticProps({ params, previewData }) {
 
   const { category, location } = params;
+
+  const page = previewData?.page || 1;
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -228,7 +211,7 @@ export async function getStaticProps({ params }) {
   try {
 
     const res = await fetch(
-      `${baseUrl}/api/search?category=${category}&location=${location}&page=1&limit=10`
+      `${baseUrl}/api/search?category=${category}&location=${location}&page=${page}&limit=10`
     );
 
     const data = await res.json();
@@ -239,7 +222,7 @@ export async function getStaticProps({ params }) {
         totalPages: data.totalPages || 1,
         category,
         location,
-        currentPage: 1,
+        currentPage: page,
       },
       revalidate: 1800,
     };
@@ -254,7 +237,7 @@ export async function getStaticProps({ params }) {
         totalPages: 1,
         category,
         location,
-        currentPage: 1,
+        currentPage: page,
       },
       revalidate: 1800,
     };
