@@ -70,8 +70,13 @@ export default function Home({ initialJobs }) {
             ? `&category=${encodeURIComponent(category)}`
             : ""
 
+        const locationParam =
+          location && location!=="india"
+            ? `&location=${encodeURIComponent(location)}`
+            : ""
+
         const res = await fetch(
-          `/api/search?page=1&limit=10${categoryParam}${qParam}`,
+          `/api/search?page=1&limit=10${categoryParam}${locationParam}${qParam}`,
           { signal: controller.signal }
         )
 
@@ -105,7 +110,7 @@ export default function Home({ initialJobs }) {
 
     return ()=>controller.abort()
 
-  },[category,keyword])
+  },[category,keyword,location])
 
   /* -------- LOAD MORE -------- */
 
@@ -128,8 +133,13 @@ export default function Home({ initialJobs }) {
           ? `&category=${encodeURIComponent(category)}`
           : ""
 
+      const locationParam =
+        location && location!=="india"
+          ? `&location=${encodeURIComponent(location)}`
+          : ""
+
       const res = await fetch(
-        `/api/search?page=${nextPage}&limit=10${categoryParam}${qParam}`
+        `/api/search?page=${nextPage}&limit=10${categoryParam}${locationParam}${qParam}`
       )
 
       if(!res.ok) throw new Error("API error")
@@ -417,7 +427,7 @@ export async function getStaticProps(){
         initialJobs:data.jobs || []
       },
 
-      revalidate:1800
+      revalidate:900
 
     }
 

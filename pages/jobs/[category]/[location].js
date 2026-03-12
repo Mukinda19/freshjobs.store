@@ -203,13 +203,11 @@ export async function getStaticPaths() {
 
 }
 
-export async function getStaticProps(context) {
-
-  const { params, query } = context;
+export async function getStaticProps({ params, previewData }) {
 
   const { category, location } = params;
 
-  const page = Number(query?.page) || 1;
+  const page = previewData?.page || 1;
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -231,7 +229,7 @@ export async function getStaticProps(context) {
         location,
         currentPage: page,
       },
-      revalidate: 1800,
+      revalidate: 900,
     };
 
   } catch (error) {
@@ -246,7 +244,7 @@ export async function getStaticProps(context) {
         location,
         currentPage: page,
       },
-      revalidate: 1800,
+      revalidate: 900,
     };
 
   }
