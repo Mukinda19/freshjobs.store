@@ -35,7 +35,7 @@ export default function JobDetailPage({ job, siteUrl }) {
         </h1>
 
         <p className="mb-6">
-          This job listing may have expired or been removed by the employer.
+          This job listing may have expired or been removed.
         </p>
 
         <Link
@@ -49,8 +49,6 @@ export default function JobDetailPage({ job, siteUrl }) {
     )
   }
 
-  /* ---------------- Basic Data ---------------- */
-
   const title = job.title || "Latest Job Opening"
   const company = job.company || "Company"
   const location = job.location || "India"
@@ -58,7 +56,7 @@ export default function JobDetailPage({ job, siteUrl }) {
 
   const description = stripHtml(
     job.description ||
-      `Apply for ${title} job at ${company}. Check eligibility, salary details and official application process.`
+      `Apply for ${title} job at ${company}.`
   ).slice(0, 500)
 
   const canonicalSlug =
@@ -70,56 +68,9 @@ export default function JobDetailPage({ job, siteUrl }) {
 
   const applyLink = job.link || job.applyLink || ""
 
-  const lowerLocation = location.toLowerCase()
-
-  const isRemote =
-    lowerLocation.includes("remote") ||
-    lowerLocation.includes("work from home") ||
-    lowerLocation.includes("wfh")
-
-  const isInternational =
-    lowerLocation.includes("usa") ||
-    lowerLocation.includes("uk") ||
-    lowerLocation.includes("uae") ||
-    lowerLocation.includes("canada") ||
-    lowerLocation.includes("australia")
-
-  const countryCode = isInternational ? "US" : "IN"
-  const currency = isInternational ? "USD" : "INR"
-
-  const employmentType =
-    job.employmentType?.toUpperCase() || "FULL_TIME"
-
   const salaryNumber = extractSalaryNumber(salary)
 
-  /* ---------------- Breadcrumb Schema ---------------- */
-
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: siteUrl,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: job.category || "Jobs",
-        item: `${siteUrl}/jobs/${categorySlug}/india`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: title,
-        item: canonicalUrl,
-      },
-    ],
-  }
-
-  /* ---------------- JobPosting Schema ---------------- */
+  /* ---------------- Schema ---------------- */
 
   const jobPostingSchema = {
     "@context": "https://schema.org",
@@ -128,12 +79,6 @@ export default function JobDetailPage({ job, siteUrl }) {
     title: title,
     description: description,
     url: canonicalUrl,
-
-    identifier: {
-      "@type": "PropertyValue",
-      name: "FreshJobs",
-      value: canonicalSlug,
-    },
 
     hiringOrganization: {
       "@type": "Organization",
@@ -146,22 +91,16 @@ export default function JobDetailPage({ job, siteUrl }) {
       address: {
         "@type": "PostalAddress",
         addressLocality: location,
-        addressCountry: countryCode,
+        addressCountry: "IN",
       },
     },
-
-    ...(isRemote && {
-      jobLocationType: "TELECOMMUTE",
-    }),
-
-    employmentType: employmentType,
 
     directApply: true,
 
     ...(salaryNumber && {
       baseSalary: {
         "@type": "MonetaryAmount",
-        currency: currency,
+        currency: "INR",
         value: {
           "@type": "QuantitativeValue",
           value: salaryNumber,
@@ -170,19 +109,13 @@ export default function JobDetailPage({ job, siteUrl }) {
       },
     }),
 
-    datePosted:
-      job.datePosted && !isNaN(new Date(job.datePosted))
-        ? new Date(job.datePosted).toISOString()
-        : new Date().toISOString(),
-
+    datePosted: job.datePosted || new Date().toISOString(),
     validThrough:
       job.validThrough ||
       new Date(
         new Date().setMonth(new Date().getMonth() + 1)
       ).toISOString(),
   }
-
-  /* ---------------- Page UI ---------------- */
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -195,30 +128,10 @@ export default function JobDetailPage({ job, siteUrl }) {
 
         <meta
           name="description"
-          content={`Apply for ${title} job at ${company} in ${location}. Check eligibility, salary details and official apply link.`}
+          content={`Apply for ${title} job at ${company} in ${location}.`}
         />
 
         <link rel="canonical" href={canonicalUrl} />
-
-        {/* Open Graph */}
-
-        <meta property="og:title" content={`${title} at ${company}`} />
-        <meta property="og:description" content={description} />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:type" content="article" />
-
-        {/* Twitter */}
-
-        <meta name="twitter:card" content="summary_large_image" />
-
-        {/* Schema */}
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(breadcrumbSchema),
-          }}
-        />
 
         <script
           type="application/ld+json"
@@ -228,8 +141,6 @@ export default function JobDetailPage({ job, siteUrl }) {
         />
 
       </Head>
-
-      {/* Breadcrumb */}
 
       <div className="text-sm mb-5 text-gray-600">
 
@@ -243,33 +154,23 @@ export default function JobDetailPage({ job, siteUrl }) {
 
         {" › "}
 
-        <span className="font-medium">
-          {title}
-        </span>
+        <span className="font-medium">{title}</span>
 
       </div>
-
-      {/* Title */}
 
       <h1 className="text-2xl md:text-3xl font-bold mb-2">
         {title}
       </h1>
 
-      {/* Company */}
-
       <p className="text-gray-700 mb-3">
         {company} • {location}
       </p>
-
-      {/* Salary */}
 
       {salary && (
         <p className="text-green-700 font-semibold mb-4">
           💰 Salary: {salary}
         </p>
       )}
-
-      {/* Description */}
 
       <div className="bg-white border rounded-lg p-5 mb-6">
 
@@ -282,8 +183,6 @@ export default function JobDetailPage({ job, siteUrl }) {
         </p>
 
       </div>
-
-      {/* Apply Button */}
 
       {applyLink && (
 
@@ -298,38 +197,44 @@ export default function JobDetailPage({ job, siteUrl }) {
 
       )}
 
-      {/* Internal Links */}
-
-      <div className="mt-12 border-t pt-6">
-
-        <h3 className="font-semibold mb-3 text-lg">
-          Explore More Jobs
-        </h3>
-
-        <ul className="list-disc pl-5 text-blue-700 space-y-2">
-
-          <li>
-            <Link href="/jobs/govt-jobs/india">
-              Government Jobs
-            </Link>
-          </li>
-
-          <li>
-            <Link href="/jobs/work-from-home/india">
-              Work From Home Jobs
-            </Link>
-          </li>
-
-          <li>
-            <Link href="/jobs/it/india">
-              IT Jobs
-            </Link>
-          </li>
-
-        </ul>
-
-      </div>
-
     </div>
   )
+}
+
+/* ---------------- SERVER FETCH ---------------- */
+
+export async function getServerSideProps({ params }) {
+
+  const slug = params.slug
+
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://www.freshjobs.store"
+
+  try {
+
+    const res = await fetch(
+      `${siteUrl}/api/search?slug=${slug}`
+    )
+
+    const data = await res.json()
+
+    return {
+      props: {
+        job: data.job || null,
+        siteUrl,
+      },
+    }
+
+  } catch {
+
+    return {
+      props: {
+        job: null,
+        siteUrl,
+      },
+    }
+
+  }
+
 }
