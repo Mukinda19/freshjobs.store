@@ -70,7 +70,7 @@ const isWFHJob = job => {
 
   const keywords = [
     "work from home","remote","wfh",
-    "home based","freelance"
+    "home based","freelance","anywhere"
   ]
 
   return containsKeyword(text,keywords)
@@ -101,7 +101,7 @@ const isITJob = job => {
     "developer","software",
     "programmer","frontend",
     "backend","react",
-    "node","java"
+    "node","java","python"
   ]
 
   return containsKeyword(text,keywords)
@@ -154,7 +154,8 @@ const isInternational = job => {
     "abroad","overseas",
     "uae","saudi","qatar",
     "oman","kuwait",
-    "canada","usa","uk"
+    "canada","usa","uk",
+    "remote worldwide"
   ])
 }
 
@@ -182,20 +183,13 @@ export default async function handler(req,res){
     if(!cachedJobs || Date.now()-lastFetchTime > CACHE_DURATION){
 
       const response = await fetch(`${SHEET_URL}?limit=800`)
-
       const data = await response.json()
 
       let jobs = []
 
-      if(Array.isArray(data)){
-        jobs = data
-      }
-      else if(Array.isArray(data.jobs)){
-        jobs = data.jobs
-      }
-      else if(Array.isArray(data.data)){
-        jobs = data.data
-      }
+      if(Array.isArray(data)) jobs = data
+      else if(Array.isArray(data.jobs)) jobs = data.jobs
+      else if(Array.isArray(data.data)) jobs = data.data
 
       jobs = jobs.map(job => ({
 
@@ -220,13 +214,12 @@ export default async function handler(req,res){
       }))
 
       cachedJobs = dedupeJobs(jobs)
-
       lastFetchTime = Date.now()
     }
 
     let jobs=[...cachedJobs]
 
-    /* -------- DETAIL -------- */
+    /* -------- DETAIL PAGE -------- */
 
     if(slug){
 
@@ -237,7 +230,7 @@ export default async function handler(req,res){
       return res.status(200).json({job})
     }
 
-    /* -------- CATEGORY -------- */
+    /* -------- CATEGORY FILTER -------- */
 
     if(category && category!=="all"){
 
@@ -248,7 +241,7 @@ export default async function handler(req,res){
       else if(cat==="work-from-home")
         jobs=jobs.filter(j=>isWFHJob(j) && !isGovtJob(j))
 
-      else if(cat==="ai")
+      else if(cat==="ai-jobs")
         jobs=jobs.filter(j=>isAIJob(j) && !isGovtJob(j))
 
       else if(cat==="it")
@@ -270,9 +263,14 @@ export default async function handler(req,res){
         jobs=jobs.filter(isInternational)
     }
 
-    /* -------- LOCATION -------- */
+    /* -------- LOCATION FILTER -------- */
 
-    if(location && location!=="india"){
+    if(
+      location &&
+      location!=="india" &&
+      category!=="work-from-home" &&
+      category!=="ai-jobs"
+    ){
 
       const loc=location.toLowerCase()
 
@@ -299,7 +297,7 @@ export default async function handler(req,res){
     /* -------- PAGINATION -------- */
 
     const start=(page-1)*limit
-    const totalPages=Math.ceil(jobs.length/limit)
+    const totalPages=Math.max(Math.ceil(jobs.length/limit),1)
 
     return res.status(200).json({
 
