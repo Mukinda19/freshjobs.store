@@ -170,7 +170,7 @@ export default async function handler(req,res){
   try{
 
     const SHEET_URL =
-      "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVq_R_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
+      "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
     const { category,q,slug,location } = req.query
 
