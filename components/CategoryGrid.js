@@ -13,157 +13,71 @@ import {
 /* -------- CATEGORY MASTER LIST -------- */
 
 export const categories = [
+
   {
     label: "IT Jobs",
     slug: "it",
     icon: Cpu,
-    description: "Software development, programming and IT support jobs",
-    keywords: [
-      "software",
-      "developer",
-      "programmer",
-      "web developer",
-      "frontend",
-      "backend",
-      "full stack",
-      "react",
-      "node",
-      "python",
-      "java",
-      "it support",
-      "data analyst",
-      "software engineer",
-      "tech lead"
-    ],
+    description:
+      "Software developer, web developer, frontend developer, backend developer, full stack developer, React developer, Node.js developer, Python developer, Java developer, software engineer, IT support, tech lead and programming jobs.",
   },
 
   {
     label: "Banking Jobs",
     slug: "banking",
     icon: Landmark,
-    description: "Banking, finance and financial services jobs",
-    keywords: [
-      "bank",
-      "banking",
-      "loan officer",
-      "relationship manager",
-      "credit officer",
-      "finance executive",
-      "account officer",
-      "bank po",
-      "bank clerk",
-      "financial analyst"
-    ],
+    description:
+      "Bank jobs, banking careers, bank PO, bank clerk, relationship manager, loan officer, finance executive, credit officer, financial analyst and banking sector opportunities.",
   },
 
   {
     label: "BPO Jobs",
     slug: "bpo",
     icon: Headphones,
-    description: "Call center, customer support and BPO jobs",
-    keywords: [
-      "bpo",
-      "call center",
-      "customer support",
-      "customer service",
-      "voice process",
-      "non voice",
-      "telecaller",
-      "process associate",
-      "chat support"
-    ],
+    description:
+      "BPO jobs, call center jobs, customer support jobs, customer service jobs, voice process, non voice process, telecaller jobs, chat support and process associate roles.",
   },
 
   {
     label: "Government Jobs",
     slug: "govt-jobs",
     icon: ShieldCheck,
-    description: "Latest government sector jobs in India",
-    keywords: [
-      "government",
-      "govt",
-      "railway",
-      "ssc",
-      "upsc",
-      "bank po",
-      "bank clerk",
-      "defence",
-      "army",
-      "navy",
-      "air force",
-      "public sector",
-      "psu"
-    ],
+    description:
+      "Latest government jobs in India including railway jobs, SSC jobs, UPSC recruitment, defence jobs, army jobs, navy jobs, air force jobs, PSU jobs and other public sector openings.",
   },
 
   {
     label: "Sales Jobs",
     slug: "sales",
     icon: TrendingUp,
-    description: "Sales, marketing and business development jobs",
-    keywords: [
-      "sales",
-      "sales executive",
-      "field sales",
-      "business development",
-      "marketing executive",
-      "relationship manager",
-      "sales officer",
-      "territory manager"
-    ],
+    description:
+      "Sales executive jobs, field sales jobs, business development jobs, marketing executive roles, relationship manager jobs, territory manager and sales officer careers.",
   },
 
   {
     label: "Engineering Jobs",
     slug: "engineering",
     icon: Briefcase,
-    description: "Mechanical, civil, electrical and engineering jobs",
-    keywords: [
-      "engineer",
-      "mechanical engineer",
-      "civil engineer",
-      "electrical engineer",
-      "production engineer",
-      "site engineer",
-      "design engineer",
-      "maintenance engineer"
-    ],
+    description:
+      "Engineering jobs including mechanical engineer, civil engineer, electrical engineer, production engineer, design engineer, maintenance engineer and site engineer roles.",
   },
 
   {
     label: "Work From Home Jobs",
     slug: "work-from-home",
     icon: Home,
-    description: "Remote and work from home job opportunities",
-    keywords: [
-      "work from home",
-      "remote job",
-      "remote work",
-      "home based job",
-      "online job",
-      "freelance",
-      "remote support",
-      "virtual assistant"
-    ],
+    description:
+      "Remote jobs, work from home jobs, freelance jobs, home based jobs, remote support jobs, virtual assistant jobs and global remote job opportunities.",
   },
 
   {
     label: "AI Jobs",
-    slug: "ai",
+    slug: "ai-jobs",
     icon: Bot,
-    description: "Artificial intelligence and machine learning jobs",
-    keywords: [
-      "ai",
-      "artificial intelligence",
-      "machine learning",
-      "ml engineer",
-      "ai developer",
-      "chatgpt",
-      "prompt engineer",
-      "data scientist",
-      "deep learning"
-    ],
+    description:
+      "Artificial intelligence jobs, machine learning engineer jobs, ML engineer roles, AI developer jobs, generative AI jobs, prompt engineer jobs, data scientist and deep learning careers.",
   },
+
 ];
 
 /* -------- CATEGORY GRID UI -------- */
@@ -184,11 +98,21 @@ export default function CategoryGrid() {
 
           const Icon = cat.icon;
 
+          /* SPECIAL CATEGORY */
+
+          const isSpecial =
+            cat.slug === "work-from-home" ||
+            cat.slug === "ai-jobs";
+
+          const link = isSpecial
+            ? `/jobs/${cat.slug}`
+            : `/jobs/${cat.slug}/india`;
+
           return (
 
             <Link
               key={cat.slug}
-              href={`/jobs/${cat.slug}/india`}
+              href={link}
               title={cat.label}
               className="flex flex-col items-center justify-center bg-white border rounded-xl p-5 hover:shadow-xl hover:border-blue-500 transition group"
             >

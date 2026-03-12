@@ -70,7 +70,7 @@ const isWFHJob = job => {
 
   const keywords = [
     "work from home","remote","wfh",
-    "home based","freelance","anywhere"
+    "home based","freelance","remote job","remote work","anywhere"
   ]
 
   return containsKeyword(text,keywords)
