@@ -1,9 +1,9 @@
+import crypto from "crypto"
+
 let cachedJobs = null
 let lastFetchTime = 0
 
 const CACHE_DURATION = 5 * 60 * 1000
-
-import crypto from "crypto"
 
 /* ---------------- SLUG ---------------- */
 
@@ -22,7 +22,6 @@ const generateSlug = (title = "", link = "") => {
     .slice(0, 8)
 
   return `${base}-${hash}`
-
 }
 
 /* ---------------- HELPERS ---------------- */
@@ -46,9 +45,7 @@ const dedupeJobs = jobs => {
     seen.add(key)
 
     return true
-
   })
-
 }
 
 /* ---------------- CATEGORY CHECKS ---------------- */
@@ -60,13 +57,11 @@ const isGovtJob = job => {
   const keywords = [
     "government","govt","sarkari",
     "recruitment","notification",
-    "vacancy","apply online",
     "railway","ssc","upsc","psu",
     "defence","army","navy","air force"
   ]
 
   return containsKeyword(text,keywords)
-
 }
 
 const isWFHJob = job => {
@@ -75,12 +70,10 @@ const isWFHJob = job => {
 
   const keywords = [
     "work from home","remote","wfh",
-    "home based","freelance",
-    "virtual assistant"
+    "home based","freelance"
   ]
 
   return containsKeyword(text,keywords)
-
 }
 
 const isAIJob = job => {
@@ -94,12 +87,10 @@ const isAIJob = job => {
     "ai engineer",
     "ml engineer",
     "generative ai",
-    "prompt engineer",
-    "nlp engineer"
+    "prompt engineer"
   ]
 
   return containsKeyword(text,keywords)
-
 }
 
 const isITJob = job => {
@@ -107,86 +98,64 @@ const isITJob = job => {
   const text = buildText(job,["title","description"])
 
   const keywords = [
-    "developer","software","programmer",
-    "frontend","backend","react",
-    "node","java","web developer"
+    "developer","software",
+    "programmer","frontend",
+    "backend","react",
+    "node","java"
   ]
 
   return containsKeyword(text,keywords)
-
 }
 
 const isBankingJob = job => {
 
   const text = buildText(job,["title","description"])
 
-  const keywords = [
-    "bank","banking",
-    "loan officer",
-    "relationship manager",
-    "credit officer"
-  ]
-
-  return containsKeyword(text,keywords)
-
+  return containsKeyword(text,["bank","banking"])
 }
 
 const isBPOJob = job => {
 
   const text = buildText(job,["title","description"])
 
-  const keywords = [
+  return containsKeyword(text,[
     "bpo","call center",
-    "customer support",
-    "telecaller"
-  ]
-
-  return containsKeyword(text,keywords)
-
+    "customer support","telecaller"
+  ])
 }
 
 const isSalesJob = job => {
 
   const text = buildText(job,["title","description"])
 
-  const keywords = [
-    "sales","sales executive",
-    "business development",
+  return containsKeyword(text,[
+    "sales","business development",
     "field sales"
-  ]
-
-  return containsKeyword(text,keywords)
-
+  ])
 }
 
 const isEngineeringJob = job => {
 
   const text = buildText(job,["title","description"])
 
-  const keywords = [
+  return containsKeyword(text,[
     "engineer",
     "mechanical engineer",
     "civil engineer",
     "electrical engineer"
-  ]
-
-  return containsKeyword(text,keywords)
-
+  ])
 }
 
 const isInternational = job => {
 
   const text = buildText(job,["title","description","location"])
 
-  const keywords = [
+  return containsKeyword(text,[
     "abroad","overseas",
     "uae","saudi","qatar",
     "oman","kuwait",
     "canada","usa","uk"
-  ]
-
-  return containsKeyword(text,keywords)
-
+  ])
 }
 
 /* ---------------- API ---------------- */
@@ -208,14 +177,27 @@ export default async function handler(req,res){
     const page = Math.max(Number(req.query.page)||1,1)
     const limit = Math.min(Number(req.query.limit)||10,20)
 
+    /* -------- FETCH DATA -------- */
+
     if(!cachedJobs || Date.now()-lastFetchTime > CACHE_DURATION){
 
       const response = await fetch(`${SHEET_URL}?limit=800`)
+
       const data = await response.json()
 
-      let jobs = Array.isArray(data.jobs) ? data.jobs : []
+      let jobs = []
 
-      jobs = jobs.map(job=>({
+      if(Array.isArray(data)){
+        jobs = data
+      }
+      else if(Array.isArray(data.jobs)){
+        jobs = data.jobs
+      }
+      else if(Array.isArray(data.data)){
+        jobs = data.data
+      }
+
+      jobs = jobs.map(job => ({
 
         ...job,
 
@@ -224,7 +206,7 @@ export default async function handler(req,res){
         description:
           job.description ||
           job.snippet ||
-          "Click to view full job details and apply.",
+          "Click to view full job details.",
 
         datePosted:
           job.datePosted ||
@@ -240,12 +222,11 @@ export default async function handler(req,res){
       cachedJobs = dedupeJobs(jobs)
 
       lastFetchTime = Date.now()
-
     }
 
     let jobs=[...cachedJobs]
 
-    /* DETAIL */
+    /* -------- DETAIL -------- */
 
     if(slug){
 
@@ -254,17 +235,15 @@ export default async function handler(req,res){
       if(!job) return res.status(404).json({job:null})
 
       return res.status(200).json({job})
-
     }
 
-    /* CATEGORY */
+    /* -------- CATEGORY -------- */
 
     if(category && category!=="all"){
 
       const cat=category.toLowerCase()
 
-      if(cat==="govt-jobs")
-        jobs=jobs.filter(isGovtJob)
+      if(cat==="govt-jobs") jobs=jobs.filter(isGovtJob)
 
       else if(cat==="work-from-home")
         jobs=jobs.filter(j=>isWFHJob(j) && !isGovtJob(j))
@@ -276,23 +255,22 @@ export default async function handler(req,res){
         jobs=jobs.filter(j=>isITJob(j) && !isGovtJob(j))
 
       else if(cat==="banking")
-        jobs=jobs.filter(j=>isBankingJob(j) && !isGovtJob(j))
+        jobs=jobs.filter(isBankingJob)
 
       else if(cat==="bpo")
-        jobs=jobs.filter(j=>isBPOJob(j) && !isGovtJob(j))
+        jobs=jobs.filter(isBPOJob)
 
       else if(cat==="sales")
-        jobs=jobs.filter(j=>isSalesJob(j) && !isGovtJob(j))
+        jobs=jobs.filter(isSalesJob)
 
       else if(cat==="engineering")
-        jobs=jobs.filter(j=>isEngineeringJob(j) && !isGovtJob(j))
+        jobs=jobs.filter(isEngineeringJob)
 
       else if(cat==="international")
         jobs=jobs.filter(isInternational)
-
     }
 
-    /* LOCATION */
+    /* -------- LOCATION -------- */
 
     if(location && location!=="india"){
 
@@ -301,10 +279,9 @@ export default async function handler(req,res){
       jobs=jobs.filter(job =>
         buildText(job,["location","title","description"]).includes(loc)
       )
-
     }
 
-    /* SEARCH */
+    /* -------- SEARCH -------- */
 
     if(q && q.trim()){
 
@@ -313,14 +290,13 @@ export default async function handler(req,res){
       jobs=jobs.filter(job =>
         buildText(job,["title","description","company"]).includes(keyword)
       )
-
     }
 
-    /* SORT */
+    /* -------- SORT -------- */
 
     jobs.sort((a,b)=>new Date(b.datePosted)-new Date(a.datePosted))
 
-    /* PAGINATION */
+    /* -------- PAGINATION -------- */
 
     const start=(page-1)*limit
     const totalPages=Math.ceil(jobs.length/limit)
@@ -348,7 +324,5 @@ export default async function handler(req,res){
       totalPages:1
 
     })
-
   }
-
 }
