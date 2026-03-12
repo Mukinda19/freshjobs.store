@@ -16,7 +16,7 @@ export default function CategoryLocationPage({
   const readableCategory = decodeURIComponent(String(category || "")).replace(/-/g, " ");
   const readableLocation = decodeURIComponent(String(location || "")).replace(/-/g, " ");
 
-  const normalizedCategory = String(category || "").toLowerCase();
+  const normalizedCategory = String(category || "").toLowerCase().trim();
   const isWFH = normalizedCategory === "work-from-home";
 
   const baseUrl = "https://www.freshjobs.store";
@@ -203,11 +203,12 @@ export async function getStaticPaths() {
 
 }
 
-export async function getStaticProps({ params, previewData }) {
+export async function getStaticProps(context) {
 
+  const { params, previewData } = context;
   const { category, location } = params;
 
-  const page = previewData?.page || 1;
+  const page = context?.params?.page || 1;
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
