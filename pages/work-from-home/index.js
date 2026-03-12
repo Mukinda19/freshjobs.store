@@ -2,9 +2,13 @@ import Head from "next/head"
 import Link from "next/link"
 import Breadcrumb from "../../components/Breadcrumb"
 
+/* 🔹 SAFE TEXT CLEANER */
+const cleanText = (text = "") =>
+  String(text).replace(/<[^>]*>?/gm, "").trim()
+
 /* 🔹 SLUG NORMALIZER */
 const normalizeSlug = (text = "") =>
-  String(text)
+  cleanText(text)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
@@ -14,7 +18,8 @@ export default function WorkFromHomeJobs({
   totalPages,
   siteUrl,
 }) {
-  const jobs = initialJobs
+
+  const jobs = initialJobs || []
 
   const pageUrl = `${siteUrl}/work-from-home`
 
@@ -83,6 +88,7 @@ export default function WorkFromHomeJobs({
   return (
     <>
       <Head>
+
         <title>
           Remote & Work From Home Jobs Worldwide 2026 | FreshJobs
         </title>
@@ -93,6 +99,7 @@ export default function WorkFromHomeJobs({
         />
 
         <meta name="robots" content="index, follow" />
+
         <link rel="canonical" href={pageUrl} />
 
         {/* Open Graph */}
@@ -109,17 +116,21 @@ export default function WorkFromHomeJobs({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
         />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
         />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
+
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
+
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
@@ -144,33 +155,41 @@ export default function WorkFromHomeJobs({
         )}
 
         <div className="grid md:grid-cols-2 gap-4">
+
           {jobs.map((job, index) => {
+
             const slug =
               job.slug ||
               normalizeSlug(`${job.title || ""} ${job.company || ""}`)
 
+            const description = cleanText(job.description || "")
+
             return (
+
               <article
                 key={job.link || slug || index}
                 className="border rounded-lg p-4 bg-white hover:shadow-md transition"
               >
+
                 <h2 className="font-semibold mb-1">
+
                   <Link
                     href={`/job/${slug}`}
                     prefetch={false}
                     className="text-blue-700 hover:underline"
                   >
-                    {job.title || "Remote Job Opportunity"}
+                    {cleanText(job.title) || "Remote Job Opportunity"}
                   </Link>
+
                 </h2>
 
                 <p className="text-sm text-gray-500 mb-2">
-                  Source: {job.source || "Verified Portal"}
+                  Source: {cleanText(job.source || "Verified Portal")}
                 </p>
 
-                {job.description && (
+                {description && (
                   <p className="text-sm text-gray-700 mb-3">
-                    {job.description.slice(0, 140)}...
+                    {description.slice(0, 140)}...
                   </p>
                 )}
 
@@ -184,14 +203,21 @@ export default function WorkFromHomeJobs({
                     Apply on Official Site →
                   </a>
                 )}
+
               </article>
+
             )
+
           })}
+
         </div>
 
-        {/* ✅ 1–10 Pagination */}
+        {/* ✅ Pagination */}
+
         {totalPages > 1 && (
+
           <div className="flex justify-center mt-10 space-x-2 flex-wrap">
+
             <span className="px-4 py-2 border rounded bg-blue-600 text-white">
               1
             </span>
@@ -215,22 +241,28 @@ export default function WorkFromHomeJobs({
                 Next »
               </Link>
             )}
+
           </div>
+
         )}
+
       </main>
     </>
   )
 }
 
 /* ✅ STATIC GENERATION */
+
 export async function getStaticProps() {
+
   try {
+
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://freshjobs.store"
 
     const response = await fetch(
-      `${siteUrl}/api/search?category=wfh&page=1&limit=10`
+      `${siteUrl}/api/search?category=work-from-home&page=1&limit=10`
     )
 
     const data = await response.json()
@@ -243,7 +275,9 @@ export async function getStaticProps() {
       },
       revalidate: 1800,
     }
+
   } catch {
+
     return {
       props: {
         initialJobs: [],
@@ -252,5 +286,7 @@ export async function getStaticProps() {
       },
       revalidate: 1800,
     }
+
   }
+
 }

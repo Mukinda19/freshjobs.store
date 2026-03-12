@@ -17,20 +17,24 @@ export default function CategoryLocationPage({
   const readableLocation = decodeURIComponent(String(location || "")).replace(/-/g, " ");
 
   const normalizedCategory = String(category || "").toLowerCase().trim();
-  const isWFH = normalizedCategory === "work-from-home";
+
+  // categories jaha location ignore hoga
+  const ignoreLocationCategories = ["work-from-home", "ai-jobs"];
+
+  const ignoreLocation = ignoreLocationCategories.includes(normalizedCategory);
 
   const baseUrl = "https://www.freshjobs.store";
 
   const pageTitle =
-    (isWFH
-      ? `Work From Home Jobs in ${readableLocation}`
+    (ignoreLocation
+      ? `${readableCategory} Jobs`
       : `${readableCategory} Jobs in ${readableLocation}`) +
     (currentPage > 1 ? ` | Page ${currentPage}` : "") +
     " | FreshJobs";
 
-  const pageDescription = isWFH
-    ? `Find latest verified work from home jobs in ${readableLocation}. Apply online for remote and genuine WFH job opportunities updated daily.`
-    : `Latest ${readableCategory} jobs in ${readableLocation}. Browse verified job vacancies with direct apply links. Updated daily with fresh opportunities.`;
+  const pageDescription = ignoreLocation
+    ? `Find latest ${readableCategory} jobs updated daily with verified application links.`
+    : `Latest ${readableCategory} jobs in ${readableLocation}. Browse verified job vacancies with direct apply links. Updated daily.`;
 
   const canonicalUrl =
     currentPage > 1
@@ -70,7 +74,7 @@ export default function CategoryLocationPage({
         "@type": "ListItem",
         position: 2,
         name: `${readableCategory} Jobs`,
-        item: `${baseUrl}/jobs/${category}/india`,
+        item: `${baseUrl}/jobs/${category}`,
       },
       {
         "@type": "ListItem",
@@ -124,7 +128,7 @@ export default function CategoryLocationPage({
 
         <Link href="/">Home</Link> ›{" "}
 
-        <Link href={`/jobs/${category}/india`}>
+        <Link href={`/jobs/${category}`}>
           {readableCategory}
         </Link>{" "}
 
@@ -134,17 +138,17 @@ export default function CategoryLocationPage({
 
       <h1 className="text-2xl md:text-3xl font-bold mb-4">
 
-        {isWFH
-          ? `Work From Home Jobs in ${readableLocation}`
+        {ignoreLocation
+          ? `${readableCategory} Jobs`
           : `${readableCategory} Jobs in ${readableLocation}`}
 
       </h1>
 
       <p className="text-gray-600 mb-6">
 
-        Explore latest {readableCategory} job openings in {readableLocation}.
-        Find verified job listings with official application links.
-        Updated daily with fresh opportunities across India.
+        Discover latest {readableCategory} job opportunities.
+        Browse verified listings with direct apply links.
+        Updated daily with fresh openings.
 
       </p>
 
@@ -205,10 +209,11 @@ export async function getStaticPaths() {
 
 export async function getStaticProps(context) {
 
-  const { params, previewData } = context;
+  const { params, query } = context;
+
   const { category, location } = params;
 
-  const page = context?.params?.page || 1;
+  const page = Number(query?.page || 1);
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
