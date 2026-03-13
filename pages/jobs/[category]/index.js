@@ -109,9 +109,10 @@ export default function CategoryPage() {
 
     if (p < 1 || p > totalPages) return;
 
-    const url = `/jobs/${category}?page=${p}`;
-
-    window.location.href = url;
+    router.push({
+      pathname: `/jobs/${category}`,
+      query: { page: p }
+    });
 
   };
 
