@@ -64,13 +64,21 @@ const isGovtJob = job => {
   return containsKeyword(text,keywords)
 }
 
+/* WFH FIXED */
+
 const isWFHJob = job => {
 
   const text = buildText(job,["title","description","location"])
 
   const keywords = [
-    "work from home","remote","wfh",
-    "home based","freelance","remote job","remote work","anywhere"
+    "work from home",
+    "remote job",
+    "remote work",
+    "remote position",
+    "remote opportunity",
+    "wfh",
+    "freelance",
+    "anywhere"
   ]
 
   return containsKeyword(text,keywords)
@@ -245,7 +253,7 @@ export default async function handler(req,res){
         jobs=jobs.filter(j=>isAIJob(j) && !isGovtJob(j))
 
       else if(cat==="it")
-        jobs=jobs.filter(j=>isITJob(j) && !isGovtJob(j))
+        jobs=jobs.filter(isITJob)
 
       else if(cat==="banking")
         jobs=jobs.filter(isBankingJob)
