@@ -98,9 +98,15 @@ export default function CategoryGrid() {
 
           const Icon = cat.icon;
 
-          /* FIXED CATEGORY LINK */
+          /* SPECIAL CATEGORY */
 
-          const link = `/jobs/${cat.slug}`;
+          const isSpecial =
+            cat.slug === "work-from-home" ||
+            cat.slug === "ai-jobs";
+
+          const link = isSpecial
+            ? `/jobs/${cat.slug}`
+            : `/jobs/${cat.slug}/india`;
 
           return (
 
