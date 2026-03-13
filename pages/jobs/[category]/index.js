@@ -112,9 +112,11 @@ export default function CategoryPage() {
 
     if (p < 1 || p > totalPages) return;
 
-    router.push({
-      pathname: `/jobs/${category}`,
-      query: { page: p }
+    router.push(`/jobs/${category}?page=${p}`);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
     });
 
   };

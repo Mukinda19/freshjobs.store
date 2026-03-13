@@ -64,8 +64,6 @@ const isGovtJob = job => {
   return containsKeyword(text,keywords)
 }
 
-/* WFH FIXED */
-
 const isWFHJob = job => {
 
   const text = buildText(job,["title","description","location"])
@@ -190,7 +188,7 @@ export default async function handler(req,res){
 
     if(!cachedJobs || Date.now()-lastFetchTime > CACHE_DURATION){
 
-      const response = await fetch(`${SHEET_URL}?limit=800`)
+      const response = await fetch(`${SHEET_URL}?limit=1500`)
       const data = await response.json()
 
       let jobs = []
@@ -304,14 +302,18 @@ export default async function handler(req,res){
 
     /* -------- PAGINATION -------- */
 
-    const start=(page-1)*limit
-    const totalPages=Math.max(Math.ceil(jobs.length/limit),1)
+    const total = jobs.length
+    const totalPages = Math.max(Math.ceil(total/limit),1)
+
+    const safePage = Math.min(page,totalPages)
+
+    const start=(safePage-1)*limit
 
     return res.status(200).json({
 
       jobs:jobs.slice(start,start+limit),
-      total:jobs.length,
-      page,
+      total,
+      page:safePage,
       totalPages
 
     })
