@@ -44,8 +44,13 @@ export default function CategoryPage() {
 
         setLoading(true);
 
-        const url =
+        let url =
           `/api/search?category=${encodeURIComponent(category)}&page=${currentPage}&limit=10&_=${Date.now()}`;
+
+        if (!isSpecialCategory) {
+          url =
+            `/api/search?category=${encodeURIComponent(category)}&location=india&page=${currentPage}&limit=10&_=${Date.now()}`;
+        }
 
         const res = await fetch(url);
         const data = await res.json();
@@ -80,7 +85,7 @@ export default function CategoryPage() {
       ignore = true;
     };
 
-  }, [category, currentPage, isReady]);
+  }, [category, currentPage, isReady, isSpecialCategory]);
 
   if (!isReady || !category) {
     return <p className="p-4">Loading...</p>;
@@ -102,8 +107,6 @@ export default function CategoryPage() {
     currentPage > 1
       ? `https://www.freshjobs.store/jobs/${category}?page=${currentPage}`
       : `https://www.freshjobs.store/jobs/${category}`;
-
-  /* PAGINATION FIX */
 
   const goToPage = (p) => {
 
