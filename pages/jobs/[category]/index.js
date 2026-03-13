@@ -103,23 +103,15 @@ export default function CategoryPage() {
       ? `https://www.freshjobs.store/jobs/${category}?page=${currentPage}`
       : `https://www.freshjobs.store/jobs/${category}`;
 
-  /* FIXED PAGINATION */
+  /* PAGINATION FIX */
 
   const goToPage = (p) => {
 
     if (p < 1 || p > totalPages) return;
 
-    router.push(
-      {
-        pathname: `/jobs/${category}`,
-        query: { page: p }
-      },
-      undefined,
-      {
-        shallow: true,
-        scroll: false
-      }
-    );
+    const url = `/jobs/${category}?page=${p}`;
+
+    window.location.href = url;
 
   };
 

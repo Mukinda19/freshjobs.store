@@ -4,42 +4,46 @@ import Link from "next/link";
 
 const generateSlug = (job = {}) => {
 
-  if (job.slug) return job.slug
+  if (job.slug) return job.slug;
 
-  const base = `${job.title || "job"} ${job.company || ""} ${job.location || ""}`
+  const base = `${job.title || "job"} ${job.company || ""} ${job.location || ""}`;
 
   return String(base)
     .toLowerCase()
     .trim()
     .replace(/<[^>]*>?/gm, "")
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-}
+    .replace(/(^-|-$)/g, "");
+};
 
 /* ---------------- HELPER: SAFE TEXT ---------------- */
 
 const safeText = (value, fallback = "") => {
-  if (!value) return fallback
-  return String(value).replace(/<[^>]*>?/gm, "").trim()
-}
+
+  if (!value) return fallback;
+
+  return String(value)
+    .replace(/<[^>]*>?/gm, "")
+    .trim();
+};
 
 export default function JobCard({ job }) {
 
-  if (!job) return null
+  if (!job) return null;
 
-  const title = safeText(job.title, "Latest Job Opening")
-  const company = safeText(job.company, "Company")
-  const location = safeText(job.location)
-  const salary = safeText(job.salary)
-  const snippet = safeText(job.snippet || job.description)
+  const title = safeText(job.title, "Latest Job Opening");
+  const company = safeText(job.company, "Company");
+  const location = safeText(job.location);
+  const salary = safeText(job.salary);
+  const snippet = safeText(job.snippet || job.description);
 
   const applyLink =
     job.applyLink ||
     job.url ||
     job.link ||
-    ""
+    "";
 
-  const slug = generateSlug(job)
+  const slug = generateSlug(job);
 
   return (
 
@@ -132,5 +136,6 @@ export default function JobCard({ job }) {
 
     </div>
 
-  )
+  );
+
 }
