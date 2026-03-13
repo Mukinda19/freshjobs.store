@@ -51,9 +51,7 @@ export default function CategoryPage() {
         setLoading(true);
 
         const url =
-          `/api/search?category=${encodeURIComponent(
-            category
-          )}&page=${currentPage}&limit=10&_=${Date.now()}`;
+          `/api/search?category=${encodeURIComponent(category)}&page=${currentPage}&limit=10&_=${Date.now()}`;
 
         const res = await fetch(url);
 
@@ -72,7 +70,6 @@ export default function CategoryPage() {
         if (!ignore) {
 
           setJobs([]);
-
           setTotalPages(1);
 
         }
@@ -118,14 +115,17 @@ export default function CategoryPage() {
       ? `https://www.freshjobs.store/jobs/${category}?page=${currentPage}`
       : `https://www.freshjobs.store/jobs/${category}`;
 
-  /* ---------------- Pagination ---------------- */
+  /* ---------------- Pagination (FIXED) ---------------- */
 
   const goToPage = (p) => {
 
-    router.push({
-      pathname: `/jobs/${category}`,
-      query: { page: p },
-    });
+    if (p < 1 || p > totalPages) return;
+
+    router.push(
+      `/jobs/${category}?page=${p}`,
+      undefined,
+      { scroll: false }
+    );
 
   };
 
@@ -170,7 +170,7 @@ export default function CategoryPage() {
 
       {!loading && totalPages > 1 && (
 
-        <div className="flex gap-2 mt-8">
+        <div className="flex gap-2 mt-8 flex-wrap items-center">
 
           {currentPage > 1 && (
 

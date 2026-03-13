@@ -1,5 +1,6 @@
 import Head from "next/head"
 import Link from "next/link"
+import { useRouter } from "next/router"
 import Breadcrumb from "../../components/Breadcrumb"
 
 /* 🔹 SAFE TEXT CLEANER */
@@ -19,9 +20,16 @@ export default function WorkFromHomeJobs({
   siteUrl,
 }) {
 
+  const router = useRouter()
+
+  const currentPage = Number(router.query.page) || 1
+
   const jobs = initialJobs || []
 
-  const pageUrl = `${siteUrl}/work-from-home`
+  const pageUrl =
+    currentPage > 1
+      ? `${siteUrl}/work-from-home?page=${currentPage}`
+      : `${siteUrl}/work-from-home`
 
   /* ✅ Breadcrumb Schema */
   const breadcrumbSchema = {
@@ -43,88 +51,27 @@ export default function WorkFromHomeJobs({
     ],
   }
 
-  /* ✅ Collection Schema */
-  const collectionSchema = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: "Remote & Work From Home Jobs Worldwide",
-    description:
-      "Latest remote and work from home jobs from global companies. Verified listings updated daily.",
-    url: pageUrl,
-  }
-
-  /* ✅ FAQ Schema */
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "Are these work from home jobs verified?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes, we list remote and work from home jobs from trusted and official sources.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Can I apply for international remote jobs?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes, many listed jobs are open for global applicants including USA, UAE, Canada and other countries.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Are work from home jobs available for freshers?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes, we regularly update remote jobs suitable for both freshers and experienced candidates.",
-        },
-      },
-    ],
-  }
-
   return (
     <>
       <Head>
 
         <title>
-          Remote & Work From Home Jobs Worldwide 2026 | FreshJobs
+          Remote & Work From Home Jobs Worldwide
+          {currentPage > 1 ? ` | Page ${currentPage}` : ""} | FreshJobs
         </title>
 
         <meta
           name="description"
-          content="Find latest remote and work from home jobs from global companies. Updated daily with verified listings for freshers and experienced candidates."
+          content="Find latest remote and work from home jobs from global companies. Updated daily with verified listings."
         />
 
         <meta name="robots" content="index, follow" />
 
         <link rel="canonical" href={pageUrl} />
 
-        {/* Open Graph */}
-        <meta property="og:title" content="Remote & Work From Home Jobs Worldwide" />
-        <meta
-          property="og:description"
-          content="Latest remote jobs and flexible work from home opportunities worldwide."
-        />
-        <meta property="og:url" content={pageUrl} />
-        <meta property="og:type" content="website" />
-
-        {/* Schemas */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
 
       </Head>
@@ -218,24 +165,35 @@ export default function WorkFromHomeJobs({
 
           <div className="flex justify-center mt-10 space-x-2 flex-wrap">
 
-            <span className="px-4 py-2 border rounded bg-blue-600 text-white">
-              1
-            </span>
+            {currentPage > 1 && (
+              <Link
+                href={`/work-from-home?page=${currentPage - 1}`}
+                className="px-4 py-2 border rounded hover:bg-gray-200"
+              >
+                « Prev
+              </Link>
+            )}
 
-            {Array.from({ length: Math.min(10, totalPages - 1) }, (_, i) => i + 2)
+            {Array.from({ length: Math.min(7, totalPages) }, (_, i) => i + 1)
               .map((page) => (
+
                 <Link
                   key={page}
-                  href={`/work-from-home/page/${page}`}
-                  className="px-4 py-2 border rounded hover:bg-gray-200"
+                  href={`/work-from-home?page=${page}`}
+                  className={`px-4 py-2 border rounded ${
+                    page === currentPage
+                      ? "bg-blue-600 text-white"
+                      : "hover:bg-gray-200"
+                  }`}
                 >
                   {page}
                 </Link>
+
               ))}
 
-            {totalPages > 1 && (
+            {currentPage < totalPages && (
               <Link
-                href={`/work-from-home/page/2`}
+                href={`/work-from-home?page=${currentPage + 1}`}
                 className="px-4 py-2 border rounded hover:bg-gray-200"
               >
                 Next »
@@ -253,7 +211,9 @@ export default function WorkFromHomeJobs({
 
 /* ✅ STATIC GENERATION */
 
-export async function getStaticProps() {
+export async function getServerSideProps({ query }) {
+
+  const page = Number(query.page) || 1
 
   try {
 
@@ -262,7 +222,7 @@ export async function getStaticProps() {
       "https://freshjobs.store"
 
     const response = await fetch(
-      `${siteUrl}/api/search?category=work-from-home&page=1&limit=10`
+      `${siteUrl}/api/search?category=work-from-home&page=${page}&limit=10`
     )
 
     const data = await response.json()
@@ -273,7 +233,6 @@ export async function getStaticProps() {
         totalPages: data.totalPages || 1,
         siteUrl,
       },
-      revalidate: 1800,
     }
 
   } catch {
@@ -284,7 +243,6 @@ export async function getStaticProps() {
         totalPages: 1,
         siteUrl: "https://freshjobs.store",
       },
-      revalidate: 1800,
     }
 
   }
