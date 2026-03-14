@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState, useMemo } from "react";
 import Head from "next/head";
 import JobCard from "../../../components/JobCard";
+import Breadcrumb from "../../../components/Breadcrumb";
 
 export default function CategoryPage() {
 
@@ -31,6 +32,16 @@ export default function CategoryPage() {
     if (!category) return false;
     return specialCategories.includes(category);
   }, [category]);
+
+  const readableCategory = category ? category.replace(/-/g, " ") : "";
+
+  /* -------- Breadcrumb -------- */
+
+  const breadcrumbItems = [
+    { label: "Home", href: "/" },
+    { label: "Jobs", href: "/jobs" },
+    { label: `${readableCategory} Jobs`, href: `/jobs/${category}` }
+  ];
 
   useEffect(() => {
 
@@ -91,8 +102,6 @@ export default function CategoryPage() {
     return <p className="p-4">Loading...</p>;
   }
 
-  const readableCategory = category.replace(/-/g, " ");
-
   const pageTitle =
     `${readableCategory} Jobs` +
     (!isSpecialCategory ? " in India" : "") +
@@ -137,6 +146,9 @@ export default function CategoryPage() {
         <meta name="description" content={pageDescription} />
         <link rel="canonical" href={canonicalUrl} />
       </Head>
+
+      {/* Breadcrumb */}
+      <Breadcrumb items={breadcrumbItems} />
 
       <h1 className="text-2xl font-bold mb-6 capitalize">
         {readableCategory} Jobs {!isSpecialCategory && "in India"}
