@@ -272,18 +272,18 @@ export default async function handler(req,res){
     /* -------- LOCATION FILTER -------- */
 
     if(
-      location &&
-      location!=="india" &&
-      category!=="work-from-home" &&
-      category!=="ai-jobs"
-    ){
+  location &&
+  category!=="work-from-home" &&
+  category!=="ai-jobs" &&
+  category!=="international"
+){
 
-      const loc=location.toLowerCase()
+  const loc = location.toLowerCase()
 
-      jobs=jobs.filter(job =>
-        buildText(job,["location","title","description"]).includes(loc)
-      )
-    }
+  jobs = jobs.filter(job =>
+    buildText(job,["location","title","description"]).includes(loc)
+  )
+}
 
     /* -------- SEARCH -------- */
 
