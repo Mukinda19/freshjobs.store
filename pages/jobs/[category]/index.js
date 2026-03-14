@@ -22,7 +22,7 @@ export default function CategoryPage() {
 
   const currentPage = useMemo(() => {
     if (!isReady) return 1;
-    return Number(router.query.page) || 1;
+    return Math.max(parseInt(router.query.page) || 1, 1);
   }, [router.query.page, isReady]);
 
   const specialCategories = ["work-from-home", "ai-jobs"];
@@ -112,7 +112,14 @@ export default function CategoryPage() {
 
     if (p < 1 || p > totalPages) return;
 
-    router.push(`/jobs/${category}?page=${p}`);
+    router.push(
+      {
+        pathname: `/jobs/${category}`,
+        query: { page: p }
+      },
+      undefined,
+      { shallow: true }
+    );
 
     window.scrollTo({
       top: 0,
