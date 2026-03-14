@@ -184,8 +184,6 @@ export default async function handler(req,res){
     const page = Math.max(parseInt(req.query.page) || 1,1)
     const limit = Math.max(Math.min(parseInt(req.query.limit) || 10,20),1)
 
-    /* -------- FETCH DATA -------- */
-
     if(!cachedJobs || Date.now()-lastFetchTime > CACHE_DURATION){
 
       const response = await fetch(`${SHEET_URL}?limit=1500`)
@@ -198,25 +196,11 @@ export default async function handler(req,res){
       else if(Array.isArray(data.data)) jobs = data.data
 
       jobs = jobs.map(job => ({
-
         ...job,
-
         slug:generateSlug(job.title,job.link),
-
-        description:
-          job.description ||
-          job.snippet ||
-          "Click to view full job details.",
-
-        datePosted:
-          job.datePosted ||
-          job.pubDate ||
-          new Date().toISOString(),
-
-        validThrough:new Date(
-          Date.now()+30*24*60*60*1000
-        ).toISOString()
-
+        description: job.description || job.snippet || "Click to view full job details.",
+        datePosted: job.datePosted || job.pubDate || new Date().toISOString(),
+        validThrough:new Date(Date.now()+30*24*60*60*1000).toISOString()
       }))
 
       cachedJobs = dedupeJobs(jobs)
@@ -225,14 +209,9 @@ export default async function handler(req,res){
 
     let jobs=[...cachedJobs]
 
-    /* -------- DETAIL PAGE -------- */
-
     if(slug){
-
       const job=jobs.find(j=>j.slug===slug)
-
       if(!job) return res.status(404).json({job:null})
-
       return res.status(200).json({job})
     }
 
@@ -251,19 +230,19 @@ export default async function handler(req,res){
         jobs=jobs.filter(j=>isAIJob(j) && !isGovtJob(j))
 
       else if(cat==="it")
-        jobs=jobs.filter(isITJob)
+        jobs=jobs.filter(j => isITJob(j) && !isInternational(j))
 
       else if(cat==="banking")
-        jobs=jobs.filter(isBankingJob)
+        jobs=jobs.filter(j => isBankingJob(j) && !isInternational(j))
 
       else if(cat==="bpo")
-        jobs=jobs.filter(isBPOJob)
+        jobs=jobs.filter(j => isBPOJob(j) && !isInternational(j))
 
       else if(cat==="sales")
-        jobs=jobs.filter(isSalesJob)
+        jobs=jobs.filter(j => isSalesJob(j) && !isInternational(j))
 
       else if(cat==="engineering")
-        jobs=jobs.filter(isEngineeringJob)
+        jobs=jobs.filter(j => isEngineeringJob(j) && !isInternational(j))
 
       else if(cat==="international")
         jobs=jobs.filter(isInternational)
@@ -272,20 +251,18 @@ export default async function handler(req,res){
     /* -------- LOCATION FILTER -------- */
 
     if(
-  location &&
-  category!=="work-from-home" &&
-  category!=="ai-jobs" &&
-  category!=="international"
-){
+      location &&
+      category!=="work-from-home" &&
+      category!=="ai-jobs" &&
+      category!=="international"
+    ){
 
-  const loc = location.toLowerCase()
+      const loc = location.toLowerCase()
 
-  jobs = jobs.filter(job =>
-    buildText(job,["location","title","description"]).includes(loc)
-  )
-}
-
-    /* -------- SEARCH -------- */
+      jobs = jobs.filter(job =>
+        buildText(job,["location","title","description"]).includes(loc)
+      )
+    }
 
     if(q && q.trim()){
 
@@ -296,11 +273,7 @@ export default async function handler(req,res){
       )
     }
 
-    /* -------- SORT -------- */
-
     jobs.sort((a,b)=>new Date(b.datePosted)-new Date(a.datePosted))
-
-    /* -------- PAGINATION -------- */
 
     const total = jobs.length
     const totalPages = Math.max(Math.ceil(total/limit),1)
@@ -311,12 +284,10 @@ export default async function handler(req,res){
     const end=start+limit
 
     return res.status(200).json({
-
       jobs:jobs.slice(start,end),
       total,
       page:safePage,
       totalPages
-
     })
 
   }
@@ -326,12 +297,10 @@ export default async function handler(req,res){
     console.error("API error:",err)
 
     return res.status(500).json({
-
       jobs:[],
       total:0,
       page:1,
       totalPages:1
-
     })
   }
 }
