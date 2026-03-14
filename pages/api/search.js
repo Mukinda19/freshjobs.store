@@ -181,8 +181,8 @@ export default async function handler(req,res){
 
     const { category,q,slug,location } = req.query
 
-    const page = Math.max(Number(req.query.page)||1,1)
-    const limit = Math.min(Number(req.query.limit)||10,20)
+    const page = Math.max(parseInt(req.query.page) || 1,1)
+    const limit = Math.max(Math.min(parseInt(req.query.limit) || 10,20),1)
 
     /* -------- FETCH DATA -------- */
 
@@ -305,13 +305,14 @@ export default async function handler(req,res){
     const total = jobs.length
     const totalPages = Math.max(Math.ceil(total/limit),1)
 
-    const safePage = Math.min(page,totalPages)
+    const safePage = page > totalPages ? totalPages : page
 
     const start=(safePage-1)*limit
+    const end=start+limit
 
     return res.status(200).json({
 
-      jobs:jobs.slice(start,start+limit),
+      jobs:jobs.slice(start,end),
       total,
       page:safePage,
       totalPages
