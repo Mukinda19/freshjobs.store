@@ -345,7 +345,7 @@ export default async function handler(req,res){
     const SHEET_URL =
       "https://script.google.com/macros/s/AKfycbyJFzC1seakm3y5BK8d-W7OPSLI1KqE1hXeeVqR_IaCuvbNDsexy8Ey4SY3k-DAL2ta/exec"
 
-    const { category,q,slug,location } = req.query
+    const { category,q,slug,location,title } = req.query
 
     const page = Math.max(parseInt(req.query.page) || 1,1)
     const limit = Math.max(Math.min(parseInt(req.query.limit) || 10,20),1)
@@ -427,6 +427,17 @@ export default async function handler(req,res){
 
       jobs = jobs.filter(job =>
         buildText(job,["location","title","description"]).includes(loc)
+      )
+    }
+
+    /* -------- TITLE FILTER -------- */
+
+    if(title){
+
+      const keyword = title.toLowerCase().replace(/-/g," ")
+
+      jobs = jobs.filter(job =>
+        buildText(job,["title","description"]).includes(keyword)
       )
     }
 
