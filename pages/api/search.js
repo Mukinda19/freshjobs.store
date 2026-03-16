@@ -76,7 +76,9 @@ const isWFHJob = job => {
     "remote opportunity",
     "wfh",
     "freelance",
-    "anywhere"
+    "anywhere",
+    "work remotely",
+    "remote anywhere"
   ]
 
   return containsKeyword(text,keywords)
@@ -141,7 +143,8 @@ const isBankingJob = job => {
   return containsKeyword(text,[
     "bank","banking","loan officer",
     "credit officer","relationship manager",
-    "branch manager","financial advisor"
+    "branch manager","financial advisor",
+    "bank clerk","probationary officer"
   ])
 }
 
@@ -162,7 +165,9 @@ const isBPOJob = job => {
     "process associate",
     "customer success",
     "support executive",
-    "inbound process","outbound process"
+    "inbound process","outbound process",
+    "call centre executive",
+    "customer representative"
 
   ])
 }
@@ -188,7 +193,11 @@ const isSalesJob = job => {
     "relationship manager",
     "account manager",
     "marketing executive",
-    "channel sales"
+    "channel sales",
+    "client acquisition",
+    "growth manager",
+    "key account manager",
+    "pre sales"
 
   ])
 }
@@ -237,9 +246,18 @@ const isInternational = job => {
     "canada","usa","uk",
     "australia","singapore",
     "europe","germany",
+
     "remote worldwide",
+    "worldwide remote",
     "global remote",
-    "work from anywhere"
+    "work from anywhere",
+    "anywhere in the world",
+    "remote europe",
+    "remote us",
+    "remote usa",
+    "remote uk",
+    "remote canada",
+    "global opportunity"
 
   ])
 }
