@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import Head from "next/head"
 import { useRouter } from "next/router"
+import Link from "next/link"
 import CategoryGrid from "../components/CategoryGrid"
 import JobCard from "../components/JobCard"
 
@@ -217,30 +218,13 @@ export default function Home({ initialJobs }) {
           href="https://www.freshjobs.store/"
         />
 
-        {/* Open Graph */}
-
-        <meta
-          property="og:title"
-          content="Latest Jobs in India | FreshJobs"
-        />
-
-        <meta
-          property="og:description"
-          content="Explore thousands of latest job openings across IT, banking, BPO, engineering and government sectors."
-        />
-
-        <meta
-          property="og:url"
-          content="https://www.freshjobs.store/"
-        />
-
+        <meta property="og:title" content="Latest Jobs in India | FreshJobs"/>
+        <meta property="og:description" content="Explore thousands of latest job openings across IT, banking, BPO, engineering and government sectors."/>
+        <meta property="og:url" content="https://www.freshjobs.store/"/>
         <meta property="og:type" content="website"/>
-
         <meta property="og:site_name" content="FreshJobs"/>
 
         <meta name="twitter:card" content="summary_large_image"/>
-
-        {/* Schema */}
 
         <script
           type="application/ld+json"
@@ -256,16 +240,12 @@ export default function Home({ initialJobs }) {
       <section className="text-center my-10">
 
         <h1 className="text-3xl md:text-4xl font-bold mb-3">
-
           Find Latest Jobs in India
-
         </h1>
 
         <p className="text-gray-600 max-w-2xl mx-auto">
-
           Discover the newest job openings across IT, banking,
           BPO, engineering, government and work from home categories.
-
         </p>
 
       </section>
@@ -275,12 +255,36 @@ export default function Home({ initialJobs }) {
       <section className="my-10">
 
         <h2 className="text-xl font-semibold mb-6 text-center">
-
           Popular Job Categories
-
         </h2>
 
         <CategoryGrid/>
+
+      </section>
+
+      {/* NEW SEO SECTION */}
+
+      <section className="max-w-6xl mx-auto px-4 my-10">
+
+        <h2 className="text-xl font-semibold mb-6 text-center">
+          Popular Job Locations
+        </h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+
+          <Link href="/jobs/all/mumbai" className="hover:text-blue-600">Jobs in Mumbai</Link>
+          <Link href="/jobs/all/delhi" className="hover:text-blue-600">Jobs in Delhi</Link>
+          <Link href="/jobs/all/bangalore" className="hover:text-blue-600">Jobs in Bangalore</Link>
+          <Link href="/jobs/all/pune" className="hover:text-blue-600">Jobs in Pune</Link>
+          <Link href="/jobs/all/hyderabad" className="hover:text-blue-600">Jobs in Hyderabad</Link>
+
+          <Link href="/jobs/all/chennai" className="hover:text-blue-600">Jobs in Chennai</Link>
+          <Link href="/jobs/all/kolkata" className="hover:text-blue-600">Jobs in Kolkata</Link>
+          <Link href="/jobs/all/ahmedabad" className="hover:text-blue-600">Jobs in Ahmedabad</Link>
+          <Link href="/jobs/all/noida" className="hover:text-blue-600">Jobs in Noida</Link>
+          <Link href="/jobs/all/gurgaon" className="hover:text-blue-600">Jobs in Gurgaon</Link>
+
+        </div>
 
       </section>
 
@@ -335,9 +339,7 @@ export default function Home({ initialJobs }) {
           </select>
 
           <button className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 transition">
-
             Search Jobs
-
           </button>
 
         </form>
@@ -349,9 +351,7 @@ export default function Home({ initialJobs }) {
       <section className="my-12">
 
         <h2 className="text-2xl font-semibold mb-6">
-
           Latest Job Openings
-
         </h2>
 
         <div className="grid md:grid-cols-2 gap-4">
@@ -368,9 +368,7 @@ export default function Home({ initialJobs }) {
           ) : (
 
             <p className="text-gray-500">
-
               No jobs found.
-
             </p>
 
           )}
