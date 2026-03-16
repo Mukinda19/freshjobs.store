@@ -104,6 +104,36 @@ export default function Footer() {
               </Link>
             </li>
 
+            <li>
+              <Link href="/jobs/all/chennai" className="hover:text-white">
+                Jobs in Chennai
+              </Link>
+            </li>
+
+            <li>
+              <Link href="/jobs/all/kolkata" className="hover:text-white">
+                Jobs in Kolkata
+              </Link>
+            </li>
+
+            <li>
+              <Link href="/jobs/all/ahmedabad" className="hover:text-white">
+                Jobs in Ahmedabad
+              </Link>
+            </li>
+
+            <li>
+              <Link href="/jobs/all/noida" className="hover:text-white">
+                Jobs in Noida
+              </Link>
+            </li>
+
+            <li>
+              <Link href="/jobs/all/gurgaon" className="hover:text-white">
+                Jobs in Gurgaon
+              </Link>
+            </li>
+
           </ul>
         </div>
 
