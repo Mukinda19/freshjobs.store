@@ -18,7 +18,6 @@ export default function CategoryLocationPage({
 
   const normalizedCategory = String(category || "").toLowerCase().trim();
 
-  // categories jaha location ignore hoga
   const ignoreLocationCategories = ["work-from-home", "ai-jobs"];
 
   const ignoreLocation = ignoreLocationCategories.includes(normalizedCategory);
@@ -34,7 +33,7 @@ export default function CategoryLocationPage({
 
   const pageDescription = ignoreLocation
     ? `Find latest ${readableCategory} jobs updated daily with verified application links.`
-    : `Latest ${readableCategory} jobs in ${readableLocation}. Browse verified job vacancies with direct apply links. Updated daily.`;
+    : `Find the latest ${readableCategory} jobs in ${readableLocation}. FreshJobs collects verified job openings from trusted sources and updates listings daily to help job seekers discover new opportunities quickly.`;
 
   const canonicalUrl =
     currentPage > 1
@@ -52,12 +51,10 @@ export default function CategoryLocationPage({
       : null;
 
   const goToPage = (page) => {
-
     router.push({
       pathname: `/jobs/${category}/${location}`,
       query: { page },
     });
-
   };
 
   const breadcrumbSchema = {
@@ -144,11 +141,13 @@ export default function CategoryLocationPage({
 
       </h1>
 
+      {/* SEO Intro Content */}
+
       <p className="text-gray-600 mb-6">
 
-        Discover latest {readableCategory} job opportunities.
-        Browse verified listings with direct apply links.
-        Updated daily with fresh openings.
+        {ignoreLocation
+          ? `Browse the latest ${readableCategory} opportunities on FreshJobs. Our platform gathers verified job listings from trusted sources and updates them regularly so job seekers can find new opportunities quickly.`
+          : `Looking for the latest ${readableCategory} jobs in ${readableLocation}? FreshJobs brings you updated job openings collected from multiple trusted sources. Browse verified listings, explore new career opportunities and apply directly through official job links. New ${readableCategory} jobs in ${readableLocation} are added regularly to help job seekers find the best opportunities.`}
 
       </p>
 
