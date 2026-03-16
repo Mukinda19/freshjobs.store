@@ -76,7 +76,6 @@ const isWFHJob = job => {
     "remote opportunity",
     "wfh",
     "freelance",
-    "anywhere",
     "work remotely",
     "remote anywhere"
   ]
@@ -95,7 +94,9 @@ const isAIJob = job => {
     "ai engineer",
     "ml engineer",
     "generative ai",
-    "prompt engineer"
+    "prompt engineer",
+    "chatgpt",
+    "llm engineer"
   ]
 
   return containsKeyword(text,keywords)
@@ -110,25 +111,52 @@ const isITJob = job => {
   const keywords = [
 
     "developer","software","programmer",
-    "frontend","backend","full stack",
-    "web developer","software engineer",
+    "software developer","software engineer",
     "application developer",
-    "react","reactjs","angular","vue",
-    "node","nodejs",
+
+    "frontend","frontend developer",
+    "backend","backend developer",
+    "full stack","full stack developer",
+
+    "web developer","website developer",
+
+    "react","reactjs","angular","vue","vuejs",
+    "node","nodejs","expressjs",
+
     "java","python","php",".net","dotnet",
-    "spring boot",
+    "spring","spring boot",
+
     "android developer","ios developer",
     "mobile developer","app developer",
+
     "data analyst","data scientist",
-    "devops","cloud engineer",
+    "data engineer","big data",
+
+    "devops","devops engineer",
+
+    "cloud","cloud engineer",
     "aws","azure","gcp",
+
     "system administrator",
     "network engineer",
+    "it support",
+    "technical support",
+
     "database administrator","dba",
+    "sql developer",
+
     "qa engineer","test engineer",
-    "software tester",
-    "ui developer","ux designer",
-    "cyber security","information security"
+    "software tester","qa tester",
+
+    "ui developer","ui designer",
+    "ux designer",
+
+    "cyber security","information security",
+    "penetration tester",
+
+    "wordpress developer",
+    "shopify developer",
+    "web designer"
   ]
 
   return containsKeyword(text,keywords)
@@ -159,15 +187,26 @@ const isBPOJob = job => {
     "bpo","call center","call centre",
     "customer support","customer service",
     "customer care",
+
     "telecaller","telesales",
+    "tele calling","tele calling executive",
+
     "voice process","non voice process",
+
     "chat support","email support",
     "process associate",
+
     "customer success",
     "support executive",
+    "customer executive",
+
     "inbound process","outbound process",
+
     "call centre executive",
-    "customer representative"
+    "customer representative",
+
+    "international voice process",
+    "domestic voice process"
 
   ])
 }
@@ -181,23 +220,40 @@ const isSalesJob = job => {
   return containsKeyword(text,[
 
     "sales","sales executive",
+    "sales officer",
+
     "sales manager",
+    "senior sales executive",
+
     "business development",
     "business development executive",
+    "business development manager",
+
     "bde","bdm",
-    "field sales",
+
+    "field sales","field sales executive",
+
     "inside sales",
     "direct sales",
+
     "territory sales",
+
     "area sales manager",
+
     "relationship manager",
+
     "account manager",
-    "marketing executive",
-    "channel sales",
-    "client acquisition",
-    "growth manager",
     "key account manager",
-    "pre sales"
+
+    "channel sales",
+
+    "client acquisition",
+
+    "marketing executive",
+    "marketing manager",
+
+    "pre sales",
+    "sales consultant"
 
   ])
 }
@@ -235,7 +291,7 @@ const isEngineeringJob = job => {
 
 const isInternational = job => {
 
-  const text = buildText(job,["title","description","location"])
+  const text = buildText(job,["title","description","location","company"])
 
   return containsKeyword(text,[
 
@@ -243,22 +299,35 @@ const isInternational = job => {
     "uae","dubai","abu dhabi",
     "saudi","qatar","oman",
     "kuwait","bahrain",
-    "canada","usa","uk",
+
+    "canada","usa","united states",
+    "uk","united kingdom",
     "australia","singapore",
-    "europe","germany",
+
+    "europe","germany","france",
+    "netherlands","ireland",
 
     "remote worldwide",
     "worldwide remote",
     "global remote",
+
+    "global company",
+    "global hiring",
+    "international hiring",
+
     "work from anywhere",
     "anywhere in the world",
+    "hiring worldwide",
+
     "remote europe",
     "remote us",
     "remote usa",
     "remote uk",
     "remote canada",
-    "global opportunity"
 
+    "global opportunity",
+    "open worldwide",
+    "distributed team"
   ])
 }
 
