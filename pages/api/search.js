@@ -99,69 +99,148 @@ const isAIJob = job => {
   return containsKeyword(text,keywords)
 }
 
+/* ---------------- IT JOBS ---------------- */
+
 const isITJob = job => {
 
   const text = buildText(job,["title","description"])
 
   const keywords = [
-    "developer","software",
-    "programmer","frontend",
-    "backend","react",
-    "node","java","python"
+
+    "developer","software","programmer",
+    "frontend","backend","full stack",
+    "web developer","software engineer",
+    "application developer",
+    "react","reactjs","angular","vue",
+    "node","nodejs",
+    "java","python","php",".net","dotnet",
+    "spring boot",
+    "android developer","ios developer",
+    "mobile developer","app developer",
+    "data analyst","data scientist",
+    "devops","cloud engineer",
+    "aws","azure","gcp",
+    "system administrator",
+    "network engineer",
+    "database administrator","dba",
+    "qa engineer","test engineer",
+    "software tester",
+    "ui developer","ux designer",
+    "cyber security","information security"
   ]
 
   return containsKeyword(text,keywords)
 }
 
+/* ---------------- BANKING ---------------- */
+
 const isBankingJob = job => {
 
   const text = buildText(job,["title","description"])
 
-  return containsKeyword(text,["bank","banking"])
+  return containsKeyword(text,[
+    "bank","banking","loan officer",
+    "credit officer","relationship manager",
+    "branch manager","financial advisor"
+  ])
 }
+
+/* ---------------- BPO ---------------- */
 
 const isBPOJob = job => {
 
   const text = buildText(job,["title","description"])
 
   return containsKeyword(text,[
-    "bpo","call center",
-    "customer support","telecaller"
+
+    "bpo","call center","call centre",
+    "customer support","customer service",
+    "customer care",
+    "telecaller","telesales",
+    "voice process","non voice process",
+    "chat support","email support",
+    "process associate",
+    "customer success",
+    "support executive",
+    "inbound process","outbound process"
+
   ])
 }
+
+/* ---------------- SALES ---------------- */
 
 const isSalesJob = job => {
 
   const text = buildText(job,["title","description"])
 
   return containsKeyword(text,[
-    "sales","business development",
-    "field sales"
+
+    "sales","sales executive",
+    "sales manager",
+    "business development",
+    "business development executive",
+    "bde","bdm",
+    "field sales",
+    "inside sales",
+    "direct sales",
+    "territory sales",
+    "area sales manager",
+    "relationship manager",
+    "account manager",
+    "marketing executive",
+    "channel sales"
+
   ])
 }
+
+/* ---------------- ENGINEERING ---------------- */
 
 const isEngineeringJob = job => {
 
   const text = buildText(job,["title","description"])
 
   return containsKeyword(text,[
+
     "engineer",
     "mechanical engineer",
     "civil engineer",
-    "electrical engineer"
+    "electrical engineer",
+    "electronics engineer",
+    "site engineer",
+    "production engineer",
+    "maintenance engineer",
+    "quality engineer",
+    "design engineer",
+    "project engineer",
+    "industrial engineer",
+    "automation engineer",
+    "manufacturing engineer",
+    "plant engineer",
+    "service engineer",
+    "field engineer"
+
   ])
 }
+
+/* ---------------- INTERNATIONAL ---------------- */
 
 const isInternational = job => {
 
   const text = buildText(job,["title","description","location"])
 
   return containsKeyword(text,[
+
     "abroad","overseas",
-    "uae","saudi","qatar",
-    "oman","kuwait",
+    "uae","dubai","abu dhabi",
+    "saudi","qatar","oman",
+    "kuwait","bahrain",
     "canada","usa","uk",
-    "remote worldwide"
+    "australia","singapore",
+    "europe","germany",
+    "remote worldwide",
+    "global remote",
+    "work from anywhere"
+
   ])
 }
 
