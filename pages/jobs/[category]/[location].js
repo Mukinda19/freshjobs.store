@@ -151,6 +151,30 @@ export default function CategoryLocationPage({
 
       </p>
 
+      {/* 🔥 INTERNAL LINKING BOOST */}
+
+      <div className="mb-8">
+
+        <h2 className="text-lg font-semibold mb-3">
+          Popular Searches
+        </h2>
+
+        <div className="flex flex-wrap gap-3 text-sm">
+
+          <Link href="/jobs/title/software-developer" className="text-blue-600 hover:underline">Software Developer Jobs</Link>
+          <Link href="/jobs/title/java-developer" className="text-blue-600 hover:underline">Java Developer Jobs</Link>
+          <Link href="/jobs/title/python-developer" className="text-blue-600 hover:underline">Python Developer Jobs</Link>
+          <Link href="/jobs/title/web-developer" className="text-blue-600 hover:underline">Web Developer Jobs</Link>
+
+          <Link href="/jobs/title/data-entry" className="text-blue-600 hover:underline">Data Entry Jobs</Link>
+          <Link href="/jobs/title/work-from-home" className="text-blue-600 hover:underline">Work From Home Jobs</Link>
+          <Link href="/jobs/title/digital-marketing" className="text-blue-600 hover:underline">Digital Marketing Jobs</Link>
+          <Link href="/jobs/title/accountant" className="text-blue-600 hover:underline">Accountant Jobs</Link>
+
+        </div>
+
+      </div>
+
       {jobs.length === 0 ? (
         <p>No jobs found for this category and location.</p>
       ) : (
@@ -198,12 +222,10 @@ export default function CategoryLocationPage({
 /* ================= STATIC GENERATION ================= */
 
 export async function getStaticPaths() {
-
   return {
     paths: [],
     fallback: "blocking",
   };
-
 }
 
 export async function getStaticProps(context) {
