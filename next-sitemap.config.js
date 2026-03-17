@@ -74,8 +74,8 @@ const config = {
       },
     ],
 
+    // ✅ FIX: self sitemap हटाया
     additionalSitemaps: [
-      `${BASE_URL}/sitemap.xml`,
       `${BASE_URL}/sitemap-pages.xml`,
       `${BASE_URL}/sitemap-categories.xml`,
     ],
@@ -99,7 +99,6 @@ const config = {
           lastmod: new Date().toISOString(),
         })) || []
 
-      // Job Title Pages
       const titlePaths = JOB_TITLES.map((title) => ({
         loc: `/jobs/title/${title}`,
         changefreq: "daily",
@@ -107,7 +106,6 @@ const config = {
         lastmod: new Date().toISOString(),
       }))
 
-      // City Pages
       const cityPaths = CITY_PAGES.map((city) => ({
         loc: `/jobs/all/${city}`,
         changefreq: "daily",
