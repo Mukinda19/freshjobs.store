@@ -18,8 +18,6 @@ export default function Home({ initialJobs }) {
 
   const [filteredJobs,setFilteredJobs] = useState(initialJobs || [])
 
-  /* -------- SEARCH -------- */
-
   const handleSearch = (e) => {
 
     e.preventDefault()
@@ -35,8 +33,6 @@ export default function Home({ initialJobs }) {
 
   }
 
-  /* -------- DEDUPE -------- */
-
   const dedupeJobs = (jobs) => {
 
     return Array.from(
@@ -49,8 +45,6 @@ export default function Home({ initialJobs }) {
     )
 
   }
-
-  /* -------- FILTER FETCH -------- */
 
   useEffect(()=>{
 
@@ -113,8 +107,6 @@ export default function Home({ initialJobs }) {
 
   },[category,keyword,location])
 
-  /* -------- LOAD MORE -------- */
-
   const loadMore = async ()=>{
 
     if(loading) return
@@ -174,26 +166,17 @@ export default function Home({ initialJobs }) {
 
   }
 
-  /* -------- STRUCTURED DATA -------- */
-
   const structuredData = {
 
     "@context":"https://schema.org",
-
     "@type":"WebSite",
-
     "name":"FreshJobs",
-
     "url":"https://www.freshjobs.store",
 
     "potentialAction":{
-
       "@type":"SearchAction",
-
       "target":"https://www.freshjobs.store/jobs/all/india?q={search_term_string}",
-
       "query-input":"required name=search_term_string"
-
     }
 
   }
@@ -213,10 +196,7 @@ export default function Home({ initialJobs }) {
 
         <meta name="robots" content="index,follow"/>
 
-        <link
-          rel="canonical"
-          href="https://www.freshjobs.store/"
-        />
+        <link rel="canonical" href="https://www.freshjobs.store/" />
 
         <meta property="og:title" content="Latest Jobs in India | FreshJobs"/>
         <meta property="og:description" content="Explore thousands of latest job openings across IT, banking, BPO, engineering and government sectors."/>
@@ -236,62 +216,80 @@ export default function Home({ initialJobs }) {
       </Head>
 
       {/* HERO */}
-
       <section className="text-center my-10">
-
         <h1 className="text-3xl md:text-4xl font-bold mb-3">
           Find Latest Jobs in India
         </h1>
-
         <p className="text-gray-600 max-w-2xl mx-auto">
           Discover the newest job openings across IT, banking,
           BPO, engineering, government and work from home categories.
         </p>
-
       </section>
 
       {/* CATEGORY GRID */}
-
       <section className="my-10">
-
         <h2 className="text-xl font-semibold mb-6 text-center">
           Popular Job Categories
         </h2>
-
         <CategoryGrid/>
-
       </section>
 
-      {/* NEW SEO SECTION */}
-
+      {/* 🔥 NEW SEO SECTION (JOB TITLES) */}
       <section className="max-w-6xl mx-auto px-4 my-10">
+        <h2 className="text-xl font-semibold mb-6 text-center">
+          Popular Job Searches
+        </h2>
 
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+
+          <Link href="/jobs/title/software-developer">Software Developer Jobs</Link>
+          <Link href="/jobs/title/java-developer">Java Developer Jobs</Link>
+          <Link href="/jobs/title/python-developer">Python Developer Jobs</Link>
+          <Link href="/jobs/title/full-stack-developer">Full Stack Developer Jobs</Link>
+
+          <Link href="/jobs/title/web-developer">Web Developer Jobs</Link>
+          <Link href="/jobs/title/frontend-developer">Frontend Developer Jobs</Link>
+          <Link href="/jobs/title/backend-developer">Backend Developer Jobs</Link>
+          <Link href="/jobs/title/data-entry">Data Entry Jobs</Link>
+
+          <Link href="/jobs/title/work-from-home">Work From Home Jobs</Link>
+          <Link href="/jobs/title/remote">Remote Jobs</Link>
+          <Link href="/jobs/title/digital-marketing">Digital Marketing Jobs</Link>
+          <Link href="/jobs/title/graphic-designer">Graphic Designer Jobs</Link>
+
+          <Link href="/jobs/title/hr">HR Jobs</Link>
+          <Link href="/jobs/title/accountant">Accountant Jobs</Link>
+          <Link href="/jobs/title/customer-support">Customer Support Jobs</Link>
+          <Link href="/jobs/title/business-analyst">Business Analyst Jobs</Link>
+
+        </div>
+      </section>
+
+      {/* LOCATION SECTION */}
+      <section className="max-w-6xl mx-auto px-4 my-10">
         <h2 className="text-xl font-semibold mb-6 text-center">
           Popular Job Locations
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
 
-          <Link href="/jobs/all/mumbai" className="hover:text-blue-600">Jobs in Mumbai</Link>
-          <Link href="/jobs/all/delhi" className="hover:text-blue-600">Jobs in Delhi</Link>
-          <Link href="/jobs/all/bangalore" className="hover:text-blue-600">Jobs in Bangalore</Link>
-          <Link href="/jobs/all/pune" className="hover:text-blue-600">Jobs in Pune</Link>
-          <Link href="/jobs/all/hyderabad" className="hover:text-blue-600">Jobs in Hyderabad</Link>
+          <Link href="/jobs/all/mumbai">Jobs in Mumbai</Link>
+          <Link href="/jobs/all/delhi">Jobs in Delhi</Link>
+          <Link href="/jobs/all/bangalore">Jobs in Bangalore</Link>
+          <Link href="/jobs/all/pune">Jobs in Pune</Link>
+          <Link href="/jobs/all/hyderabad">Jobs in Hyderabad</Link>
 
-          <Link href="/jobs/all/chennai" className="hover:text-blue-600">Jobs in Chennai</Link>
-          <Link href="/jobs/all/kolkata" className="hover:text-blue-600">Jobs in Kolkata</Link>
-          <Link href="/jobs/all/ahmedabad" className="hover:text-blue-600">Jobs in Ahmedabad</Link>
-          <Link href="/jobs/all/noida" className="hover:text-blue-600">Jobs in Noida</Link>
-          <Link href="/jobs/all/gurgaon" className="hover:text-blue-600">Jobs in Gurgaon</Link>
+          <Link href="/jobs/all/chennai">Jobs in Chennai</Link>
+          <Link href="/jobs/all/kolkata">Jobs in Kolkata</Link>
+          <Link href="/jobs/all/ahmedabad">Jobs in Ahmedabad</Link>
+          <Link href="/jobs/all/noida">Jobs in Noida</Link>
+          <Link href="/jobs/all/gurgaon">Jobs in Gurgaon</Link>
 
         </div>
-
       </section>
 
       {/* SEARCH */}
-
       <section className="my-10">
-
         <form
           onSubmit={handleSearch}
           className="grid md:grid-cols-4 gap-3 bg-white p-4 rounded-lg shadow-md"
@@ -310,7 +308,6 @@ export default function Home({ initialJobs }) {
             onChange={e=>setCategory(e.target.value)}
             className="border px-3 py-2 rounded w-full"
           >
-
             <option value="">All Categories</option>
             <option value="it">IT Jobs</option>
             <option value="banking">Banking Jobs</option>
@@ -320,7 +317,6 @@ export default function Home({ initialJobs }) {
             <option value="govt-jobs">Government Jobs</option>
             <option value="work-from-home">Work From Home</option>
             <option value="ai">AI Jobs</option>
-
           </select>
 
           <select
@@ -328,14 +324,12 @@ export default function Home({ initialJobs }) {
             onChange={e=>setLocation(e.target.value)}
             className="border px-3 py-2 rounded w-full"
           >
-
             <option value="">All India</option>
             <option value="mumbai">Mumbai</option>
             <option value="delhi">Delhi</option>
             <option value="pune">Pune</option>
             <option value="bangalore">Bangalore</option>
             <option value="hyderabad">Hyderabad</option>
-
           </select>
 
           <button className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 transition">
@@ -343,11 +337,9 @@ export default function Home({ initialJobs }) {
           </button>
 
         </form>
-
       </section>
 
       {/* JOB LIST */}
-
       <section className="my-12">
 
         <h2 className="text-2xl font-semibold mb-6">
@@ -366,11 +358,9 @@ export default function Home({ initialJobs }) {
             ))
 
           ) : (
-
             <p className="text-gray-500">
               No jobs found.
             </p>
-
           )}
 
         </div>
@@ -384,9 +374,7 @@ export default function Home({ initialJobs }) {
               disabled={loading}
               className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
             >
-
               {loading ? "Loading..." : "Load More Jobs"}
-
             </button>
 
           </div>
@@ -396,7 +384,6 @@ export default function Home({ initialJobs }) {
       </section>
 
     </>
-
   )
 
 }
@@ -420,13 +407,10 @@ export async function getStaticProps(){
     const data = await res.json()
 
     return{
-
       props:{
         initialJobs:data.jobs || []
       },
-
       revalidate:900
-
     }
 
   }
@@ -434,13 +418,10 @@ export async function getStaticProps(){
   catch{
 
     return{
-
       props:{
         initialJobs:[]
       },
-
       revalidate:600
-
     }
 
   }
