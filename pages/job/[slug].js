@@ -78,7 +78,20 @@ export default function JobDetailPage({ job, siteUrl }) {
 
     title: title,
     description: description,
-    url: canonicalUrl,
+    identifier: {
+      "@type": "PropertyValue",
+      name: company,
+      value: canonicalSlug,
+    },
+
+    datePosted: job.datePosted || new Date().toISOString(),
+    validThrough:
+      job.validThrough ||
+      new Date(
+        new Date().setMonth(new Date().getMonth() + 1)
+      ).toISOString(),
+
+    employmentType: job.type || "FULL_TIME",
 
     hiringOrganization: {
       "@type": "Organization",
@@ -96,6 +109,14 @@ export default function JobDetailPage({ job, siteUrl }) {
     },
 
     directApply: true,
+    url: canonicalUrl,
+
+    ...(applyLink && {
+      applicationContact: {
+        "@type": "ContactPoint",
+        url: applyLink,
+      },
+    }),
 
     ...(salaryNumber && {
       baseSalary: {
@@ -103,18 +124,11 @@ export default function JobDetailPage({ job, siteUrl }) {
         currency: "INR",
         value: {
           "@type": "QuantitativeValue",
-          value: salaryNumber,
+          value: Number(salaryNumber),
           unitText: "MONTH",
         },
       },
     }),
-
-    datePosted: job.datePosted || new Date().toISOString(),
-    validThrough:
-      job.validThrough ||
-      new Date(
-        new Date().setMonth(new Date().getMonth() + 1)
-      ).toISOString(),
   }
 
   return (
@@ -133,6 +147,18 @@ export default function JobDetailPage({ job, siteUrl }) {
 
         <link rel="canonical" href={canonicalUrl} />
 
+        {/* Open Graph (SEO Boost) */}
+        <meta property="og:title" content={`${title} at ${company}`} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="website" />
+
+        {/* Twitter SEO */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${title} at ${company}`} />
+        <meta name="twitter:description" content={description} />
+
+        {/* Google Jobs Schema */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
