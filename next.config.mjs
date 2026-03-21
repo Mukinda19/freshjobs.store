@@ -11,6 +11,14 @@ const nextConfig = {
 
   async redirects() {
     return [
+      /* 🔥 FIX: trailing slash job URL → no slash */
+
+      {
+        source: "/job/:slug/",
+        destination: "/job/:slug",
+        permanent: true,
+      },
+
       /* ✅ Redirect OLD job URLs → NEW job URLs */
 
       {
