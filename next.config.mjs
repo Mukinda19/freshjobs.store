@@ -7,28 +7,27 @@ const nextConfig = {
     domains: ["via.placeholder.com"],
   },
 
-  trailingSlash: true,
+  // ❌ REMOVE THIS (loop ka main reason)
+  // trailingSlash: true,
 
   async redirects() {
     return [
-      /* 🔥 FIX: trailing slash job URL → no slash */
 
-      {
-        source: "/job/:slug/",
-        destination: "/job/:slug",
-        permanent: true,
-      },
-
-      /* ✅ Redirect OLD job URLs → NEW job URLs */
-
+      /* ✅ OLD jobs URL fix */
       {
         source: "/jobs/:slug",
         destination: "/job/:slug",
         permanent: true,
       },
 
-      /* ✅ Force NON-WWW → WWW (SEO Canonical Fix) */
+      /* ❌ REMOVE THIS (loop create kar raha hai) */
+      // {
+      //   source: '/job/:slug/',
+      //   destination: '/job/:slug',
+      //   permanent: true,
+      // },
 
+      /* ✅ Non-www → www */
       {
         source: "/:path*",
         has: [
@@ -41,8 +40,7 @@ const nextConfig = {
         permanent: true,
       },
 
-      /* ✅ Redirect Vercel Domain → Main Domain */
-
+      /* ✅ Vercel domain → main domain */
       {
         source: "/:path*",
         has: [
@@ -54,6 +52,7 @@ const nextConfig = {
         destination: "https://www.freshjobs.store/:path*",
         permanent: true,
       },
+
     ];
   },
 
@@ -61,27 +60,11 @@ const nextConfig = {
     return [
       {
         source: "/(.*)",
-
         headers: [
-          {
-            key: "X-Frame-Options",
-            value: "SAMEORIGIN",
-          },
-
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
-          },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-XSS-Protection", value: "1; mode=block" },
         ],
       },
     ];
