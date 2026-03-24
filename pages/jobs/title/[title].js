@@ -6,21 +6,21 @@ export default function TitleJobsPage() {
 
   const router = useRouter()
 
-  const { title,page=1 } = router.query
+  const { title, page = 1 } = router.query
 
-  const [jobs,setJobs] = useState([])
-  const [loading,setLoading] = useState(true)
-  const [totalPages,setTotalPages] = useState(1)
+  const [jobs, setJobs] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [totalPages, setTotalPages] = useState(1)
 
-  useEffect(()=>{
+  useEffect(() => {
 
-    if(!title) return
+    if (!title) return
 
     setLoading(true)
 
     fetch(`/api/search?title=${title}&page=${page}`)
-      .then(res=>res.json())
-      .then(data=>{
+      .then(res => res.json())
+      .then(data => {
 
         setJobs(data.jobs || [])
         setTotalPages(data.totalPages || 1)
@@ -28,15 +28,45 @@ export default function TitleJobsPage() {
         setLoading(false)
 
       })
+      .catch(() => setLoading(false))
 
-  },[title,page])
+  }, [title, page])
 
   const formattedTitle = title
-    ? title.replace(/-/g," ")
+    ? title.replace(/-/g, " ")
     : ""
 
-  const goToPage = (p)=>{
+  const baseUrl = "https://www.freshjobs.store"
+
+  const canonicalUrl =
+    Number(page) > 1
+      ? `${baseUrl}/jobs/title/${title}?page=${page}`
+      : `${baseUrl}/jobs/title/${title}`
+
+  const prevUrl =
+    Number(page) > 1
+      ? `${baseUrl}/jobs/title/${title}?page=${Number(page) - 1}`
+      : null
+
+  const nextUrl =
+    Number(page) < totalPages
+      ? `${baseUrl}/jobs/title/${title}?page=${Number(page) + 1}`
+      : null
+
+  const goToPage = (p) => {
     router.push(`/jobs/title/${title}?page=${p}`)
+  }
+
+  /* ✅ ItemList Schema (SEO BOOST) */
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: jobs.map((job, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: `${baseUrl}/job/${job.slug}`,
+      name: job.title,
+    })),
   }
 
   return (
@@ -53,43 +83,52 @@ export default function TitleJobsPage() {
           content={`Find latest ${formattedTitle} jobs in India. Apply for top companies hiring ${formattedTitle} jobs. Updated daily on FreshJobs.`}
         />
 
-        <meta
-          name="robots"
-          content="index,follow"
-        />
+        <meta name="robots" content="index,follow" />
 
-        <link
-          rel="canonical"
-          href={`https://www.freshjobs.store/jobs/title/${title}`}
+        <link rel="canonical" href={canonicalUrl} />
+        {prevUrl && <link rel="prev" href={prevUrl} />}
+        {nextUrl && <link rel="next" href={nextUrl} />}
+
+        {/* ✅ Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(itemListSchema),
+          }}
         />
 
       </Head>
 
-      <div style={{padding:"20px",maxWidth:"900px",margin:"auto"}}>
+      <div style={{ padding: "20px", maxWidth: "900px", margin: "auto" }}>
 
-        <h1 style={{marginBottom:"20px"}}>
+        <h1 style={{ marginBottom: "20px" }}>
           Latest {formattedTitle} Jobs
         </h1>
 
+        {/* ✅ SEO Intro Content */}
+        <p style={{ marginBottom: "20px", color: "#555" }}>
+          Find the latest {formattedTitle} jobs in India. FreshJobs updates new openings daily from trusted sources so you can quickly apply to the best opportunities.
+        </p>
+
         {loading && <p>Loading jobs...</p>}
 
-        {!loading && jobs.length===0 && (
+        {!loading && jobs.length === 0 && (
           <p>No jobs found.</p>
         )}
 
-        {jobs.map(job=>(
+        {jobs.map(job => (
 
           <div
             key={job.slug}
             style={{
-              border:"1px solid #e5e7eb",
-              padding:"18px",
-              marginBottom:"15px",
-              borderRadius:"8px"
+              border: "1px solid #e5e7eb",
+              padding: "18px",
+              marginBottom: "15px",
+              borderRadius: "8px"
             }}
           >
 
-            <h2 style={{fontSize:"20px"}}>
+            <h2 style={{ fontSize: "20px" }}>
               {job.title}
             </h2>
 
@@ -104,8 +143,8 @@ export default function TitleJobsPage() {
             <a
               href={`/job/${job.slug}`}
               style={{
-                color:"#2563eb",
-                fontWeight:"600"
+                color: "#2563eb",
+                fontWeight: "600"
               }}
             >
               View Job Details
@@ -119,19 +158,19 @@ export default function TitleJobsPage() {
 
         {totalPages > 1 && (
 
-          <div style={{marginTop:"30px"}}>
+          <div style={{ marginTop: "30px" }}>
 
-            {Array.from({length:totalPages},(_,i)=>i+1).map(p=>(
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
               <button
                 key={p}
-                onClick={()=>goToPage(p)}
+                onClick={() => goToPage(p)}
                 style={{
-                  marginRight:"8px",
-                  padding:"8px 12px",
-                  border:"1px solid #ddd",
-                  background:p==page ? "#2563eb" : "#fff",
-                  color:p==page ? "#fff" : "#000",
-                  cursor:"pointer"
+                  marginRight: "8px",
+                  padding: "8px 12px",
+                  border: "1px solid #ddd",
+                  background: p == page ? "#2563eb" : "#fff",
+                  color: p == page ? "#fff" : "#000",
+                  cursor: "pointer"
                 }}
               >
                 {p}
