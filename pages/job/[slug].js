@@ -103,7 +103,10 @@ export default function JobDetailPage({ job, siteUrl }) {
       "@type": "Place",
       address: {
         "@type": "PostalAddress",
+        streetAddress: "Not Available",   // ✅ FIX
         addressLocality: location,
+        addressRegion: location,          // ✅ FIX
+        postalCode: "000000",             // ✅ FIX
         addressCountry: "IN",
       },
     },
@@ -147,18 +150,15 @@ export default function JobDetailPage({ job, siteUrl }) {
 
         <link rel="canonical" href={canonicalUrl} />
 
-        {/* Open Graph (SEO Boost) */}
         <meta property="og:title" content={`${title} at ${company}`} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
 
-        {/* Twitter SEO */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${title} at ${company}`} />
         <meta name="twitter:description" content={description} />
 
-        {/* Google Jobs Schema */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
