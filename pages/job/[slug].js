@@ -19,7 +19,7 @@ const extractSalaryNumber = (value = "") =>
 
 /* ---------------- Page ---------------- */
 
-export default function JobDetailPage({ job, siteUrl }) {
+export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
 
   if (!job) {
     return (
@@ -62,7 +62,7 @@ export default function JobDetailPage({ job, siteUrl }) {
   const canonicalSlug =
     job.slug || normalizeSlug(`${job.title} ${job.company}`)
 
-  // ✅ FORCE NO TRAILING SLASH
+  // ✅ REMOVE TRAILING SLASH
   const cleanSlug = canonicalSlug.replace(/\/$/, "")
 
   const canonicalUrl = `${siteUrl}/job/${cleanSlug}`
@@ -151,25 +151,18 @@ export default function JobDetailPage({ job, siteUrl }) {
           content={`Apply for ${title} job at ${company} in ${location}.`}
         />
 
-        {/* ✅ FORCE INDEX */}
+        {/* ✅ FIX INDEXING */}
         <meta name="robots" content="index, follow" />
 
-        {/* ✅ CANONICAL FIX */}
         <link rel="canonical" href={canonicalUrl} />
 
-        {/* ✅ OPEN GRAPH */}
         <meta property="og:title" content={`${title} at ${company}`} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="FreshJobs" />
 
-        {/* ✅ TWITTER */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${title} at ${company}`} />
-        <meta name="twitter:description" content={description} />
 
-        {/* ✅ SCHEMA */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -179,22 +172,18 @@ export default function JobDetailPage({ job, siteUrl }) {
 
       </Head>
 
+      {/* Breadcrumb */}
       <div className="text-sm mb-5 text-gray-600">
-
         <Link href="/">Home</Link>
-
         {" › "}
-
         <Link href={`/jobs/${categorySlug}/india`}>
           {job.category || "Jobs"}
         </Link>
-
         {" › "}
-
         <span className="font-medium">{title}</span>
-
       </div>
 
+      {/* Title */}
       <h1 className="text-2xl md:text-3xl font-bold mb-2">
         {title}
       </h1>
@@ -209,8 +198,8 @@ export default function JobDetailPage({ job, siteUrl }) {
         </p>
       )}
 
+      {/* Description */}
       <div className="bg-white border rounded-lg p-5 mb-6">
-
         <h2 className="font-semibold mb-3 text-lg">
           Job Description
         </h2>
@@ -218,11 +207,10 @@ export default function JobDetailPage({ job, siteUrl }) {
         <p className="text-gray-700 whitespace-pre-line leading-relaxed">
           {description}
         </p>
-
       </div>
 
+      {/* Apply */}
       {applyLink && (
-
         <a
           href={applyLink}
           target="_blank"
@@ -231,7 +219,27 @@ export default function JobDetailPage({ job, siteUrl }) {
         >
           Apply on Official Website →
         </a>
+      )}
 
+      {/* ✅ NEW: SIMILAR JOBS (VERY IMPORTANT FOR INDEXING) */}
+      {relatedJobs.length > 0 && (
+        <div className="mt-10">
+          <h2 className="text-xl font-bold mb-4">
+            Similar Jobs
+          </h2>
+
+          <div className="grid gap-3">
+            {relatedJobs.slice(0, 5).map((item, i) => (
+              <Link
+                key={i}
+                href={`/job/${item.slug}`}
+                className="block border p-3 rounded hover:bg-gray-50"
+              >
+                {item.title}
+              </Link>
+            ))}
+          </div>
+        </div>
       )}
 
     </div>
@@ -259,6 +267,7 @@ export async function getServerSideProps({ params }) {
     return {
       props: {
         job: data.job || null,
+        relatedJobs: data.relatedJobs || [], // ✅ IMPORTANT
         siteUrl,
       },
     }
@@ -268,6 +277,7 @@ export async function getServerSideProps({ params }) {
     return {
       props: {
         job: null,
+        relatedJobs: [],
         siteUrl,
       },
     }
