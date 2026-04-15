@@ -62,7 +62,10 @@ export default function JobDetailPage({ job, siteUrl }) {
   const canonicalSlug =
     job.slug || normalizeSlug(`${job.title} ${job.company}`)
 
-  const canonicalUrl = `${siteUrl}/job/${canonicalSlug}`
+  // ✅ FORCE NO TRAILING SLASH
+  const cleanSlug = canonicalSlug.replace(/\/$/, "")
+
+  const canonicalUrl = `${siteUrl}/job/${cleanSlug}`
 
   const categorySlug = normalizeSlug(job.category || "jobs")
 
@@ -81,7 +84,7 @@ export default function JobDetailPage({ job, siteUrl }) {
     identifier: {
       "@type": "PropertyValue",
       name: company,
-      value: canonicalSlug,
+      value: cleanSlug,
     },
 
     datePosted: job.datePosted || new Date().toISOString(),
@@ -103,10 +106,10 @@ export default function JobDetailPage({ job, siteUrl }) {
       "@type": "Place",
       address: {
         "@type": "PostalAddress",
-        streetAddress: "Not Available",   // ✅ FIX
+        streetAddress: "Not Available",
         addressLocality: location,
-        addressRegion: location,          // ✅ FIX
-        postalCode: "000000",             // ✅ FIX
+        addressRegion: location,
+        postalCode: "000000",
         addressCountry: "IN",
       },
     },
@@ -148,17 +151,25 @@ export default function JobDetailPage({ job, siteUrl }) {
           content={`Apply for ${title} job at ${company} in ${location}.`}
         />
 
+        {/* ✅ FORCE INDEX */}
+        <meta name="robots" content="index, follow" />
+
+        {/* ✅ CANONICAL FIX */}
         <link rel="canonical" href={canonicalUrl} />
 
+        {/* ✅ OPEN GRAPH */}
         <meta property="og:title" content={`${title} at ${company}`} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="FreshJobs" />
 
+        {/* ✅ TWITTER */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${title} at ${company}`} />
         <meta name="twitter:description" content={description} />
 
+        {/* ✅ SCHEMA */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
