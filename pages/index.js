@@ -188,12 +188,12 @@ export default function Home({ initialJobs }) {
       <Head>
 
         <title>
-          Latest Jobs in India & Worldwide 2026 | Remote Jobs | FreshJobs
+          Latest Jobs in India, Remote & Worldwide | FreshJobs
         </title>
 
         <meta
           name="description"
-          content="Find latest jobs in India and worldwide including remote jobs, work from home jobs, IT jobs, banking jobs, engineering jobs, government jobs and more."
+          content="Find latest jobs in India, remote work from home jobs, and worldwide career opportunities. Explore IT jobs, banking jobs, government jobs, engineering jobs and more updated daily."
         />
 
         <meta name="robots" content="index,follow"/>
@@ -202,12 +202,12 @@ export default function Home({ initialJobs }) {
 
         <meta
           property="og:title"
-          content="Latest Jobs in India & Worldwide | FreshJobs"
+          content="Latest Jobs in India, Remote & Worldwide | FreshJobs"
         />
 
         <meta
           property="og:description"
-          content="Explore latest job openings in India and worldwide including remote jobs, work from home jobs, IT, banking and government sectors."
+          content="Explore latest jobs in India, remote work from home jobs, and worldwide career opportunities updated daily."
         />
 
         <meta property="og:url" content="https://www.freshjobs.store/"/>
@@ -228,7 +228,7 @@ export default function Home({ initialJobs }) {
       {/* HERO */}
       <section className="text-center my-10">
         <h1 className="text-3xl md:text-4xl font-bold mb-3">
-          Find Latest Jobs in India & Worldwide
+          Find Latest Jobs in India, Remote & Worldwide
         </h1>
 
         <p className="text-gray-600 max-w-2xl mx-auto">
