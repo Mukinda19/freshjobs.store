@@ -24,7 +24,7 @@ export default function InternationalJobs({
       {
         "@type": "ListItem",
         position: 2,
-        name: "International Jobs",
+        name: "Worldwide Jobs",
         item: pageUrl,
       },
     ],
@@ -34,9 +34,9 @@ export default function InternationalJobs({
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "International Jobs 2026",
+    name: "Worldwide Jobs 2026",
     description:
-      "Latest international job openings across USA, UAE, Canada, UK and other global destinations.",
+      "Latest worldwide job openings across USA, UAE, Canada, UK and other global destinations including remote opportunities.",
     url: pageUrl,
   }
 
@@ -47,7 +47,7 @@ export default function InternationalJobs({
     mainEntity: [
       {
         "@type": "Question",
-        name: "How can I apply for international jobs?",
+        name: "How can I apply for worldwide jobs?",
         acceptedAnswer: {
           "@type": "Answer",
           text: "You can apply directly through the official job source link provided inside each job listing.",
@@ -55,15 +55,15 @@ export default function InternationalJobs({
       },
       {
         "@type": "Question",
-        name: "Which countries are included in international jobs?",
+        name: "Which countries are included in worldwide jobs?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "International jobs include opportunities from USA, UAE, Canada, UK, Europe and other global locations.",
+          text: "Worldwide jobs include opportunities from USA, UAE, Canada, UK, Europe and other global locations.",
         },
       },
       {
         "@type": "Question",
-        name: "Are international jobs verified?",
+        name: "Are worldwide jobs verified?",
         acceptedAnswer: {
           "@type": "Answer",
           text: "Yes, we list verified global job opportunities sourced from trusted employers and official platforms.",
@@ -76,12 +76,12 @@ export default function InternationalJobs({
     <>
       <Head>
         <title>
-          International Jobs 2026 | USA, UAE, Canada & Global Careers
+          Worldwide Jobs 2026 | Remote, USA, UAE, Canada & Global Careers
         </title>
 
         <meta
           name="description"
-          content="Find latest international jobs in USA, UAE, Canada, UK and other countries. Apply for verified global career opportunities updated daily."
+          content="Find latest worldwide jobs in USA, UAE, Canada, UK and other countries. Apply for verified remote and global career opportunities updated daily."
         />
 
         <meta name="robots" content="index, follow" />
@@ -89,10 +89,10 @@ export default function InternationalJobs({
 
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="International Jobs 2026" />
+        <meta property="og:title" content="Worldwide Jobs 2026" />
         <meta
           property="og:description"
-          content="Latest verified international job openings worldwide."
+          content="Latest verified worldwide job openings and remote opportunities."
         />
         <meta property="og:url" content={pageUrl} />
         <meta property="og:site_name" content="FreshJobs" />
@@ -119,23 +119,23 @@ export default function InternationalJobs({
         <Breadcrumb
           items={[
             { label: "Home", href: "/" },
-            { label: "International Jobs" },
+            { label: "Worldwide Jobs" },
           ]}
         />
 
         <h1 className="text-3xl font-bold mb-4">
-          International Jobs & Global Career Opportunities
+          Worldwide Jobs & Global Career Opportunities
         </h1>
 
         <p className="mb-6 text-gray-700 max-w-3xl">
-          Explore verified international job openings across USA, UAE,
-          Canada, UK and other countries. Updated regularly to help
-          you find trusted global career opportunities.
+          Explore verified worldwide job openings across USA, UAE,
+          Canada, UK and other countries including remote roles.
+          Updated regularly to help you find trusted global careers.
         </p>
 
         {jobs.length === 0 && (
           <p className="text-red-500">
-            No international jobs available right now.
+            No worldwide jobs available right now.
           </p>
         )}
 
@@ -145,7 +145,7 @@ export default function InternationalJobs({
           ))}
         </div>
 
-        {/* ✅ 1–10 Pagination */}
+        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 flex-wrap gap-2">
             <span className="px-3 py-2 border rounded bg-blue-600 text-white">
@@ -199,7 +199,7 @@ export default function InternationalJobs({
   )
 }
 
-/* ✅ STATIC GENERATION */
+/* STATIC GENERATION */
 export async function getStaticProps() {
   try {
     const siteUrl =
