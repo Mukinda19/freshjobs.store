@@ -187,19 +187,29 @@ export default function Home({ initialJobs }) {
 
       <Head>
 
-        <title>Latest Jobs in India 2026 | FreshJobs</title>
+        <title>
+          Latest Jobs in India & Worldwide 2026 | Remote Jobs | FreshJobs
+        </title>
 
         <meta
           name="description"
-          content="Find latest jobs in India including IT jobs, banking jobs, BPO jobs, engineering jobs, government jobs and work from home jobs."
+          content="Find latest jobs in India and worldwide including remote jobs, work from home jobs, IT jobs, banking jobs, engineering jobs, government jobs and more."
         />
 
         <meta name="robots" content="index,follow"/>
 
         <link rel="canonical" href="https://www.freshjobs.store/" />
 
-        <meta property="og:title" content="Latest Jobs in India | FreshJobs"/>
-        <meta property="og:description" content="Explore thousands of latest job openings across IT, banking, BPO, engineering and government sectors."/>
+        <meta
+          property="og:title"
+          content="Latest Jobs in India & Worldwide | FreshJobs"
+        />
+
+        <meta
+          property="og:description"
+          content="Explore latest job openings in India and worldwide including remote jobs, work from home jobs, IT, banking and government sectors."
+        />
+
         <meta property="og:url" content="https://www.freshjobs.store/"/>
         <meta property="og:type" content="website"/>
         <meta property="og:site_name" content="FreshJobs"/>
@@ -218,11 +228,12 @@ export default function Home({ initialJobs }) {
       {/* HERO */}
       <section className="text-center my-10">
         <h1 className="text-3xl md:text-4xl font-bold mb-3">
-          Find Latest Jobs in India
+          Find Latest Jobs in India & Worldwide
         </h1>
+
         <p className="text-gray-600 max-w-2xl mx-auto">
           Discover the newest job openings across IT, banking,
-          BPO, engineering, government and work from home categories.
+          BPO, engineering, government, remote and work from home categories.
         </p>
       </section>
 
@@ -234,7 +245,7 @@ export default function Home({ initialJobs }) {
         <CategoryGrid/>
       </section>
 
-      {/* 🔥 NEW SEO SECTION (JOB TITLES) */}
+      {/* POPULAR SEARCHES */}
       <section className="max-w-6xl mx-auto px-4 my-10">
         <h2 className="text-xl font-semibold mb-6 text-center">
           Popular Job Searches
@@ -254,7 +265,7 @@ export default function Home({ initialJobs }) {
 
           <Link href="/jobs/title/work-from-home">Work From Home Jobs</Link>
           <Link href="/jobs/title/remote">Remote Jobs</Link>
-          <Link href="/jobs/title/digital-marketing">Digital Marketing Jobs</Link>
+          <Link href="/jobs/title/worldwide">Worldwide Jobs</Link>
           <Link href="/jobs/title/graphic-designer">Graphic Designer Jobs</Link>
 
           <Link href="/jobs/title/hr">HR Jobs</Link>
