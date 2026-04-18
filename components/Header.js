@@ -31,7 +31,7 @@ export default function Header() {
     "/work-from-home": "Work From Home",
     "/work-from-home/high-paying": "High Paying WFH",
     "/ai-jobs": "AI Jobs",
-    "/international-jobs": "International Jobs",
+    "/international-jobs": "Worldwide Jobs",
     "/government-jobs": "Government Jobs",
     "/resume-builder": "Resume Builder",
   }
@@ -87,7 +87,7 @@ export default function Header() {
             <Link href="/work-from-home" className={isActive("/work-from-home")}>Work From Home</Link>
             <Link href="/work-from-home/high-paying" className={isActive("/work-from-home/high-paying")}>High Paying WFH</Link>
             <Link href="/ai-jobs" className={isActive("/ai-jobs")}>AI Jobs</Link>
-            <Link href="/international-jobs" className={isActive("/international-jobs")}>International Jobs</Link>
+            <Link href="/international-jobs" className={isActive("/international-jobs")}>Worldwide Jobs</Link>
             <Link href="/government-jobs" className={isActive("/government-jobs")}>Government Jobs</Link>
             <Link href="/resume-builder" className={isActive("/resume-builder")}>Resume Builder</Link>
 
@@ -127,7 +127,7 @@ export default function Header() {
               ["Work From Home", "/work-from-home"],
               ["High Paying WFH", "/work-from-home/high-paying"],
               ["AI Jobs", "/ai-jobs"],
-              ["International Jobs", "/international-jobs"],
+              ["Worldwide Jobs", "/international-jobs"],
               ["Government Jobs", "/government-jobs"],
               ["Resume Builder", "/resume-builder"],
               ["Job Sources", "/job-sources"],
