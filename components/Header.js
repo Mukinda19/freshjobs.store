@@ -12,20 +12,17 @@ export default function Header() {
   const [isSticky, setIsSticky] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  /* ================= Sticky Header ================= */
   useEffect(() => {
     const onScroll = () => setIsSticky(window.scrollY > 30)
     window.addEventListener("scroll", onScroll)
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  /* ================= Active Menu ================= */
   const isActive = (path) =>
     pathname === path
       ? "text-green-400 font-semibold"
       : "hover:text-gray-300"
 
-  /* ================= Breadcrumb SEO ================= */
   const pageNameMap = {
     "/": "Home",
     "/work-from-home": "Work From Home",
@@ -33,6 +30,7 @@ export default function Header() {
     "/ai-jobs": "AI Jobs",
     "/international-jobs": "Worldwide Jobs",
     "/government-jobs": "Government Jobs",
+    "/free-job-alert": "Free Job Alert",
     "/resume-builder": "Resume Builder",
   }
 
@@ -77,6 +75,7 @@ export default function Header() {
         }`}
       >
         <div className="container mx-auto px-5 py-4 flex justify-between items-center">
+
           <Link href="/" className="text-2xl font-bold text-white">
             FreshJobs Store
           </Link>
@@ -89,12 +88,15 @@ export default function Header() {
             <Link href="/ai-jobs" className={isActive("/ai-jobs")}>AI Jobs</Link>
             <Link href="/international-jobs" className={isActive("/international-jobs")}>Worldwide Jobs</Link>
             <Link href="/government-jobs" className={isActive("/government-jobs")}>Government Jobs</Link>
+            <Link href="/free-job-alert" className={isActive("/free-job-alert")}>Free Job Alert</Link>
             <Link href="/resume-builder" className={isActive("/resume-builder")}>Resume Builder</Link>
 
             {/* More */}
             <div className="relative group">
               <button className="hover:text-yellow-300">More ▾</button>
+
               <div className="absolute right-0 mt-2 w-44 bg-white text-gray-800 rounded-lg shadow-lg text-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+
                 {[
                   ["Job Sources", "/job-sources"],
                   ["About", "/about"],
@@ -102,12 +104,18 @@ export default function Header() {
                   ["Privacy", "/privacy"],
                   ["Terms", "/terms"],
                 ].map(([label, link]) => (
-                  <Link key={link} href={link} className="block px-4 py-2 hover:bg-gray-100">
+                  <Link
+                    key={link}
+                    href={link}
+                    className="block px-4 py-2 hover:bg-gray-100"
+                  >
                     {label}
                   </Link>
                 ))}
+
               </div>
             </div>
+
           </nav>
 
           {/* Mobile */}
@@ -117,11 +125,13 @@ export default function Header() {
           >
             {mobileOpen ? "✖" : "☰"}
           </button>
+
         </div>
 
         {/* Mobile Menu */}
         {mobileOpen && (
           <div className="md:hidden bg-gray-800 text-white px-6 py-5 space-y-4 text-sm">
+
             {[
               ["Home", "/"],
               ["Work From Home", "/work-from-home"],
@@ -129,6 +139,7 @@ export default function Header() {
               ["AI Jobs", "/ai-jobs"],
               ["Worldwide Jobs", "/international-jobs"],
               ["Government Jobs", "/government-jobs"],
+              ["Free Job Alert", "/free-job-alert"],
               ["Resume Builder", "/resume-builder"],
               ["Job Sources", "/job-sources"],
               ["About", "/about"],
@@ -145,8 +156,10 @@ export default function Header() {
                 {label}
               </Link>
             ))}
+
           </div>
         )}
+
       </header>
 
       <div className="h-[80px]" />
