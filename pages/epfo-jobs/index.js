@@ -168,11 +168,21 @@ export async function getStaticProps() {
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    const res = await fetch(
+    /* 🔹 First Search EPFO Jobs */
+    let res = await fetch(
       `${siteUrl}/api/search?page=1&limit=10&q=epfo`
     )
 
-    const data = await res.json()
+    let data = await res.json()
+
+    /* 🔹 Fallback to Govt Jobs */
+    if (!data.jobs || data.jobs.length === 0) {
+      res = await fetch(
+        `${siteUrl}/api/search?category=govt-jobs&page=1&limit=10`
+      )
+
+      data = await res.json()
+    }
 
     return {
       props: {
