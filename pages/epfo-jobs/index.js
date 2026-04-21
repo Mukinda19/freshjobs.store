@@ -77,15 +77,23 @@ export default function EpfoJobs({
 
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbSchema),
+          }}
         />
+
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(collectionSchema),
+          }}
         />
+
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(itemListSchema),
+          }}
         />
       </Head>
 
@@ -161,7 +169,7 @@ export async function getStaticProps() {
       "https://www.freshjobs.store"
 
     const res = await fetch(
-      `${siteUrl}/api/search?category=govt-jobs&page=1&limit=10&q=epfo`
+      `${siteUrl}/api/search?page=1&limit=10&q=epfo`
     )
 
     const data = await res.json()

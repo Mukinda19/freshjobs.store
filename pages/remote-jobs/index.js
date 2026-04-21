@@ -19,7 +19,6 @@ export default function RemoteJobs({
   totalPages,
   siteUrl,
 }) {
-
   const router = useRouter()
 
   const currentPage = Number(router.query.page) || 1
@@ -31,7 +30,6 @@ export default function RemoteJobs({
       ? `${siteUrl}/remote-jobs?page=${currentPage}`
       : `${siteUrl}/remote-jobs`
 
-  /* ✅ Breadcrumb Schema */
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -54,7 +52,6 @@ export default function RemoteJobs({
   return (
     <>
       <Head>
-
         <title>
           Remote Jobs Worldwide 2026
           {currentPage > 1 ? ` | Page ${currentPage}` : ""} | FreshJobs
@@ -62,18 +59,18 @@ export default function RemoteJobs({
 
         <meta
           name="description"
-          content="Find latest remote jobs worldwide from global companies. Explore online jobs, flexible careers and verified work from anywhere opportunities."
+          content="Find latest remote jobs worldwide from global companies. Explore online jobs, work from home jobs and flexible careers updated daily."
         />
 
         <meta name="robots" content="index, follow" />
-
         <link rel="canonical" href={pageUrl} />
 
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbSchema),
+          }}
         />
-
       </Head>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -90,8 +87,8 @@ export default function RemoteJobs({
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Discover the latest <strong>remote jobs</strong>, work from anywhere
-          careers, online jobs and flexible global opportunities updated daily.
+          Discover latest remote jobs, online jobs,
+          flexible careers and work from home opportunities.
         </p>
 
         {jobs.length === 0 && (
@@ -103,7 +100,6 @@ export default function RemoteJobs({
         <div className="grid md:grid-cols-2 gap-4">
 
           {jobs.map((job, index) => {
-
             const slug =
               job.slug ||
               normalizeSlug(`${job.title || ""} ${job.company || ""}`)
@@ -111,14 +107,12 @@ export default function RemoteJobs({
             const description = cleanText(job.description || "")
 
             return (
-
               <article
                 key={job.link || slug || index}
                 className="border rounded-lg p-4 bg-white hover:shadow-md transition"
               >
 
                 <h2 className="font-semibold mb-1">
-
                   <Link
                     href={`/job/${slug}`}
                     prefetch={false}
@@ -126,7 +120,6 @@ export default function RemoteJobs({
                   >
                     {cleanText(job.title) || "Remote Job Opportunity"}
                   </Link>
-
                 </h2>
 
                 <p className="text-sm text-gray-500 mb-2">
@@ -151,17 +144,12 @@ export default function RemoteJobs({
                 )}
 
               </article>
-
             )
-
           })}
 
         </div>
 
-        {/* ✅ Pagination */}
-
         {totalPages > 1 && (
-
           <div className="flex justify-center mt-10 space-x-2 flex-wrap">
 
             {currentPage > 1 && (
@@ -173,22 +161,22 @@ export default function RemoteJobs({
               </Link>
             )}
 
-            {Array.from({ length: Math.min(7, totalPages) }, (_, i) => i + 1)
-              .map((page) => (
-
-                <Link
-                  key={page}
-                  href={`/remote-jobs?page=${page}`}
-                  className={`px-4 py-2 border rounded ${
-                    page === currentPage
-                      ? "bg-blue-600 text-white"
-                      : "hover:bg-gray-200"
-                  }`}
-                >
-                  {page}
-                </Link>
-
-              ))}
+            {Array.from(
+              { length: Math.min(7, totalPages) },
+              (_, i) => i + 1
+            ).map((page) => (
+              <Link
+                key={page}
+                href={`/remote-jobs?page=${page}`}
+                className={`px-4 py-2 border rounded ${
+                  page === currentPage
+                    ? "bg-blue-600 text-white"
+                    : "hover:bg-gray-200"
+                }`}
+              >
+                {page}
+              </Link>
+            ))}
 
             {currentPage < totalPages && (
               <Link
@@ -200,7 +188,6 @@ export default function RemoteJobs({
             )}
 
           </div>
-
         )}
 
       </main>
@@ -211,17 +198,15 @@ export default function RemoteJobs({
 /* ✅ SERVER SIDE */
 
 export async function getServerSideProps({ query }) {
-
   const page = Number(query.page) || 1
 
   try {
-
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://freshjobs.store"
 
     const response = await fetch(
-      `${siteUrl}/api/search?category=remote&page=${page}&limit=10`
+      `${siteUrl}/api/search?category=work-from-home&page=${page}&limit=10`
     )
 
     const data = await response.json()
@@ -233,9 +218,7 @@ export async function getServerSideProps({ query }) {
         siteUrl,
       },
     }
-
   } catch {
-
     return {
       props: {
         initialJobs: [],
@@ -243,7 +226,5 @@ export async function getServerSideProps({ query }) {
         siteUrl: "https://freshjobs.store",
       },
     }
-
   }
-
 }
