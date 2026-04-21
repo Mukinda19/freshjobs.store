@@ -13,18 +13,18 @@ export default function PrivateJobs({
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement": [
+    itemListElement: [
       {
         "@type": "ListItem",
-        position": 1,
-        name": "Home",
-        item": siteUrl,
+        position: 1,
+        name: "Home",
+        item: siteUrl,
       },
       {
         "@type": "ListItem",
-        position": 2,
-        name": "Private Jobs",
-        item": pageUrl,
+        position: 2,
+        name: "Private Jobs",
+        item: pageUrl,
       },
     ],
   }
@@ -77,15 +77,23 @@ export default function PrivateJobs({
 
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbSchema),
+          }}
         />
+
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(collectionSchema),
+          }}
         />
+
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(itemListSchema),
+          }}
         />
       </Head>
 
