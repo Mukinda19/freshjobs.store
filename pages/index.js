@@ -245,6 +245,37 @@ export default function Home({ initialJobs }) {
         <CategoryGrid/>
       </section>
 
+      {/* NEW CATEGORY LINKS */}
+      <section className="max-w-6xl mx-auto px-4 my-10">
+        <h2 className="text-xl font-semibold mb-6 text-center">
+          Explore More Job Categories
+        </h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+
+          <Link href="/remote-jobs" className="border rounded-lg p-4 hover:bg-gray-50">
+            Remote Jobs
+          </Link>
+
+          <Link href="/free-job-alert" className="border rounded-lg p-4 hover:bg-gray-50">
+            Free Job Alert
+          </Link>
+
+          <Link href="/private-jobs" className="border rounded-lg p-4 hover:bg-gray-50">
+            Private Jobs
+          </Link>
+
+          <Link href="/freshers-jobs" className="border rounded-lg p-4 hover:bg-gray-50">
+            Freshers Jobs
+          </Link>
+
+          <Link href="/epfo-jobs" className="border rounded-lg p-4 hover:bg-gray-50">
+            EPFO Jobs
+          </Link>
+
+        </div>
+      </section>
+
       {/* POPULAR SEARCHES */}
       <section className="max-w-6xl mx-auto px-4 my-10">
         <h2 className="text-xl font-semibold mb-6 text-center">
@@ -398,8 +429,6 @@ export default function Home({ initialJobs }) {
   )
 
 }
-
-/* -------- STATIC PROPS -------- */
 
 export async function getStaticProps(){
 
