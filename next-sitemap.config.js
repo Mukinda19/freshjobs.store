@@ -41,10 +41,22 @@ const CITY_PAGES = [
   "gurgaon"
 ]
 
+const STATIC_PAGES = [
+  "/",
+  "/work-from-home",
+  "/high-paying-wfh",
+  "/ai-jobs",
+  "/worldwide-jobs",
+  "/government-jobs",
+  "/free-job-alert",
+  "/private-jobs",
+  "/freshers-jobs",
+  "/epfo-jobs"
+]
+
 const config = {
   siteUrl: BASE_URL,
   generateRobotsTxt: true,
-
   sitemapSize: 5000,
 
   changefreq: "daily",
@@ -60,21 +72,9 @@ const config = {
 
   robotsTxtOptions: {
     policies: [
-      {
-        userAgent: "*",
-        allow: "/",
-      },
-      {
-        userAgent: "Googlebot",
-        allow: "/",
-      },
-      {
-        userAgent: "Googlebot-News",
-        allow: "/",
-      },
+      { userAgent: "*", allow: "/" }
     ],
 
-    // ✅ FIX: self sitemap हटाया
     additionalSitemaps: [
       `${BASE_URL}/sitemap-pages.xml`,
       `${BASE_URL}/sitemap-categories.xml`,
@@ -113,7 +113,15 @@ const config = {
         lastmod: new Date().toISOString(),
       }))
 
+      const staticPaths = STATIC_PAGES.map((page) => ({
+        loc: page,
+        changefreq: "daily",
+        priority: page === "/" ? 1.0 : 0.9,
+        lastmod: new Date().toISOString(),
+      }))
+
       return [
+        ...staticPaths,
         ...jobPaths,
         ...titlePaths,
         ...cityPaths
@@ -121,8 +129,7 @@ const config = {
 
     } catch (e) {
 
-      console.error("Sitemap Job Fetch Error:", e)
-
+      console.error("Sitemap Error:", e)
       return []
 
     }
