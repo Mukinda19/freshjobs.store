@@ -10,7 +10,6 @@ export default function FreshersJobs({
 }) {
   const pageUrl = `${siteUrl}/freshers-jobs`
 
-  /* ✅ Breadcrumb Schema */
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -30,7 +29,6 @@ export default function FreshersJobs({
     ],
   }
 
-  /* ✅ Collection Schema */
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -40,7 +38,6 @@ export default function FreshersJobs({
     url: pageUrl,
   }
 
-  /* ✅ ItemList Schema */
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -67,7 +64,6 @@ export default function FreshersJobs({
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={pageUrl} />
 
-        {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Latest Freshers Jobs 2026" />
         <meta
@@ -77,10 +73,8 @@ export default function FreshersJobs({
         <meta property="og:url" content={pageUrl} />
         <meta property="og:site_name" content="FreshJobs" />
 
-        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
 
-        {/* Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
@@ -126,7 +120,6 @@ export default function FreshersJobs({
           ))}
         </div>
 
-        {/* ✅ Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-10 flex-wrap gap-2">
 
@@ -147,12 +140,14 @@ export default function FreshersJobs({
               </Link>
             ))}
 
-            <Link
-              href="/freshers-jobs/page/2"
-              className="px-3 py-2 border rounded hover:bg-gray-200"
-            >
-              Next »
-            </Link>
+            {totalPages > 1 && (
+              <Link
+                href="/freshers-jobs/page/2"
+                className="px-3 py-2 border rounded hover:bg-gray-200"
+              >
+                Next »
+              </Link>
+            )}
 
           </div>
         )}
@@ -162,18 +157,38 @@ export default function FreshersJobs({
   )
 }
 
-/* ✅ STATIC GENERATION */
 export async function getStaticProps() {
   try {
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    const res = await fetch(
-      `${siteUrl}/api/search?category=freshers&page=1&limit=10`
+    let res = await fetch(
+      `${siteUrl}/api/search?page=1&limit=10&q=fresher`
     )
 
-    const data = await res.json()
+    let data = await res.json()
+
+    if (!data.jobs || data.jobs.length === 0) {
+      res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&q=entry level`
+      )
+      data = await res.json()
+    }
+
+    if (!data.jobs || data.jobs.length === 0) {
+      res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&q=trainee`
+      )
+      data = await res.json()
+    }
+
+    if (!data.jobs || data.jobs.length === 0) {
+      res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&q=graduate`
+      )
+      data = await res.json()
+    }
 
     return {
       props: {
@@ -183,6 +198,7 @@ export async function getStaticProps() {
       },
       revalidate: 1800,
     }
+
   } catch {
     return {
       props: {
