@@ -85,16 +85,11 @@ export default function Home({ initialJobs }) {
 
         setPage(1)
 
-      }
-
-      catch(err){
+      } catch(err){
 
         if(err.name !== "AbortError"){
-
           console.error("Search error:",err)
-
           setFilteredJobs([])
-
         }
 
       }
@@ -150,15 +145,11 @@ export default function Home({ initialJobs }) {
 
       setPage(nextPage)
 
-    }
-
-    catch(err){
+    } catch(err){
 
       console.error("Load more error:",err)
 
-    }
-
-    finally{
+    } finally{
 
       setLoading(false)
 
@@ -167,24 +158,20 @@ export default function Home({ initialJobs }) {
   }
 
   const structuredData = {
-
     "@context":"https://schema.org",
     "@type":"WebSite",
     "name":"FreshJobs",
     "url":"https://www.freshjobs.store",
-
     "potentialAction":{
       "@type":"SearchAction",
       "target":"https://www.freshjobs.store/jobs/all/india?q={search_term_string}",
       "query-input":"required name=search_term_string"
     }
-
   }
 
   return(
 
     <>
-
       <Head>
 
         <title>
@@ -253,10 +240,6 @@ export default function Home({ initialJobs }) {
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
 
-          <Link href="/remote-jobs" className="border rounded-lg p-4 hover:bg-gray-50">
-            Remote Jobs
-          </Link>
-
           <Link href="/free-job-alert" className="border rounded-lg p-4 hover:bg-gray-50">
             Free Job Alert
           </Link>
@@ -271,6 +254,10 @@ export default function Home({ initialJobs }) {
 
           <Link href="/epfo-jobs" className="border rounded-lg p-4 hover:bg-gray-50">
             EPFO Jobs
+          </Link>
+
+          <Link href="/jobs/title/digital-marketing" className="border rounded-lg p-4 hover:bg-gray-50">
+            Digital Marketing Jobs
           </Link>
 
         </div>
@@ -295,14 +282,14 @@ export default function Home({ initialJobs }) {
           <Link href="/jobs/title/data-entry">Data Entry Jobs</Link>
 
           <Link href="/jobs/title/work-from-home">Work From Home Jobs</Link>
-          <Link href="/jobs/title/remote">Remote Jobs</Link>
-          <Link href="/jobs/title/worldwide">Worldwide Jobs</Link>
           <Link href="/jobs/title/graphic-designer">Graphic Designer Jobs</Link>
-
+          <Link href="/jobs/title/worldwide">Worldwide Jobs</Link>
           <Link href="/jobs/title/hr">HR Jobs</Link>
+
           <Link href="/jobs/title/accountant">Accountant Jobs</Link>
           <Link href="/jobs/title/customer-support">Customer Support Jobs</Link>
           <Link href="/jobs/title/business-analyst">Business Analyst Jobs</Link>
+          <Link href="/jobs/title/seo">SEO Jobs</Link>
 
         </div>
       </section>
@@ -391,14 +378,12 @@ export default function Home({ initialJobs }) {
         <div className="grid md:grid-cols-2 gap-4">
 
           {filteredJobs.length > 0 ? (
-
             filteredJobs.map(job=>(
               <JobCard
                 key={job.slug || job.link}
                 job={job}
               />
             ))
-
           ) : (
             <p className="text-gray-500">
               No jobs found.
@@ -408,9 +393,7 @@ export default function Home({ initialJobs }) {
         </div>
 
         {filteredJobs.length >= 10 && (
-
           <div className="text-center mt-8">
-
             <button
               onClick={loadMore}
               disabled={loading}
@@ -418,9 +401,7 @@ export default function Home({ initialJobs }) {
             >
               {loading ? "Loading..." : "Load More Jobs"}
             </button>
-
           </div>
-
         )}
 
       </section>
@@ -453,9 +434,7 @@ export async function getStaticProps(){
       revalidate:900
     }
 
-  }
-
-  catch{
+  } catch{
 
     return{
       props:{
