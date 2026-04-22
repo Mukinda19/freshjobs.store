@@ -34,7 +34,7 @@ export default function EpfoJobs({
     "@type": "CollectionPage",
     name: "Latest EPFO Jobs 2026",
     description:
-      "Daily updated EPFO jobs, provident fund vacancies, recruitment notifications and official apply links in India.",
+      "Daily updated EPFO jobs, provident fund vacancies, SSA jobs, UDC jobs and recruitment notifications in India.",
     url: pageUrl,
   }
 
@@ -53,12 +53,12 @@ export default function EpfoJobs({
     <>
       <Head>
         <title>
-          Latest EPFO Jobs 2026 | Provident Fund Recruitment India
+          Latest EPFO Jobs 2026 | Provident Fund Recruitment
         </title>
 
         <meta
           name="description"
-          content="Find latest EPFO Jobs 2026 in India. Explore Provident Fund recruitment notifications, vacancies and official apply links updated daily."
+          content="Find latest EPFO Jobs 2026 in India. Explore EPFO SSA, UDC, Assistant and Provident Fund recruitment notifications with official apply links."
         />
 
         <meta name="robots" content="index, follow" />
@@ -68,7 +68,7 @@ export default function EpfoJobs({
         <meta property="og:title" content="Latest EPFO Jobs 2026" />
         <meta
           property="og:description"
-          content="Daily updated EPFO recruitment and provident fund vacancies in India."
+          content="Daily updated EPFO recruitment, SSA, UDC and provident fund vacancies in India."
         />
         <meta property="og:url" content={pageUrl} />
         <meta property="og:site_name" content="FreshJobs" />
@@ -111,8 +111,9 @@ export default function EpfoJobs({
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
-          Find latest EPFO jobs, provident fund recruitment notifications,
-          vacancies and official apply links updated regularly across India.
+          Find latest EPFO jobs including SSA, UDC, Assistant,
+          Provident Fund recruitment notifications and official
+          apply links updated regularly across India.
         </p>
 
         {jobs.length === 0 && (
@@ -147,12 +148,14 @@ export default function EpfoJobs({
               </Link>
             ))}
 
-            <Link
-              href="/epfo-jobs/page/2"
-              className="px-3 py-2 border rounded hover:bg-gray-200"
-            >
-              Next »
-            </Link>
+            {totalPages > 1 && (
+              <Link
+                href="/epfo-jobs/page/2"
+                className="px-3 py-2 border rounded hover:bg-gray-200"
+              >
+                Next »
+              </Link>
+            )}
 
           </div>
         )}
@@ -168,20 +171,26 @@ export async function getStaticProps() {
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    /* 🔹 First Search EPFO Jobs */
-    let res = await fetch(
-      `${siteUrl}/api/search?page=1&limit=10&q=epfo`
-    )
+    let data = { jobs: [], totalPages: 1 }
 
-    let data = await res.json()
+    const searches = [
+      "epfo",
+      "provident fund",
+      "ssa recruitment",
+      "udc recruitment",
+      "government jobs",
+    ]
 
-    /* 🔹 Fallback to Govt Jobs */
-    if (!data.jobs || data.jobs.length === 0) {
-      res = await fetch(
-        `${siteUrl}/api/search?category=govt-jobs&page=1&limit=10`
+    for (const keyword of searches) {
+      const res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&q=${encodeURIComponent(keyword)}`
       )
 
       data = await res.json()
+
+      if (data.jobs && data.jobs.length > 0) {
+        break
+      }
     }
 
     return {
@@ -192,6 +201,7 @@ export async function getStaticProps() {
       },
       revalidate: 1800,
     }
+
   } catch {
     return {
       props: {

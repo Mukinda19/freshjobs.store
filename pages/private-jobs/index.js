@@ -52,9 +52,7 @@ export default function PrivateJobs({
   return (
     <>
       <Head>
-        <title>
-          Latest Private Jobs 2026 | Company Jobs India
-        </title>
+        <title>Latest Private Jobs 2026 | Company Jobs India</title>
 
         <meta
           name="description"
@@ -147,12 +145,14 @@ export default function PrivateJobs({
               </Link>
             ))}
 
-            <Link
-              href="/private-jobs/page/2"
-              className="px-3 py-2 border rounded hover:bg-gray-200"
-            >
-              Next »
-            </Link>
+            {totalPages > 1 && (
+              <Link
+                href="/private-jobs/page/2"
+                className="px-3 py-2 border rounded hover:bg-gray-200"
+              >
+                Next »
+              </Link>
+            )}
 
           </div>
         )}
@@ -168,11 +168,32 @@ export async function getStaticProps() {
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    const res = await fetch(
-      `${siteUrl}/api/search?category=private-jobs&page=1&limit=10`
+    let res = await fetch(
+      `${siteUrl}/api/search?page=1&limit=10&q=private company`
     )
 
-    const data = await res.json()
+    let data = await res.json()
+
+    if (!data.jobs || data.jobs.length === 0) {
+      res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&q=IT jobs`
+      )
+      data = await res.json()
+    }
+
+    if (!data.jobs || data.jobs.length === 0) {
+      res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&q=BPO jobs`
+      )
+      data = await res.json()
+    }
+
+    if (!data.jobs || data.jobs.length === 0) {
+      res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&q=sales jobs`
+      )
+      data = await res.json()
+    }
 
     return {
       props: {
@@ -182,6 +203,7 @@ export async function getStaticProps() {
       },
       revalidate: 1800,
     }
+
   } catch {
     return {
       props: {

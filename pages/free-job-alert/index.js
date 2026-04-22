@@ -34,7 +34,7 @@ export default function FreeJobAlert({
     "@type": "CollectionPage",
     name: "Free Job Alert 2026",
     description:
-      "Latest free job alerts for government jobs, private jobs, railway jobs, banking jobs, freshers jobs, remote jobs and work from home jobs.",
+      "Latest free job alerts for government jobs, railway jobs, banking jobs, defence jobs and freshers jobs.",
     url: pageUrl,
   }
 
@@ -58,7 +58,7 @@ export default function FreeJobAlert({
         name: "Is Free Job Alert page updated daily?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes, latest jobs are updated regularly with new openings from government and private sectors.",
+          text: "Yes, latest jobs are updated regularly with new openings and notifications.",
         },
       },
       {
@@ -66,7 +66,7 @@ export default function FreeJobAlert({
         name: "Which jobs are available here?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Government jobs, private jobs, freshers jobs, banking jobs, railway jobs, remote jobs and work from home jobs.",
+          text: "Government jobs, railway jobs, banking jobs, defence jobs, freshers jobs and other career alerts.",
         },
       },
       {
@@ -84,12 +84,12 @@ export default function FreeJobAlert({
     <>
       <Head>
         <title>
-          Free Job Alert 2026 | Latest Govt, Private & Remote Jobs
+          Free Job Alert 2026 | Latest Govt Job Notifications
         </title>
 
         <meta
           name="description"
-          content="Get free job alerts for latest government jobs, private jobs, railway jobs, banking jobs, freshers jobs, remote jobs and work from home jobs updated daily."
+          content="Get free job alerts for latest government jobs, railway jobs, banking jobs, defence jobs and freshers jobs updated daily."
         />
 
         <meta name="robots" content="index, follow" />
@@ -98,11 +98,11 @@ export default function FreeJobAlert({
         <meta property="og:type" content="website" />
         <meta
           property="og:title"
-          content="Free Job Alert 2026 | Latest Jobs Daily"
+          content="Free Job Alert 2026 | Latest Govt Job Notifications"
         />
         <meta
           property="og:description"
-          content="Latest government, private, freshers and remote jobs updated daily."
+          content="Latest government, railway, banking and freshers job alerts updated daily."
         />
         <meta property="og:url" content={pageUrl} />
         <meta property="og:site_name" content="FreshJobs" />
@@ -145,13 +145,13 @@ export default function FreeJobAlert({
         />
 
         <h1 className="text-3xl font-bold mb-4">
-          Free Job Alert 2026 – Latest Jobs Updated Daily
+          Free Job Alert 2026 – Latest Job Notifications
         </h1>
 
         <p className="text-gray-600 mb-6 max-w-3xl">
           Find latest free job alerts including government jobs,
-          private jobs, banking jobs, railway jobs, freshers jobs,
-          remote jobs and work from home jobs with official apply links.
+          railway jobs, banking jobs, defence jobs and freshers jobs
+          with official apply links.
         </p>
 
         {jobs.length === 0 && (
@@ -186,12 +186,14 @@ export default function FreeJobAlert({
               </Link>
             ))}
 
-            <Link
-              href="/free-job-alert/page/2"
-              className="px-3 py-2 border rounded hover:bg-gray-200"
-            >
-              Next »
-            </Link>
+            {totalPages > 1 && (
+              <Link
+                href="/free-job-alert/page/2"
+                className="px-3 py-2 border rounded hover:bg-gray-200"
+              >
+                Next »
+              </Link>
+            )}
 
           </div>
         )}
@@ -206,16 +208,16 @@ export default function FreeJobAlert({
               Government Jobs
             </Link>
 
-            <Link href="/work-from-home" className="text-blue-600 underline">
-              Work From Home Jobs
+            <Link href="/freshers-jobs" className="text-blue-600 underline">
+              Freshers Jobs
             </Link>
 
-            <Link href="/international-jobs" className="text-blue-600 underline">
-              Worldwide Jobs
+            <Link href="/epfo-jobs" className="text-blue-600 underline">
+              EPFO Jobs
             </Link>
 
-            <Link href="/ai-jobs" className="text-blue-600 underline">
-              AI Jobs
+            <Link href="/remote-jobs" className="text-blue-600 underline">
+              Remote Jobs
             </Link>
           </div>
         </section>
@@ -231,11 +233,32 @@ export async function getStaticProps() {
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    const res = await fetch(
-      `${siteUrl}/api/search?page=1&limit=10`
+    let res = await fetch(
+      `${siteUrl}/api/search?page=1&limit=10&q=government job`
     )
 
-    const data = await res.json()
+    let data = await res.json()
+
+    if (!data.jobs || data.jobs.length === 0) {
+      res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&q=railway`
+      )
+      data = await res.json()
+    }
+
+    if (!data.jobs || data.jobs.length === 0) {
+      res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&q=banking`
+      )
+      data = await res.json()
+    }
+
+    if (!data.jobs || data.jobs.length === 0) {
+      res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&q=recruitment`
+      )
+      data = await res.json()
+    }
 
     return {
       props: {
@@ -245,6 +268,7 @@ export async function getStaticProps() {
       },
       revalidate: 1800,
     }
+
   } catch {
     return {
       props: {
