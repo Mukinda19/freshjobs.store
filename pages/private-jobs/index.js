@@ -145,14 +145,12 @@ export default function PrivateJobs({
               </Link>
             ))}
 
-            {totalPages > 1 && (
-              <Link
-                href="/private-jobs/page/2"
-                className="px-3 py-2 border rounded hover:bg-gray-200"
-              >
-                Next »
-              </Link>
-            )}
+            <Link
+              href="/private-jobs/page/2"
+              className="px-3 py-2 border rounded hover:bg-gray-200"
+            >
+              Next »
+            </Link>
 
           </div>
         )}
@@ -168,30 +166,34 @@ export async function getStaticProps() {
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    let res = await fetch(
-      `${siteUrl}/api/search?page=1&limit=10&q=private company`
-    )
+    let data = { jobs: [], totalPages: 1 }
 
-    let data = await res.json()
+    const searchQueries = [
+      "private jobs",
+      "company jobs",
+      "hiring",
+      "IT jobs",
+      "BPO jobs",
+      "sales jobs"
+    ]
 
-    if (!data.jobs || data.jobs.length === 0) {
-      res = await fetch(
-        `${siteUrl}/api/search?page=1&limit=10&q=IT jobs`
+    for (const query of searchQueries) {
+      const res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&q=${encodeURIComponent(query)}`
       )
+
       data = await res.json()
+
+      if (data.jobs && data.jobs.length > 0) {
+        break
+      }
     }
 
     if (!data.jobs || data.jobs.length === 0) {
-      res = await fetch(
-        `${siteUrl}/api/search?page=1&limit=10&q=BPO jobs`
+      const res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10`
       )
-      data = await res.json()
-    }
 
-    if (!data.jobs || data.jobs.length === 0) {
-      res = await fetch(
-        `${siteUrl}/api/search?page=1&limit=10&q=sales jobs`
-      )
       data = await res.json()
     }
 
