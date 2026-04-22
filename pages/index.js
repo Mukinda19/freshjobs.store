@@ -232,13 +232,17 @@ export default function Home({ initialJobs }) {
         <CategoryGrid/>
       </section>
 
-      {/* NEW CATEGORY LINKS */}
+      {/* EXPLORE MORE */}
       <section className="max-w-6xl mx-auto px-4 my-10">
         <h2 className="text-xl font-semibold mb-6 text-center">
           Explore More Job Categories
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+
+          <Link href="/remote-jobs" className="border rounded-lg p-4 hover:bg-gray-50">
+            Remote Jobs
+          </Link>
 
           <Link href="/free-job-alert" className="border rounded-lg p-4 hover:bg-gray-50">
             Free Job Alert
@@ -254,10 +258,6 @@ export default function Home({ initialJobs }) {
 
           <Link href="/epfo-jobs" className="border rounded-lg p-4 hover:bg-gray-50">
             EPFO Jobs
-          </Link>
-
-          <Link href="/jobs/title/digital-marketing" className="border rounded-lg p-4 hover:bg-gray-50">
-            Digital Marketing Jobs
           </Link>
 
         </div>
@@ -289,7 +289,7 @@ export default function Home({ initialJobs }) {
           <Link href="/jobs/title/accountant">Accountant Jobs</Link>
           <Link href="/jobs/title/customer-support">Customer Support Jobs</Link>
           <Link href="/jobs/title/business-analyst">Business Analyst Jobs</Link>
-          <Link href="/jobs/title/seo">SEO Jobs</Link>
+          <Link href="/jobs/title/digital-marketing">Digital Marketing Jobs</Link>
 
         </div>
       </section>
