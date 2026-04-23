@@ -103,6 +103,7 @@ export default function Header() {
                   ["Contact", "/contact"],
                   ["Privacy", "/privacy"],
                   ["Terms", "/terms"],
+                  ["Disclaimer", "/disclaimer"],
                 ].map(([label, link]) => (
                   <Link
                     key={link}
@@ -146,6 +147,7 @@ export default function Header() {
               ["Contact", "/contact"],
               ["Privacy", "/privacy"],
               ["Terms", "/terms"],
+              ["Disclaimer", "/disclaimer"],
             ].map(([label, link]) => (
               <Link
                 key={link}
