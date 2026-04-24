@@ -2,14 +2,6 @@
 User-agent: *
 Allow: /
 
-# Googlebot
-User-agent: Googlebot
-Allow: /
-
-# Googlebot-News
-User-agent: Googlebot-News
-Allow: /
-
 # Host
 Host: https://www.freshjobs.store
 
