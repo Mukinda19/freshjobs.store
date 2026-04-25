@@ -63,7 +63,7 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
             name="description"
             content="This job has expired. Explore latest active jobs, government jobs, private jobs and work from home jobs on FreshJobs."
           />
-          <meta name="robots" content="noindex, follow" />
+          <meta name="robots" content="index, follow" />
         </Head>
 
         <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-6 mb-8">
