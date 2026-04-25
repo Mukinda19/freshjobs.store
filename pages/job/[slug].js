@@ -59,48 +59,72 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
 
         <Head>
           <title>{readableTitle || "Job Expired"} | FreshJobs</title>
+
           <meta
             name="description"
-            content="This job has expired. Explore latest active jobs, government jobs, private jobs and work from home jobs on FreshJobs."
+            content="This job has expired. Browse latest live jobs, government jobs, private jobs and work from home jobs."
           />
+
           <meta name="robots" content="index, follow" />
+
+          <link
+            rel="canonical"
+            href={`${siteUrl}/job/${currentSlug}`}
+          />
         </Head>
 
+        {/* TOP NOTICE */}
         <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-6 mb-8">
 
-          <h1 className="text-3xl font-bold mb-3">
-            This Job Has Expired
+          <p className="text-sm font-semibold text-red-600 mb-2">
+            This job has expired.
+          </p>
+
+          <h1 className="text-3xl font-bold mb-4">
+            {readableTitle || "Previously Listed Job"}
           </h1>
 
-          <p className="text-gray-700 mb-3">
-            This job listing is no longer accepting applications or may have been removed.
-          </p>
-
-          {readableTitle && (
-            <p className="text-gray-800 font-medium mb-2">
-              Job Title: {readableTitle}
+          <div className="space-y-2 text-gray-700">
+            <p><strong>Company Name:</strong> Not Available</p>
+            <p><strong>Location:</strong> India</p>
+            <p><strong>Last Apply Date:</strong> Closed</p>
+            <p>
+              <strong>Short Description:</strong> This vacancy is no longer active.
             </p>
-          )}
-
-          <p className="text-sm text-gray-600">
-            Please check similar active job openings below.
-          </p>
+            <p>
+              <strong>Why Expired:</strong> Application deadline completed or employer removed listing.
+            </p>
+          </div>
 
         </div>
 
-        {/* Related Jobs */}
+        {/* RELATED LIVE JOBS */}
         <div className="mb-10">
           <h2 className="text-xl font-bold mb-4">
-            Latest Jobs You May Like
+            Related Live Jobs
           </h2>
 
           <div className="grid gap-3">
 
             <Link
+              href="/"
+              className="block border p-3 rounded hover:bg-gray-50"
+            >
+              Latest Jobs
+            </Link>
+
+            <Link
               href="/private-jobs"
               className="block border p-3 rounded hover:bg-gray-50"
             >
-              Latest Private Jobs
+              Similar Category Jobs
+            </Link>
+
+            <Link
+              href="/jobs/mumbai"
+              className="block border p-3 rounded hover:bg-gray-50"
+            >
+              Same City Jobs
             </Link>
 
             <Link
@@ -110,24 +134,10 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
               Government Jobs
             </Link>
 
-            <Link
-              href="/work-from-home"
-              className="block border p-3 rounded hover:bg-gray-50"
-            >
-              Work From Home Jobs
-            </Link>
-
-            <Link
-              href="/free-job-alert"
-              className="block border p-3 rounded hover:bg-gray-50"
-            >
-              Free Job Alert
-            </Link>
-
           </div>
         </div>
 
-        {/* Internal Links */}
+        {/* INTERNAL LINKS */}
         <div className="border-t pt-8">
           <h2 className="text-xl font-bold mb-4">
             Explore More Categories
@@ -139,7 +149,7 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
               href="/work-from-home"
               className="border rounded p-3 hover:bg-gray-50"
             >
-              Work From Home
+              Work From Home Jobs
             </Link>
 
             <Link
