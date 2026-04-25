@@ -1,6 +1,6 @@
 import Head from "next/head"
 import Link from "next/link"
-import { useEffect, useState } from "react" // ✅ ADDED
+import { useEffect, useState } from "react"
 
 /* ---------------- Helper Functions ---------------- */
 
@@ -18,22 +18,25 @@ const stripHtml = (text = "") =>
 const extractSalaryNumber = (value = "") =>
   String(value).replace(/[^\d]/g, "")
 
+const slugToTitle = (slug = "") =>
+  String(slug)
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+
 /* ---------------- Page ---------------- */
 
 export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
-
-  // ✅ BACKUP SIMILAR JOBS (client side)
   const [similarJobs, setSimilarJobs] = useState([])
 
   useEffect(() => {
     if (!job?.category) return
 
     fetch(`/api/search?category=${job.category}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.jobs) {
           const filtered = data.jobs
-            .filter(j => j.slug !== job.slug)
+            .filter((j) => j.slug !== job.slug)
             .slice(0, 5)
 
           setSimilarJobs(filtered)
@@ -41,33 +44,133 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
       })
   }, [job])
 
+  /* ---------------- EXPIRED PAGE ---------------- */
+
   if (!job) {
+    const currentSlug =
+      typeof window !== "undefined"
+        ? window.location.pathname.split("/job/")[1] || ""
+        : ""
+
+    const readableTitle = slugToTitle(currentSlug)
+
     return (
-      <div className="max-w-3xl mx-auto p-6 text-center">
+      <div className="max-w-4xl mx-auto p-6">
 
         <Head>
-          <title>Job Expired | FreshJobs</title>
+          <title>{readableTitle || "Job Expired"} | FreshJobs</title>
+          <meta
+            name="description"
+            content="This job has expired. Explore latest active jobs, government jobs, private jobs and work from home jobs on FreshJobs."
+          />
           <meta name="robots" content="noindex, follow" />
         </Head>
 
-        <h1 className="text-2xl font-bold mb-4">
-          This Job Is No Longer Available
-        </h1>
+        <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-6 mb-8">
 
-        <p className="mb-6">
-          This job listing may have expired or been removed.
-        </p>
+          <h1 className="text-3xl font-bold mb-3">
+            This Job Has Expired
+          </h1>
 
-        <Link
-          href="/"
-          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold"
-        >
-          Browse Latest Jobs
-        </Link>
+          <p className="text-gray-700 mb-3">
+            This job listing is no longer accepting applications or may have been removed.
+          </p>
+
+          {readableTitle && (
+            <p className="text-gray-800 font-medium mb-2">
+              Job Title: {readableTitle}
+            </p>
+          )}
+
+          <p className="text-sm text-gray-600">
+            Please check similar active job openings below.
+          </p>
+
+        </div>
+
+        {/* Related Jobs */}
+        <div className="mb-10">
+          <h2 className="text-xl font-bold mb-4">
+            Latest Jobs You May Like
+          </h2>
+
+          <div className="grid gap-3">
+
+            <Link
+              href="/private-jobs"
+              className="block border p-3 rounded hover:bg-gray-50"
+            >
+              Latest Private Jobs
+            </Link>
+
+            <Link
+              href="/government-jobs"
+              className="block border p-3 rounded hover:bg-gray-50"
+            >
+              Government Jobs
+            </Link>
+
+            <Link
+              href="/work-from-home"
+              className="block border p-3 rounded hover:bg-gray-50"
+            >
+              Work From Home Jobs
+            </Link>
+
+            <Link
+              href="/free-job-alert"
+              className="block border p-3 rounded hover:bg-gray-50"
+            >
+              Free Job Alert
+            </Link>
+
+          </div>
+        </div>
+
+        {/* Internal Links */}
+        <div className="border-t pt-8">
+          <h2 className="text-xl font-bold mb-4">
+            Explore More Categories
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+
+            <Link
+              href="/work-from-home"
+              className="border rounded p-3 hover:bg-gray-50"
+            >
+              Work From Home
+            </Link>
+
+            <Link
+              href="/government-jobs"
+              className="border rounded p-3 hover:bg-gray-50"
+            >
+              Government Jobs
+            </Link>
+
+            <Link
+              href="/ai-jobs"
+              className="border rounded p-3 hover:bg-gray-50"
+            >
+              AI Jobs
+            </Link>
+
+            <Link
+              href="/resume-builder"
+              className="border rounded p-3 hover:bg-gray-50"
+            >
+              Resume Builder
+            </Link>
+
+          </div>
+        </div>
 
       </div>
     )
   }
+
+  /* ---------------- LIVE JOB PAGE ---------------- */
 
   const title = job.title || "Latest Job Opening"
   const company = job.company || "Company"
@@ -92,75 +195,45 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
 
   const salaryNumber = extractSalaryNumber(salary)
 
-  /* ---------------- Schema ---------------- */
-
   const jobPostingSchema = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
-
-    title: title,
-    description: description,
+    title,
+    description,
     identifier: {
       "@type": "PropertyValue",
       name: company,
       value: cleanSlug,
     },
-
     datePosted: job.datePosted || new Date().toISOString(),
     validThrough:
       job.validThrough ||
       new Date(
         new Date().setMonth(new Date().getMonth() + 1)
       ).toISOString(),
-
     employmentType: job.type || "FULL_TIME",
-
     hiringOrganization: {
       "@type": "Organization",
       name: company,
       sameAs: siteUrl,
     },
-
     jobLocation: {
       "@type": "Place",
       address: {
         "@type": "PostalAddress",
-        streetAddress: "Not Available",
         addressLocality: location,
         addressRegion: location,
-        postalCode: "000000",
         addressCountry: "IN",
       },
     },
-
     directApply: true,
     url: canonicalUrl,
-
-    ...(applyLink && {
-      applicationContact: {
-        "@type": "ContactPoint",
-        url: applyLink,
-      },
-    }),
-
-    ...(salaryNumber && {
-      baseSalary: {
-        "@type": "MonetaryAmount",
-        currency: "INR",
-        value: {
-          "@type": "QuantitativeValue",
-          value: Number(salaryNumber),
-          unitText: "MONTH",
-        },
-      },
-    }),
   }
 
   return (
     <div className="max-w-4xl mx-auto p-4">
 
       <Head>
-
         <title>
           {title} at {company} ({location}) | FreshJobs
         </title>
@@ -174,20 +247,12 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
 
         <link rel="canonical" href={canonicalUrl} />
 
-        <meta property="og:title" content={`${title} at ${company}`} />
-        <meta property="og:description" content={description} />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:type" content="website" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(jobPostingSchema),
           }}
         />
-
       </Head>
 
       <div className="text-sm mb-5 text-gray-600">
@@ -235,7 +300,6 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
         </a>
       )}
 
-      {/* ✅ FINAL: SIMILAR JOBS (SERVER + CLIENT BACKUP) */}
       {(relatedJobs.length > 0 || similarJobs.length > 0) && (
         <div className="mt-10">
           <h2 className="text-xl font-bold mb-4">
@@ -265,7 +329,6 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
 /* ---------------- SERVER FETCH ---------------- */
 
 export async function getServerSideProps({ params }) {
-
   const slug = params.slug
 
   const siteUrl =
@@ -273,7 +336,6 @@ export async function getServerSideProps({ params }) {
     "https://www.freshjobs.store"
 
   try {
-
     const res = await fetch(
       `${siteUrl}/api/search?slug=${slug}`
     )
@@ -287,9 +349,7 @@ export async function getServerSideProps({ params }) {
         siteUrl,
       },
     }
-
   } catch {
-
     return {
       props: {
         job: null,
@@ -297,7 +357,5 @@ export async function getServerSideProps({ params }) {
         siteUrl,
       },
     }
-
   }
-
 }
