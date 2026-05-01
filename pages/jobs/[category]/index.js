@@ -144,6 +144,10 @@ export default function CategoryPage() {
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
+
+        {/* ✅ IMPORTANT FIX */}
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+
         <link rel="canonical" href={canonicalUrl} />
       </Head>
 
