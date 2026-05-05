@@ -73,9 +73,7 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
           />
         </Head>
 
-        {/* TOP NOTICE */}
         <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-6 mb-8">
-
           <p className="text-sm font-semibold text-red-600 mb-2">
             This job has expired.
           </p>
@@ -88,91 +86,16 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
             <p><strong>Company Name:</strong> Not Available</p>
             <p><strong>Location:</strong> India</p>
             <p><strong>Last Apply Date:</strong> Closed</p>
-            <p>
-              <strong>Short Description:</strong> This vacancy is no longer active.
-            </p>
-            <p>
-              <strong>Why Expired:</strong> Application deadline completed or employer removed listing.
-            </p>
           </div>
-
         </div>
 
-        {/* RELATED LIVE JOBS */}
         <div className="mb-10">
-          <h2 className="text-xl font-bold mb-4">
-            Related Live Jobs
-          </h2>
+          <h2 className="text-xl font-bold mb-4">Related Live Jobs</h2>
 
           <div className="grid gap-3">
-
-            <Link
-              href="/"
-              className="block border p-3 rounded hover:bg-gray-50"
-            >
-              Latest Jobs
-            </Link>
-
-            <Link
-              href="/private-jobs"
-              className="block border p-3 rounded hover:bg-gray-50"
-            >
-              Similar Category Jobs
-            </Link>
-
-            <Link
-              href="/jobs/mumbai"
-              className="block border p-3 rounded hover:bg-gray-50"
-            >
-              Same City Jobs
-            </Link>
-
-            <Link
-              href="/government-jobs"
-              className="block border p-3 rounded hover:bg-gray-50"
-            >
-              Government Jobs
-            </Link>
-
-          </div>
-        </div>
-
-        {/* INTERNAL LINKS */}
-        <div className="border-t pt-8">
-          <h2 className="text-xl font-bold mb-4">
-            Explore More Categories
-          </h2>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-
-            <Link
-              href="/work-from-home"
-              className="border rounded p-3 hover:bg-gray-50"
-            >
-              Work From Home Jobs
-            </Link>
-
-            <Link
-              href="/government-jobs"
-              className="border rounded p-3 hover:bg-gray-50"
-            >
-              Government Jobs
-            </Link>
-
-            <Link
-              href="/ai-jobs"
-              className="border rounded p-3 hover:bg-gray-50"
-            >
-              AI Jobs
-            </Link>
-
-            <Link
-              href="/resume-builder"
-              className="border rounded p-3 hover:bg-gray-50"
-            >
-              Resume Builder
-            </Link>
-
+            <Link href="/" className="block border p-3 rounded">Latest Jobs</Link>
+            <Link href="/private-jobs" className="block border p-3 rounded">Private Jobs</Link>
+            <Link href="/government-jobs" className="block border p-3 rounded">Government Jobs</Link>
           </div>
         </div>
 
@@ -199,44 +122,71 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
 
   const canonicalUrl = `${siteUrl}/job/${cleanSlug}`
 
-  const categorySlug = normalizeSlug(job.category || "jobs")
-
   const applyLink = job.link || job.applyLink || ""
 
   const salaryNumber = extractSalaryNumber(salary)
 
+  /* 🔥 FINAL OPTIMIZED SCHEMA */
+
   const jobPostingSchema = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
+
     title,
     description,
+
     identifier: {
       "@type": "PropertyValue",
       name: company,
       value: cleanSlug,
     },
+
     datePosted: job.datePosted || new Date().toISOString(),
+
     validThrough:
       job.validThrough ||
       new Date(
         new Date().setMonth(new Date().getMonth() + 1)
       ).toISOString(),
+
     employmentType: job.type || "FULL_TIME",
+
     hiringOrganization: {
       "@type": "Organization",
       name: company,
       sameAs: siteUrl,
     },
+
     jobLocation: {
       "@type": "Place",
       address: {
         "@type": "PostalAddress",
+        streetAddress: "Not Available",
         addressLocality: location,
         addressRegion: location,
+        postalCode: "000000",
         addressCountry: "IN",
       },
     },
+
+    ...(salaryNumber && {
+      baseSalary: {
+        "@type": "MonetaryAmount",
+        currency: "INR",
+        value: {
+          "@type": "QuantitativeValue",
+          value: Number(salaryNumber),
+          unitText: "MONTH",
+        },
+      },
+    }),
+
+    ...(job.category === "work-from-home" && {
+      jobLocationType: "TELECOMMUTE",
+    }),
+
     directApply: true,
+
     url: canonicalUrl,
   }
 
@@ -244,9 +194,7 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
     <div className="max-w-4xl mx-auto p-4">
 
       <Head>
-        <title>
-          {title} at {company} ({location}) | FreshJobs
-        </title>
+        <title>{title} at {company} ({location}) | FreshJobs</title>
 
         <meta
           name="description"
@@ -265,19 +213,7 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
         />
       </Head>
 
-      <div className="text-sm mb-5 text-gray-600">
-        <Link href="/">Home</Link>
-        {" › "}
-        <Link href={`/jobs/${categorySlug}/india`}>
-          {job.category || "Jobs"}
-        </Link>
-        {" › "}
-        <span className="font-medium">{title}</span>
-      </div>
-
-      <h1 className="text-2xl md:text-3xl font-bold mb-2">
-        {title}
-      </h1>
+      <h1 className="text-2xl font-bold mb-2">{title}</h1>
 
       <p className="text-gray-700 mb-3">
         {company} • {location}
@@ -290,11 +226,9 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
       )}
 
       <div className="bg-white border rounded-lg p-5 mb-6">
-        <h2 className="font-semibold mb-3 text-lg">
-          Job Description
-        </h2>
+        <h2 className="font-semibold mb-3 text-lg">Job Description</h2>
 
-        <p className="text-gray-700 whitespace-pre-line leading-relaxed">
+        <p className="text-gray-700 whitespace-pre-line">
           {description}
         </p>
       </div>
@@ -304,39 +238,17 @@ export default function JobDetailPage({ job, siteUrl, relatedJobs = [] }) {
           href={applyLink}
           target="_blank"
           rel="noopener noreferrer nofollow"
-          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold"
+          className="bg-blue-600 text-white px-6 py-3 rounded-lg"
         >
-          Apply on Official Website →
+          Apply →
         </a>
-      )}
-
-      {(relatedJobs.length > 0 || similarJobs.length > 0) && (
-        <div className="mt-10">
-          <h2 className="text-xl font-bold mb-4">
-            Similar Jobs
-          </h2>
-
-          <div className="grid gap-3">
-            {(relatedJobs.length > 0 ? relatedJobs : similarJobs)
-              .slice(0, 5)
-              .map((item, i) => (
-                <Link
-                  key={i}
-                  href={`/job/${item.slug}`}
-                  className="block border p-3 rounded hover:bg-gray-50"
-                >
-                  {item.title}
-                </Link>
-              ))}
-          </div>
-        </div>
       )}
 
     </div>
   )
 }
 
-/* ---------------- SERVER FETCH ---------------- */
+/* ---------------- SERVER ---------------- */
 
 export async function getServerSideProps({ params }) {
   const slug = params.slug
@@ -346,10 +258,7 @@ export async function getServerSideProps({ params }) {
     "https://www.freshjobs.store"
 
   try {
-    const res = await fetch(
-      `${siteUrl}/api/search?slug=${slug}`
-    )
-
+    const res = await fetch(`${siteUrl}/api/search?slug=${slug}`)
     const data = await res.json()
 
     return {
