@@ -35,6 +35,45 @@ export default function CategoryPage() {
 
   const readableCategory = category ? category.replace(/-/g, " ") : "";
 
+  /* -------- SEO CONTENT MAP (PROFESSIONAL ENGLISH) -------- */
+
+  const seoContent = {
+    "it": {
+      title: "Latest IT Jobs in India",
+      content: "The IT sector in India is one of the fastest-growing industries, offering roles such as software developer, web developer, frontend and backend developer, full stack engineer, and IT support specialist. Companies actively seek candidates skilled in technologies like React, Node.js, Python, Java, and cloud platforms. Both freshers and experienced professionals can find excellent career opportunities with high growth potential."
+    },
+    "banking": {
+      title: "Latest Banking Jobs in India",
+      content: "Banking jobs in India include roles such as Probationary Officer (PO), Clerk, Relationship Manager, and Financial Analyst. Opportunities are available in both government and private sector banks. These roles offer stable career growth, competitive salaries, and long-term job security."
+    },
+    "bpo": {
+      title: "Latest BPO Jobs in India",
+      content: "BPO jobs include roles in customer support, call centers, voice and non-voice processes, and back-office operations. These jobs are ideal for freshers looking to start their careers, with a strong focus on communication skills and customer handling."
+    },
+    "govt-jobs": {
+      title: "Latest Government Jobs in India",
+      content: "Government jobs in India are considered one of the most secure career options. Opportunities are available through SSC, UPSC, रेलवे, defence services, and public sector undertakings (PSUs). These jobs offer stability, benefits, and long-term growth."
+    },
+    "sales": {
+      title: "Latest Sales Jobs in India",
+      content: "Sales jobs include roles such as Sales Executive, Business Development Executive, and Marketing Specialist. These positions offer high earning potential through incentives and commissions, along with strong career growth opportunities."
+    },
+    "engineering": {
+      title: "Latest Engineering Jobs in India",
+      content: "Engineering jobs cover multiple domains such as mechanical, civil, electrical, and production engineering. These roles are in high demand across industries like manufacturing, construction, and infrastructure development."
+    },
+    "work-from-home": {
+      title: "Latest Work From Home Jobs",
+      content: "Work from home jobs provide flexible remote opportunities in areas such as freelancing, customer support, virtual assistance, and online services. These roles allow professionals to work with companies globally while maintaining work-life balance."
+    },
+    "ai-jobs": {
+      title: "Latest AI Jobs",
+      content: "Artificial Intelligence jobs are among the fastest-growing career opportunities, including roles such as Machine Learning Engineer, Data Scientist, and AI Developer. Skills in Python, data analysis, and AI frameworks are highly in demand."
+    }
+  };
+
+  const currentSEO = seoContent[category] || null;
+
   /* -------- Breadcrumb -------- */
 
   const breadcrumbItems = [
@@ -67,25 +106,17 @@ export default function CategoryPage() {
         const data = await res.json();
 
         if (!ignore) {
-
           setJobs(Array.isArray(data.jobs) ? data.jobs : []);
           setTotalPages(Number(data.totalPages) || 1);
-
         }
 
       } catch {
-
         if (!ignore) {
-
           setJobs([]);
           setTotalPages(1);
-
         }
-
       } finally {
-
         if (!ignore) setLoading(false);
-
       }
 
     };
@@ -109,8 +140,8 @@ export default function CategoryPage() {
     " | FreshJobs";
 
   const pageDescription = isSpecialCategory
-    ? `Browse latest ${readableCategory} jobs from global companies. Updated daily with verified remote opportunities.`
-    : `Find latest ${readableCategory} jobs in India. Apply online for verified private and government job openings with official application links.`;
+    ? `Browse latest ${readableCategory} jobs from global companies.`
+    : `Find latest ${readableCategory} jobs in India. Apply online easily.`;
 
   const canonicalUrl =
     currentPage > 1
@@ -144,14 +175,10 @@ export default function CategoryPage() {
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
-
-        {/* ✅ IMPORTANT FIX */}
         <meta name="robots" content="index, follow, max-image-preview:large" />
-
         <link rel="canonical" href={canonicalUrl} />
       </Head>
 
-      {/* Breadcrumb */}
       <Breadcrumb items={breadcrumbItems} />
 
       <h1 className="text-2xl font-bold mb-6 capitalize">
@@ -165,29 +192,35 @@ export default function CategoryPage() {
       )}
 
       <div className="grid md:grid-cols-2 gap-4">
-
         {jobs.map((job, index) => (
           <JobCard
             key={job.slug || job.id || index}
             job={job}
           />
         ))}
-
       </div>
+
+      {/* ✅ SEO CONTENT */}
+      {currentSEO && (
+        <div className="mt-10 bg-white border rounded-lg p-6">
+          <h2 className="text-xl font-bold mb-4">
+            {currentSEO.title}
+          </h2>
+          <p className="text-gray-700 leading-relaxed">
+            {currentSEO.content}
+          </p>
+        </div>
+      )}
 
       {!loading && totalPages > 1 && (
 
         <div className="flex gap-2 mt-8 flex-wrap items-center">
 
           {currentPage > 1 && (
-
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              className="px-3 py-1 border rounded hover:bg-gray-100"
-            >
+            <button onClick={() => goToPage(currentPage - 1)}
+              className="px-3 py-1 border rounded hover:bg-gray-100">
               Previous
             </button>
-
           )}
 
           <span className="px-3 py-1 border rounded bg-gray-50">
@@ -195,14 +228,10 @@ export default function CategoryPage() {
           </span>
 
           {currentPage < totalPages && (
-
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              className="px-3 py-1 border rounded hover:bg-gray-100"
-            >
+            <button onClick={() => goToPage(currentPage + 1)}
+              className="px-3 py-1 border rounded hover:bg-gray-100">
               Next
             </button>
-
           )}
 
         </div>
