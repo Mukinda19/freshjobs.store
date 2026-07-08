@@ -173,25 +173,11 @@ export async function getStaticProps() {
 
     let data = { jobs: [], totalPages: 1 }
 
-    const searches = [
-      "epfo",
-      "provident fund",
-      "ssa recruitment",
-      "udc recruitment",
-      "government jobs",
-    ]
+const res = await fetch(
+  `${siteUrl}/api/search?page=1&limit=10&q=epfo`
+)
 
-    for (const keyword of searches) {
-      const res = await fetch(
-        `${siteUrl}/api/search?page=1&limit=10&q=${encodeURIComponent(keyword)}`
-      )
-
-      data = await res.json()
-
-      if (data.jobs && data.jobs.length > 0) {
-        break
-      }
-    }
+data = await res.json()
 
     return {
       props: {
