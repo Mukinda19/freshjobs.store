@@ -167,14 +167,27 @@ export async function getStaticProps() {
       `${siteUrl}/api/search?page=1&limit=10&q=fresher`
     )
 
+  
+
     let data = await res.json()
 
     if (!data.jobs || data.jobs.length === 0) {
       res = await fetch(
-        `${siteUrl}/api/search?page=1&limit=10&q=entry level`
+        `${siteUrl}/api/search?page=1&limit=10&title=fresher`
       )
       data = await res.json()
     }
+
+    
+
+    if (!data.jobs || data.jobs.length === 0) {
+      res = await fetch(
+        `${siteUrl}/api/search?page=1&limit=10&title=entry-level`
+      )
+      data = await res.json()
+    }
+
+    
 
     if (!data.jobs || data.jobs.length === 0) {
       res = await fetch(
