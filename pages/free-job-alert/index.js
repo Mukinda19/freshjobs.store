@@ -234,17 +234,17 @@ export async function getStaticProps() {
       "https://www.freshjobs.store"
 
     let res = await fetch(
-      `${siteUrl}/api/search?page=1&limit=10&q=government job`
-    )
+  `${siteUrl}/api/search?page=1&limit=10&q=government job`
+)
 
-    let data = await res.json()
+let data = await res.json()
 
-    if (!data.jobs || data.jobs.length === 0) {
-      res = await fetch(
-        `${siteUrl}/api/search?page=1&limit=10&q=railway`
-      )
-      data = await res.json()
-    }
+if (!data.jobs || data.jobs.length === 0) {
+  res = await fetch(
+    `${siteUrl}/api/search?page=1&limit=10&category=govt-jobs`
+  )
+  data = await res.json()
+}
 
     if (!data.jobs || data.jobs.length === 0) {
       res = await fetch(
