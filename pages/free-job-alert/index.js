@@ -45,7 +45,7 @@ export default function FreeJobAlert({
       "@type": "ListItem",
       position: index + 1,
       name: job.title,
-      url: `${siteUrl}/job/${job.slug}`,
+      url: `${siteUrl}/jobs/${job.slug}`,
     })),
   }
 
@@ -216,7 +216,8 @@ export default function FreeJobAlert({
               EPFO Jobs
             </Link>
 
-            <Link href="/remote-jobs" className="text-blue-600 underline">
+            <Link href="/remo
+let data = await res.jsonte-jobs" className="text-blue-600 underline">
               Remote Jobs
             </Link>
           </div>
@@ -233,17 +234,27 @@ export async function getStaticProps() {
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    let res = await fetch(
-  `${siteUrl}/api/search?page=1&limit=10&q=government job`
-)
+    let data = { jobs: [], totalPages: 1 }
 
-let data = await res.json()
+const searches = [
+  "government job",
+  "govt jobs",
+  "railway",
+  "banking",
+  "defence",
+  "recruitment",
+]
 
-if (!data.jobs || data.jobs.length === 0) {
-  res = await fetch(
-    `${siteUrl}/api/search?page=1&limit=10&category=govt-jobs`
+for (const keyword of searches) {
+  const res = await fetch(
+    `${siteUrl}/api/search?page=1&limit=10&q=${encodeURIComponent(keyword)}`
   )
+
   data = await res.json()
+
+  if (data.jobs && data.jobs.length > 0) {
+    break
+  }
 }
 
     if (!data.jobs || data.jobs.length === 0) {
