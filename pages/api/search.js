@@ -352,7 +352,7 @@ export default async function handler(req,res){
 
     if(!cachedJobs || Date.now()-lastFetchTime > CACHE_DURATION){
 
-      const response = await fetch(`${SHEET_URL}?limit=1500`)
+      const response = await fetch(`${SHEET_URL}?limit=300`)
       const data = await response.json()
 
       let jobs = []
