@@ -166,36 +166,11 @@ export async function getStaticProps() {
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    let data = { jobs: [], totalPages: 1 }
+    const res = await fetch(
+      `${siteUrl}/api/search?page=1&limit=10`
+    )
 
-    const searchQueries = [
-      "private jobs",
-      "company jobs",
-      "hiring",
-      "IT jobs",
-      "BPO jobs",
-      "sales jobs"
-    ]
-
-    for (const query of searchQueries) {
-      const res = await fetch(
-        `${siteUrl}/api/search?page=1&limit=10&q=${encodeURIComponent(query)}`
-      )
-
-      data = await res.json()
-
-      if (data.jobs && data.jobs.length > 0) {
-        break
-      }
-    }
-
-    if (!data.jobs || data.jobs.length === 0) {
-      const res = await fetch(
-        `${siteUrl}/api/search?page=1&limit=10`
-      )
-
-      data = await res.json()
-    }
+    const data = await res.json()
 
     return {
       props: {
@@ -217,3 +192,4 @@ export async function getStaticProps() {
     }
   }
 }
+  
