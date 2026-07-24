@@ -234,42 +234,11 @@ export async function getStaticProps() {
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://www.freshjobs.store"
 
-    let data = { jobs: [], totalPages: 1 }
+    const res = await fetch(
+      `${siteUrl}/api/search?category=govt-jobs&page=1&limit=10`
+    )
 
-const searches = [
-  "government job",
-  "govt jobs",
-  "railway",
-  "banking",
-  "defence",
-  "recruitment",
-]
-
-for (const keyword of searches) {
-  const res = await fetch(
-    `${siteUrl}/api/search?page=1&limit=10&q=${encodeURIComponent(keyword)}`
-  )
-
-  data = await res.json()
-
-  if (data.jobs && data.jobs.length > 0) {
-    break
-  }
-}
-
-    if (!data.jobs || data.jobs.length === 0) {
-      res = await fetch(
-        `${siteUrl}/api/search?page=1&limit=10&q=banking`
-      )
-      data = await res.json()
-    }
-
-    if (!data.jobs || data.jobs.length === 0) {
-      res = await fetch(
-        `${siteUrl}/api/search?page=1&limit=10&q=recruitment`
-      )
-      data = await res.json()
-    }
+    const data = await res.json()
 
     return {
       props: {
